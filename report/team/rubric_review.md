@@ -8,6 +8,8 @@ V8 phát triển từ v4, thêm tool build_bibliography, đạt **20/20 base và
 
 UI chạy trên Windows qua run.ps1 tại http://127.0.0.1:8000/, đã mở trong trình duyệt, chat thật gọi bibliography và saved run hiện PASS đúng. Có transcript CLI 4 lượt bằng API thật. Pytest: **130 passed, 14 skipped, 0 failed**. Tuy vậy chưa thể kết luận toàn bộ repo đủ mọi rules hoặc đủ 100 điểm.
 
+Nhánh Lam được hợp nhất từ commit 54d010f và lưu cấu hình thành v9. Lượt đo riêng đạt 19/20 base, 9/10 group trên đúng dataset v8, đủ measured và 0 provider error. Theo điều kiện H9 ghi trước chạy, v9 chưa được chọn; mặc định vẫn là v8. Pytest sau hợp nhất giữ 130 passed, 14 skipped, 0 failed. Xem [H9](review_evidence/v9_hypothesis.md), [biên bản hợp nhất](review_evidence/merge_v9_review.json) và [pytest v9](review_evidence/pytest_v9.txt).
+
 ## Từng phiên bản
 
 | Bản | Base | Group | Lập luận từ prompt/tool YAML và run |
@@ -16,14 +18,17 @@ UI chạy trên Windows qua run.ps1 tại http://127.0.0.1:8000/, đã mở tron
 | v1 | 17/20 | — | Bỏ đoán, thêm clarify/xác nhận, quy ước lookup args; hỏi thừa R01/R05; R12 lệch response_type. No_tool không ngăn việc vẫn trả lời ngoài phạm vi ở R08/R14. |
 | v2 | 18/20 | — | Phân biệt dữ liệu thiết yếu với tùy chọn và thao tác đọc; M06 hồi quy, R12 vẫn lệch oracle. |
 | v3 (v2-tool cũ) | 19/20 | — | Thêm research_paper, nhưng base không gọi tool này; không quy tăng điểm riêng cho tool mới. |
-| v4 (v3 cũ) | 20/20 | 10/10 suite đã siết | Tách ý định chuẩn bị và duyệt nội dung; audit/alias. Group nguyên thủy là 9/10 trên dataset khác. |
+| v4 (v3 cũ) | 20/20 | 10/10 suite đã siết | Tách ý định chuẩn bị và duyệt nội dung; audit/alias. [Group nguyên thủy](../../starter_v0/runs/history/v4_original_suite/v4_B_group_openai_20261110T213600677281.json) là 9/10 trên dataset khác, giữ trong history. |
 | v5 | 19/20 | 10/10 | Hoàn thiện contract/routing/evidence nhưng R10 đoán tài khoản. |
 | v6 | 17/20 | 10/10 | Ràng buộc missing account gây hỏi thừa R01; R11 bỏ response_type; R12 lệch kiểu hỏi. |
 | v7 ban đầu | 18/20 | 9/10 | Rút gọn prompt; còn R10/R13 và G04 gửi sớm. Run/snapshot ở candidates. |
 | v7 H7A | 18/20 | 9/10 | Giả thuyết ghi trước chạy, dùng bảng quyết định/ví dụ đối chiếu; phát sinh gọi thêm social_search M02/M06 và sai route/args G06. Không đạt mục tiêu. |
 | v8, từ v4 | 20/20 | 10/10 suite v8 | Thêm một tool local chỉ dùng khi xuất bibliography, có H8 ghi trước chạy; không làm giảm base trong lượt này. |
+| v9, hợp nhất Lam vào v8 | 19/20 | 9/10 cùng suite v8 | Nhận quy tắc duyệt nội dung và từ chối theo nhiệm vụ; R12 dùng text thay yes_no, G04 thử send khi chưa duyệt và đã bị chặn. R08/R14 còn trả lời ngoài phạm vi dù no_tool PASS. Chưa chọn làm mặc định. |
 
 Xem version_log.csv và [số đo thật](review_evidence/version_summary.json). V8 lấy metric_before từ nhánh v4 (1.00), không từ v7 (0.90). Các vòng cùng thay prompt/description chỉ cho kết luận về cả cấu hình, không chứng minh tác động riêng từng câu. Một lượt 20/20 không chứng minh model ổn định ngoài suite/qua lần chạy khác.
+
+V9 giữ schema/mặc định, đủ 14 tool và toàn bộ dữ liệu eval; chỉ hợp nhất prompt cùng bốn mô tả clarify/send. Đóng góp của Lam được giữ bằng merge có hai parent, không squash hay đổi tác giả commit. Việc v9 có hồi quy và lỗi nội dung cho thấy H9 chưa được hỗ trợ trong lần đo này; không dùng kết quả v8 để nhận thay cho v9. Báo cáo nhóm giữ khung hiện hành, nhận phân tích của Lam và cập nhật link v2-tool cũ sang tên run v3. Báo cáo cá nhân/nhận xét riêng của các thành viên khác vẫn để họ tự điền.
 
 Các file run đổi tên nhưng giữ nguyên byte JSON; metadata version/run_id/artifact_version và đường dẫn nguồn bên trong có thể là tên cũ. v3 còn nhãn v2-tool, v4 gốc còn nhãn v3, v5/v6/v7 ban đầu còn nhãn v4. Hash và manifest giải thích ánh xạ. 19 run thăm dò đã xóa theo yêu cầu rõ ràng; không dùng chúng làm evidence. Các run chính và hồi quy vẫn còn.
 
@@ -64,7 +69,7 @@ Link localhost chứng minh UI local chạy, không thay public/demo URL. Chưa 
 |---|---|---|
 | C1, 10 điểm | v0 hợp lệ, hash/snapshot, 7 lỗi B2 | Chưa lưu preflight riêng; không tự chấm thay thầy. |
 | C2, 15 điểm | 14 tên tool v8, routing/boundary, contract test xanh | Thừa hưởng một số description mơ hồ/trust boundary chưa đầy đủ của v4; G04 cần review nguyên văn. Chưa nhận đủ C2. |
-| C3, 20 điểm | Đủ v0–v3, v4–v8 bổ sung, hash/run/metric/hypothesis | Rubric không bắt tăng điểm mỗi vòng; phải ghi đúng hồi quy. Một số vòng thay nhiều thứ. |
+| C3, 20 điểm | Đủ v0–v3, v4–v9 bổ sung, hash/run/metric/hypothesis | Rubric không bắt tăng điểm mỗi vòng; phải ghi đúng hồi quy. Một số vòng thay nhiều thứ. |
 | C4, 15 điểm | Tool mới v8 đủ code/TOOL.md/registry/YAML, 9 test; ≥3 test hai tool nhóm khác; 0 failed | Không tính alias là tool mới hoặc nhận code cũ là mới viết. |
 | C5, 10 điểm | Đúng 5/5, run group v8 thật, route tool mới | Chưa chấm đủ final answer/injection/luồng tương tác; dataset đổi phải ghi rõ. |
 | C6, 10 điểm | UI local, lệnh chạy, browser verification, transcript API thật 4 lượt | Thiếu public URL; model hỏi text chưa dùng clarify trong demo. Không dùng ảnh thay transcript. |

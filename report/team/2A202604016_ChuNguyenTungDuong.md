@@ -22,23 +22,26 @@ V4 có run base 20/20. Các thử nghiệm v5–v7 sau đó không tăng đều,
 
 Hai run mới của v8 đạt **20/20 base và 10/10 group**, cùng hash prompt/YAML, đo đủ case và không lỗi provider. Bộ group đã thay đổi để kiểm tra tool mới; tôi không dùng chênh lệch điểm giữa các bộ group như bằng chứng model tiến bộ trên cùng phép đo.
 
+Tôi hợp nhất phần hiệu chỉnh của Nguyễn Đức Khương Lam ở commit 54d010f vào nền v8 và lưu thành snapshot v9. Công việc của tôi là xử lý ba conflict, giữ phần audit/bibliography và khung báo cáo, rồi kiểm chứng cấu hình hợp nhất bằng Codex. Quy tắc duyệt lại nội dung gửi và từ chối theo phạm vi nhiệm vụ được ghi nhận cho Lam; tôi không nhận đó là phần mình viết mới. V9 đo riêng đạt 19/20 base và 9/10 group, không lỗi provider; R12 hỏi khác kiểu kỳ vọng, G04 gọi send khi chưa duyệt và đã bị stub chặn. R08/R14 vẫn trả lời ngoài phạm vi dù được chấm PASS vì không gọi tool. Tôi giữ v8 làm mặc định theo tiêu chí đã ghi trước khi chạy; điểm v8 được giữ riêng, không gán cho v9.
+
 UI được sửa cách đọc run đã lưu, trạng thái tool, thông báo lỗi và lệnh chạy Windows. Kiểm tra bằng trình duyệt cho thấy chat thật gọi được bibliography và saved run hiện PASS đúng. Demo CLI có 4 lượt bằng API thật; Telegram bị tắt. Ở lượt thiếu tài khoản và yêu cầu đăng, model hỏi bằng text thay vì gọi clarify, nên báo cáo ghi đúng hạn chế này.
 
 ## 4. Bằng chứng
 
 - File/commit/PR:
   - 341c4ce: baseline v0; b7691c0: kết quả v1; 2aaa3cb: v2 và snapshot; c17dc2e: cấu hình paper và run nay mang tên v3.
-  - [Version log](../../starter_v0/artifacts/version_log.csv), [báo cáo nhóm](group_report.md), [giả thuyết H8](review_evidence/v8_hypothesis.md).
-  - [Tool mới](../../starter_v0/tools/build_bibliography/tool.py), [unit test](../../starter_v0/tests/test_tools_todo.py), [output pytest](review_evidence/pytest_v8.txt): **130 passed, 14 skipped, 0 failed**.
+  - [Version log](../../starter_v0/artifacts/version_log.csv), [báo cáo nhóm](group_report.md), [giả thuyết H8](review_evidence/v8_hypothesis.md), [giả thuyết H9](review_evidence/v9_hypothesis.md) và [biên bản hợp nhất](review_evidence/merge_v9_review.json).
+  - [Tool mới](../../starter_v0/tools/build_bibliography/tool.py), [unit test](../../starter_v0/tests/test_tools_todo.py), [output pytest sau hợp nhất](review_evidence/pytest_v9.txt): **130 passed, 14 skipped, 0 failed**.
   - [Base v8](../../starter_v0/runs/v8_B_base_openai_20261110T223125274893.json), [group v8](../../starter_v0/runs/v8_B_group_openai_20261110T223032240551.json), [transcript 4 lượt](../../starter_v0/transcripts/v8_openai_20261110T223458159061.transcript.json) và [UI docs](../../docs/UI.md).
-  - Phần bổ sung v8, UI và báo cáo được lưu trên nhánh nộp `main`; mốc commit ghi trong [TEAM.md](../../TEAM.md).
+  - [Base v9](../../starter_v0/runs/v9_B_base_openai_20261110T230751104659.json), [group v9](../../starter_v0/runs/v9_B_group_openai_20261110T230818905094.json) và [commit hiệu chỉnh của Lam](https://github.com/lit1numyt/K5-L3B-DAY03-4x6.1Sol-ResearchAgentToolEval/commit/54d010f4b233f763b3d5b51eb8a10e794595f14d).
+  - Phần bổ sung v8, lần hợp nhất v9, UI và báo cáo được lưu trên nhánh nộp `main`; mốc commit ghi trong [TEAM.md](../../TEAM.md).
 - AI/công cụ đã dùng và cách tự kiểm tra kết quả:
   - Codex hỗ trợ đọc repo, viết code/test, phân tích và biên tập báo cáo. Các bước kiểm tra gồm so hash với run, chạy pytest trong .venv, chạy API thật và thử UI trong trình duyệt. Hai bộ eval cố định của thầy được giữ nguyên.
   - Tool đọc và provider trong demo chạy thật; send bị chặn. Không dùng dữ liệu mô phỏng để nhận là đã gửi Telegram hoặc đã có một phiên chat của con người. Tôi cần tự đọc và giải thích được các thay đổi khi bảo vệ bài.
 
 ## 5. Tự đánh giá
 
-Phần baseline, versioning, tool mới v8 và kiểm tra UI đã có bằng chứng để đối chiếu. V8 giữ được điểm base của v4 trong lượt đo này, nhưng chưa chứng minh độ ổn định ở mọi lần chạy. Các vòng có hồi quy cũng cho thấy không nên coi việc viết prompt dài và chi tiết hơn là chắc chắn tốt hơn.
+Phần baseline, versioning, tool mới v8 và kiểm tra UI đã có bằng chứng để đối chiếu. V8 giữ được điểm base của v4 trong lượt đo này, nhưng chưa chứng minh độ ổn định ở mọi lần chạy. V9 cũng chưa đạt tiêu chí chọn làm mặc định. Các vòng có hồi quy cho thấy không nên coi việc viết prompt dài và chi tiết hơn là chắc chắn tốt hơn.
 
 Phần còn thiếu là public URL, bằng chứng trạng thái clarify đầu-cuối và cơ chế duyệt nội dung độc lập với model khi gửi thật. Thông tin các thành viên khác cũng cần được hoàn thiện trước khi nộp. Tôi không nhận các phần này là đã xong.
 

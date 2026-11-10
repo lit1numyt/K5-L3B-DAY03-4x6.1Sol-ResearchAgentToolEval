@@ -63,7 +63,7 @@
       "old_path": "starter_v0/runs/archive/v4_before_review/v4_B_group_openai_20261110T213600677281.json",
       "new_path": "starter_v0/runs/v4_B_group_openai_20261110T213600677281.json",
       "sha256": "b0db9de8a1f4281973e0e684e7fe79420e89706f1309828bf3d55b5d0be765b3",
-      "final_path": "starter_v0/runs/v4_B_group_openai_20261110T213600677281.json"
+      "final_path": "starter_v0/runs/history/v4_original_suite/v4_B_group_openai_20261110T213600677281.json"
     },
     {
       "old_path": "starter_v0/runs/v4_B_base_openai_20261110T213656627758.json",
@@ -81,7 +81,7 @@
       "old_path": "starter_v0/runs/v4_B_group_openai_20261110T213600677281.json",
       "new_path": "starter_v0/runs/v5_B_group_openai_20261110T213600677281.json",
       "sha256": "b0db9de8a1f4281973e0e684e7fe79420e89706f1309828bf3d55b5d0be765b3",
-      "final_path": "starter_v0/runs/v4_B_group_openai_20261110T213600677281.json"
+      "final_path": "starter_v0/runs/history/v4_original_suite/v4_B_group_openai_20261110T213600677281.json"
     },
     {
       "old_path": "starter_v0/runs/v4_B_group_openai_20261110T215806188729.json",

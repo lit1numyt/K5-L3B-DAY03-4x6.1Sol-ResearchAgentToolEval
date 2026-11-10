@@ -40,4 +40,5 @@ Sao chép mục dưới đây cho từng thành viên.
 ### Bằng chứng
 
 - [Báo cáo cá nhân](report/team/2A202604016_ChuNguyenTungDuong.md), [báo cáo nhóm](report/team/group_report.md), [version log](starter_v0/artifacts/version_log.csv).
-- Thay đổi v8, UI và báo cáo được lưu cùng nhánh nộp `main`; mốc commit nằm trong thông tin nhóm ở trên. Các thành viên còn lại tự bổ sung phần mình.
+- Hợp nhất commit 54d010f của Nguyễn Đức Khương Lam thành v9, giữ tác giả và chạy kiểm chứng riêng (19/20 base, 9/10 group). V8 vẫn là mặc định; không nhận phần hiệu chỉnh của Lam là do mình viết.
+- Thay đổi v8, bản tích hợp v9, UI và báo cáo được lưu cùng nhánh nộp `main`; mốc commit nằm trong thông tin nhóm ở trên. Các thành viên còn lại tự bổ sung phần mình.

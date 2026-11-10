@@ -10,9 +10,9 @@
 
 - Tên nhóm: 4x6.1Sol — Lớp: L3B
 - Thành viên và phân công: xem [TEAM.md](../../TEAM.md).
-- Provider/model dùng cho v0–v3: OpenAI / gpt-4o-mini. Các bản v4–v8 cũng dùng model này. Bản đang chạy là **v8**, phát triển từ v4; v4 gốc được giữ nguyên.
+- Provider/model dùng cho v0–v3: OpenAI / gpt-4o-mini. Các bản v4–v9 cũng dùng model này. Bản đang chạy là **v8**, phát triển từ v4; v4 gốc được giữ nguyên. V9 là cấu hình hợp nhất phần sửa của Lam, đã đo riêng nhưng chưa được chọn làm mặc định.
 
-Trong báo cáo này, v3 là bản trước đây có tên v2-tool; v4 là bản trước đây có tên v3. Các lần chỉnh tiếp theo mang tên v5, v6, v7 và v8.
+Trong báo cáo này, v3 là bản trước đây có tên v2-tool; v4 là bản trước đây có tên v3. Các lần chỉnh tiếp theo mang tên v5, v6, v7, v8 và v9.
 
 ## 2. Mục tiêu và cách tiếp cận — PHẦN A: Giới thiệu agent
 
@@ -77,6 +77,10 @@ Các thử nghiệm v5–v7 tiếp tục làm rõ mô tả tool và điều ki�
 
 V8 chọn lại v4 làm nền và chỉ mở thêm một tác vụ: xuất tài liệu tham khảo. [Giả thuyết H8](review_evidence/v8_hypothesis.md), được ghi trước khi chạy, là một tool có phạm vi hẹp và điều kiện sử dụng rõ có thể bổ sung tác vụ mới mà giữ được kết quả base. build_bibliography nhận metadata thật, xuất BibTeX/plain và cảnh báo tác giả hoặc năm còn thiếu. Tool không tìm kiếm, không xác minh bài báo và không tự điền dữ liệu chưa có. Nó được đăng ký trong registry/YAML, có TOOL.md, 9 unit test và một case group riêng.
 
+Sau v8, nhóm hợp nhất [commit 54d010f của Nguyễn Đức Khương Lam](https://github.com/lit1numyt/K5-L3B-DAY03-4x6.1Sol-ResearchAgentToolEval/commit/54d010f4b233f763b3d5b51eb8a10e794595f14d) thành v9. Phần phân tích của Lam chỉ ra rằng không gọi tool chưa đồng nghĩa đã từ chối đúng: ở v3, R14 vẫn hướng dẫn thuật toán Fibonacci sau câu từ chối. V9 vì vậy giới hạn theo nhiệm vụ, không chỉ theo định dạng code hay văn xuôi; việc giải thích phương pháp từ nguồn nghiên cứu vẫn thuộc phạm vi.
+
+Về Telegram, v9 phân biệt đồng ý chuẩn bị với duyệt bản cuối. Khi đã có nội dung, agent chuyển thẳng sang xin duyệt; nội dung thay đổi phải được duyệt lại, người dùng từ chối thì dừng. Mô tả clarify và send được đồng bộ với quy trình này. [H9](review_evidence/v9_hypothesis.md) kế thừa giả thuyết H4 trong nhánh Lam; tên v9 giúp tránh nhầm với các phiên bản nhóm đã đo. Dương phụ trách hợp nhất và kiểm chứng với Codex hỗ trợ. Quy tắc audit, bibliography, đủ 14 tool và schema/mặc định của v8 được giữ. Kết quả v8 không được dùng thay cho phép đo v9.
+
 UI dùng lại vòng gọi tool của agent. Trong lần rà soát, nhóm sửa cách đọc run đã lưu để tránh hiển thị FAIL sai, sửa trạng thái sau khi tool chạy, thông báo lỗi và danh sách Markdown. Lệnh PowerShell giúp chạy đúng môi trường Python trên Windows; adapter UI cũ cũng đã bỏ các import mẫu chưa được tích hợp. Phần sửa UI và code tool được kiểm tra riêng, không dùng để suy ra tác động của từng câu prompt.
 
 ## 4. Kết quả — PHẦN B: Chi tiết và bằng chứng
@@ -96,12 +100,15 @@ Lấy từ `starter_v0/artifacts/version_log.csv` và `starter_v0/runs/*.json`. 
 | v6 | prompt + timeline description | Làm rõ điều kiện thiếu tài khoản | 0.95 | 0.85 | [run v6](../../starter_v0/runs/v6_B_base_openai_20261110T220250416618.json) |
 | v7 | prompt + tools; ví dụ đối chiếu | H7A: áp dụng ranh giới theo thứ tự rõ hơn | 0.85 | 0.90 | [run v7](../../starter_v0/runs/v7_B_base_openai_20261110T221854221652.json) |
 | v8 | prompt + tools; build_bibliography | H8: thêm xuất bibliography, giữ kết quả base | 1.00 (v4) | 1.00 | [run v8](../../starter_v0/runs/v8_B_base_openai_20261110T223125274893.json) |
+| v9 | prompt + 4 mô tả clarify/send; hợp nhất Lam | H9: làm rõ duyệt nội dung và phạm vi nhiệm vụ, giữ routing | 1.00 (v8) | 0.95 | [run v9](../../starter_v0/runs/v9_B_base_openai_20261110T230751104659.json) |
 
 Metric trong bảng là tỷ lệ case đúng tool và arguments của bộ base. Tất cả run đều dùng OpenAI gpt-4o-mini, đo đủ 20 case và không có lỗi provider. **V8 đạt 20/20 base và [10/10 group](../../starter_v0/runs/v8_B_group_openai_20261110T223032240551.json)**, cùng hash prompt `28df43d23d49…` và tools `1985f521a55c…`. V8 được phát triển từ v4 nên mốc trước của H8 là 1.00 của v4.
 
+V9 đạt **19/20 base và [9/10 group](../../starter_v0/runs/v9_B_group_openai_20261110T230818905094.json)**, đo đủ case, không lỗi provider và dùng cùng bộ group với v8. Hai run cùng hash prompt `980d47d87a9e…` và tools `c4dc31cfea7c…`. Kết quả chưa đáp ứng điều kiện chọn v9 đã ghi trước trong H9, nên nhóm giữ v8 làm mặc định; v9 vẫn được lưu để đối chiếu và giữ đóng góp của Lam trong lịch sử merge.
+
 V5–v7 không làm điểm tăng đều và không được coi là các lần cải tiến thành công. V7 ban đầu cũng có run 18/20 base, 9/10 group trong thư mục candidates; H7A mới vẫn 18/20 và 9/10. Những run này được giữ. Rubric cho phép phiên bản không tăng điểm nếu phân tích trung thực.
 
-Các bộ group có thay đổi: bản nguyên thủy, bản đã siết arguments và bản v8 thay G05 bằng bibliography. Vì vậy không dùng chênh lệch điểm group giữa các bộ để khẳng định model tiến bộ trên cùng phép đo. Một số vòng cũng sửa đồng thời prompt và description, nên chưa tách được tác động của từng thay đổi. Riêng base v3 không gọi research_paper, do đó không thể quy mức tăng điểm cho tool đó.
+Các bộ group có thay đổi: [run v4 trên bộ nguyên thủy](../../starter_v0/runs/history/v4_original_suite/v4_B_group_openai_20261110T213600677281.json) đạt 9/10, bản đã siết arguments đạt 10/10, còn bản v8 thay G05 bằng bibliography. Run dùng bộ nguyên thủy được chuyển vào history để phân biệt với bằng chứng chính; nội dung JSON không đổi. Vì vậy không dùng chênh lệch điểm group giữa các bộ để khẳng định model tiến bộ trên cùng phép đo. Một số vòng cũng sửa đồng thời prompt và description, nên chưa tách được tác động của từng thay đổi. Riêng base v3 không gọi research_paper, do đó không thể quy mức tăng điểm cho tool đó.
 
 Run JSON lịch sử giữ nguyên nội dung dù đổi tên file; metadata bên trong có thể còn tên cũ. [Manifest](review_evidence/consecutive_version_manifest.json) và [bảng tổng hợp](review_evidence/version_summary.json) giúp đối chiếu. Hai hash chỉ xác định prompt/YAML, không bao gồm mọi thay đổi code. Các eval mới chặn send, nên không phải bằng chứng gửi Telegram thật.
 
@@ -121,11 +128,15 @@ Bảng dưới phân tích đủ 7 case FAIL của [v0](../../starter_v0/runs/v0
 
 V1 sửa được phần lớn lỗi v0 nhưng hỏi thừa ở R01/R05. R08/R14 được chấm PASS vì không gọi tool, song actual_text vẫn chứa lời giải/code sau câu từ chối. V2 làm rõ cách từ chối và thao tác đọc, nhưng M06 hồi quy. Đây là lý do phải đọc cả nội dung trả lời, không chỉ tỷ lệ PASS.
 
+Ở v3, R14 được chấm PASS do không gọi tool nhưng vẫn hướng dẫn thuật toán Fibonacci; phân tích của Lam được kiểm tra lại trên run gốc. Đây là cơ sở cho quy tắc v9 không thực hiện nhiệm vụ đã từ chối bằng giả mã, công thức hoặc hướng dẫn tương đương. R10 của v0 chỉ được tính lỗi tự đoán tài khoản; việc không truyền limit riêng không tạo lỗi số lượng vì mặc định 5 đã trùng yêu cầu.
+
 Ở các bản thử sau v4, v5 sai R10; v6 sai R01/R11/R12; v7 ban đầu còn lỗi gửi sớm ở G04. H7A khắc phục các lỗi nhắm tới trong lượt đó nhưng gọi thêm social_search ở M02/M06 và gửi include_text vào paper_text không nhận tham số này. V8 không có FAIL trong base/group đã chạy, nhưng vẫn cần kiểm tra các hành vi ngoài phạm vi máy chấm.
+
+V9 không đạt R12 vì dùng clarify(text) thay vì yes_no. Ở G04, model gọi send(confirmed=true) cho nội dung chưa được duyệt; stub trả blocked_for_eval nên không gửi Telegram thật. R08/R14 được chấm PASS do không gọi tool, nhưng khi đọc actual_text vẫn thấy lời giải tích phân và code Fibonacci. Vì vậy H9 chưa được hỗ trợ trong lượt đo này, kể cả ở chất lượng từ chối mà điểm tự động không phản ánh. Chưa thể quy nguyên nhân riêng cho một câu sửa hoặc kết luận về mọi lần chạy.
 
 ### B3. Team Eval Cases
 
-Liệt kê đúng 10 case trong `starter_v0/data/eval_group.json` (5 single turn + 5 multi turn).
+Liệt kê đúng 10 case trong `starter_v0/data/eval_group.json` (5 single turn + 5 multi turn). Cột Result là kết quả v8 được chọn làm mặc định; v9 dùng lại đúng bộ này và sai G04, các case còn lại PASS.
 
 | Case ID | What It Tests | Expected Tool/Behavior | Result |
 |---|---|---|---|
@@ -140,13 +151,15 @@ Liệt kê đúng 10 case trong `starter_v0/data/eval_group.json` (5 single turn
 | G09_paper_pagination | Multi: Giữ chủ đề và chuyển sang trang paper tiếp | arxiv_search, giữ query, start=5, max_results=5 | PASS |
 | G10_audit_retained_results | Multi: Kiểm tra các kết quả đã có trong ngữ cảnh | audit với results đã có | PASS |
 
+Cả ba bộ đều giữ 5 single + 5 multi: v4 gốc dùng eval_group_v4.json; v4 chạy lại và v5–v7 dùng eval_group_v4_reviewed.json; v8–v9 dùng data/eval_group.json. Ở v4–v7, G05 kiểm tra audit nguồn trùng; từ v8, G05 kiểm tra bibliography. Các case multi là ngữ cảnh hội thoại đóng gói để chấm lượt cuối, không phải năm phiên chat tương tác đầy đủ.
+
 [Run group v8](../../starter_v0/runs/v8_B_group_openai_20261110T223032240551.json) đo đủ 10 case, không có lỗi provider. G05 thay một case audit trùng phạm vi để kiểm tra tool mới; số single/multi vẫn là 5/5. Các case audit kiểm tra cả dữ liệu truyền vào; G08/G09 kiểm tra cả chủ đề giữ lại. Hai bộ eval cố định của thầy không bị sửa.
 
 Bộ này chấm lượt chọn tool cuối trong ngữ cảnh nhiều lượt, chưa phải hội thoại tương tác đầy đủ. Evaluator dùng tool_choice=required khi kỳ vọng có tool. G04 vẫn cần xem câu hỏi có duyệt đúng nội dung không; G06 cần đọc phần phân tích; G07 cần nói đúng giới hạn audit; G09 chưa chứng minh IDs thực tế không trùng. Các giới hạn này không được suy ra từ điểm 10/10.
 
 ### B4. Live Chat Evidence
 
-Lấy từ `starter_v0/transcripts/*.transcript.json`.
+Lấy từ `starter_v0/transcripts/*.transcript.json`. Bằng chứng dưới đây thuộc v8 đang được chọn; không đổi nhãn transcript thành v9.
 
 | Turn | User Request | Tool Calls | Version Evidence | Outcome |
 |---|---|---|---|---|
@@ -165,7 +178,7 @@ Trên trình duyệt, UI đã gọi build_bibliography thành công và hiển t
 |---|---|---|---|
 | Tool mới build_bibliography (v8) | [tool.py](../../starter_v0/tools/build_bibliography/tool.py), [TOOL.md](../../starter_v0/tools/build_bibliography/TOOL.md), registry/YAML | Xuất BibTeX/plain từ metadata đã có; bỏ nguồn trùng, báo trường thiếu | Không tìm kiếm/xác minh; input sai trả error dict |
 | Tool nhóm research_paper và audit | Code/TOOL.md trong tools/; registry/YAML | Bổ sung validate, xử lý lỗi và test | Hai tool đã có trước phiên này; không tính alias arxiv_search là tool mới |
-| Unit test tool mới (≥ 3 test/tool) | [test_tools_todo.py](../../starter_v0/tests/test_tools_todo.py), [test audit](../../starter_v0/tests/test_audit_research_evidence.py), [pytest](review_evidence/pytest_v8.txt) | Bibliography 9 test; research_paper 12; audit 10. Toàn suite: **130 passed, 14 skipped, 0 failed** | Test offline; 14 skip là TODO tool starter |
+| Unit test tool mới (≥ 3 test/tool) | [test_tools_todo.py](../../starter_v0/tests/test_tools_todo.py), [test audit](../../starter_v0/tests/test_audit_research_evidence.py), [pytest](review_evidence/pytest_v9.txt) | Bibliography 9 test; research_paper 12; audit 10. Toàn suite: **130 passed, 14 skipped, 0 failed** | Test offline; 14 skip là TODO tool starter |
 | UI (lệnh chạy + link dùng thử) | [UI docs](../../docs/UI.md), [run.ps1](../../starter_v0/run.ps1), [UI tests](../../starter_v0/tests/test_web_app.py), ảnh B4 | 12 test UI/loop; đã chạy chat thật và mở saved run đúng | Chạy local; public link chờ bổ sung; Telegram mặc định tắt |
 
 Ví dụ, unit test kiểm tra tool bibliography không bịa năm/tác giả khi thiếu metadata và trả lỗi với URL không dùng được. Eval chọn đúng tên tool chưa đủ phát hiện các lỗi code này. Regression UI kiểm tra một saved case PASS phải được hiển thị đúng, đồng thời giữ thông báo lỗi tool.
@@ -215,7 +228,9 @@ Khi đối chiếu R12 và G03 cũ, nhóm thấy hai case đang kiểm tra khác
 
 Các sửa đổi v5–v7 làm rõ một số quy tắc nhưng gây lỗi mới. Nhóm không tiếp tục thay mọi thứ cùng lúc, mà lấy v4 làm nền cho H8: thêm riêng chức năng bibliography. Kết quả v8 giữ được 20/20 base và đạt 10/10 group mới; các run hồi quy vẫn còn.
 
-Về kỹ thuật, Python hệ thống thiếu FastAPI nên test phải chạy trong .venv của repo. UI cũng từng nhận raw run thay vì cấu trúc evaluation/actual, dẫn tới hiển thị FAIL sai; lỗi này đã được sửa và có regression test. Output cuối cùng là 130 passed, 14 skipped.
+Lần hợp nhất với Lam có conflict ở prompt, YAML và báo cáo vì cả hai nhánh cùng sửa các phần này. Nhóm lấy v8 làm nền, chỉ nhận quy tắc mới có liên quan vào snapshot v9, giữ schema và 14 tool, rồi đo lại. Việc v9 có hồi quy được ghi nguyên trạng; cấu hình chạy chính quay về v8 theo tiêu chí đã đặt trước.
+
+Về kỹ thuật, Python hệ thống thiếu FastAPI nên test phải chạy trong .venv của repo. UI cũng từng nhận raw run thay vì cấu trúc evaluation/actual, dẫn tới hiển thị FAIL sai; lỗi này đã được sửa và có regression test. Sau khi hợp nhất, pytest vẫn đạt 130 passed, 14 skipped, 0 failed; đây là kiểm tra offline, không thay kết quả eval model.
 
 Phần deployment và khó khăn riêng của các thành viên khác để họ bổ sung. Chưa có bằng chứng Phần A hoàn thành trước 16:30; báo cáo không ghi lùi thời gian.
 
@@ -225,21 +240,21 @@ Chi tiết đóng góp của từng thành viên nằm trong [TEAM.md](../../TEA
 
 Chu Nguyễn Tùng Dương — 2A202604016 có bằng chứng chạy/lưu eval và versioning qua các commit 341c4ce, b7691c0, 2aaa3cb và c17dc2e. Trong phần bổ sung v8, Codex hỗ trợ viết build_bibliography, test, case group, sửa UI và tổng hợp bằng chứng. Thay đổi v8 và báo cáo được lưu trên nhánh nộp `main`; xem mốc commit trong [TEAM.md](../../TEAM.md). Không quy tác giả hai tool đã có hoặc UI ban đầu cho Dương.
 
-Phần phân tích/hiệu chỉnh v2 đã ghi tên Nguyễn Đức Khương Lam ở mục 3. Các thành viên còn lại tự điền đóng góp, commit và báo cáo cá nhân của mình.
+Nguyễn Đức Khương Lam — 2A202604020 có phần phân tích/hiệu chỉnh v2 và commit 54d010f làm rõ xác nhận gửi, phạm vi từ chối và phân tích kết quả v0–v3. Nhóm nhận phần hiệu chỉnh này trong v9, đối chiếu với log thật và giữ nguyên tác giả commit khi merge. Báo cáo cá nhân, nhận xét trải nghiệm và thông tin còn lại của Lam cùng các thành viên khác để họ tự bổ sung.
 
 ## 7. Hạn chế và hướng cải thiện — B6. Reflection
 
-- Fix nào thuộc `system_prompt.md`? Điều kiện hỏi lại, phạm vi nghiên cứu, giữ ngữ cảnh và xác nhận trước hành động. V8 chỉ thêm chỉ dẫn dùng bibliography vào nền v4.
+- Fix nào thuộc `system_prompt.md`? Điều kiện hỏi lại, phạm vi nghiên cứu, giữ ngữ cảnh và xác nhận trước hành động. V8 chỉ thêm chỉ dẫn dùng bibliography vào nền v4; v9 thử quy tắc xác nhận và từ chối do Lam hiệu chỉnh nhưng chưa được chọn.
 - Fix nào thuộc `tools.yaml`? Mô tả khi dùng/không dùng và ý nghĩa args. Với tool mới, metadata phải có sẵn, format là bibtex/plain và không tự điền dữ liệu thiếu. Validate implementation và TOOL.md là lớp kiểm tra riêng.
 - Failure nào cần review thủ công thay vì chấm tự động? Nội dung trả lời ngoài phạm vi dù no_tool, câu hỏi duyệt đúng nội dung ở G04, phân tích paper có căn cứ ở G06 và việc lặp IDs ở G09. Demo CLI cũng cho thấy hỏi bằng text chưa đồng nghĩa gọi clarify đúng luồng.
 - Nếu có thêm một vòng, nhóm sẽ thử giả thuyết nào? Tách từng ranh giới, dùng một bộ câu hỏi chưa dùng để sửa prompt, và kiểm tra việc duyệt nguyên văn trước send bằng trạng thái ứng dụng độc lập với model.
 
-V8 đạt điểm tối đa ở hai suite đã chạy, nhưng chưa đủ cơ sở nhận toàn bộ rubric. Bản này vẫn thừa hưởng một số description còn chung chung và quy tắc tin cậy nguồn chưa đầy đủ của v4. UI đã chạy local và có transcript thật, song public URL, thời điểm hoàn thành Phần A và phần các thành viên khác còn thiếu. Khi bật gửi thật, code vẫn dựa vào confirmed do model đưa vào; web demo hiện chặn delivery. Các giới hạn này cần được giữ trong kết luận, không che bằng điểm 20/20.
+V8 đạt điểm tối đa ở hai suite đã chạy, nhưng chưa đủ cơ sở nhận toàn bộ rubric. V9 được hợp nhất và lưu riêng với kết quả 19/20, 9/10; nhóm không đổi nhãn các run tốt của v8 để thay bằng chứng cho v9. V8 vẫn thừa hưởng một số description còn chung chung và quy tắc tin cậy nguồn chưa đầy đủ của v4. UI đã chạy local và có transcript thật, song public URL, thời điểm hoàn thành Phần A và phần các thành viên khác còn thiếu. Khi bật gửi thật, code vẫn dựa vào confirmed do model đưa vào; web demo hiện chặn delivery. Các giới hạn này cần được giữ trong kết luận, không che bằng điểm 20/20.
 
 ## 8. Tài liệu tham khảo
 
 - [RUBRIC.md](../../RUBRIC.md), [RULES.md](../../RULES.md), [CHECKPOINTS.md](../../CHECKPOINTS.md), [SUBMISSION.md](../../SUBMISSION.md) và README của repo.
 - [Tool folder contract](../../starter_v0/tools/README.md), prompt/YAML, code tool, run và transcript được dẫn ở từng mục.
-- [Biên bản rà soát](rubric_review.md), [giả thuyết H8](review_evidence/v8_hypothesis.md), [pytest](review_evidence/pytest_v8.txt), [bảng số đo](review_evidence/version_summary.json) và [hướng dẫn UI](../../docs/UI.md).
+- [Biên bản rà soát](rubric_review.md), [giả thuyết H8](review_evidence/v8_hypothesis.md), [H9](review_evidence/v9_hypothesis.md), [biên bản hợp nhất](review_evidence/merge_v9_review.json), [pytest](review_evidence/pytest_v9.txt), [bảng số đo](review_evidence/version_summary.json) và [hướng dẫn UI](../../docs/UI.md).
 - AI hỗ trợ: Codex. Nội dung được kiểm tra bằng file thật, hash, unit test, API run và trình duyệt; không dùng nhận xét của AI thay cho bằng chứng.
 - Tài liệu ngoài hoặc code/dữ liệu của các thành viên khác: để thành viên liên quan bổ sung.

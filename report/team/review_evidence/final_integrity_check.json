@@ -3,8 +3,8 @@
   "teacher_personal_sections_preserved": true,
   "teacher_required_table_headers_preserved": true,
   "broken_report_links": [],
-  "indexed_run_rows_verified": 16,
-  "version_snapshots_verified": "v0..v8",
+  "indexed_run_rows_verified": 18,
+  "version_snapshots_verified": "v0..v9",
   "historical_payloads_unchanged": true,
   "protected_eval_changed": false,
   "configured_secret_literal_leaks": [],
@@ -23,5 +23,13 @@
   "team_name": "4x6.1Sol",
   "class_name": "L3B",
   "submission_branch": "main",
-  "publication_content": "current_workspace"
+  "publication_content": "current_workspace",
+  "merge_candidate": "v9: 19/20 base, 9/10 group; not promoted",
+  "lam_commit_preserved": "54d010f4b233f763b3d5b51eb8a10e794595f14d",
+  "historical_v0_v8_unchanged": true,
+  "all_eval_datasets_unchanged_during_merge": true,
+  "manifest_current_paths_verified": 25,
+  "previously_deleted_records_recognized": 19,
+  "v4_primary_group_run_count": 1,
+  "v4_original_group_payload_preserved_in_history": true
 }

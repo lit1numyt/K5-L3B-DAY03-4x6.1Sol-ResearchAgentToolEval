@@ -4,10 +4,12 @@ system_prompt.md và tools.yaml hiện trùng byte với **v8**. V8 phát triể
 
 v0/v1/v2 là lịch sử; v3 là v2-tool cũ; v4 là v3 cũ có base 20/20; v5/v6/v7 là các thí nghiệm có hồi quy. V8 có run mới base 20/20 và group 10/10. Không dựng lại lịch sử tăng đều.
 
+V9 hợp nhất phần hiệu chỉnh xác nhận Telegram và phạm vi nhiệm vụ từ commit 54d010f của Nguyễn Đức Khương Lam vào nền v8. Snapshot v9 giữ đủ 14 tool, chỉ thay prompt và bốn mô tả clarify/send; schema, mặc định, code và dataset không đổi. V9 đo riêng 19/20 base, 9/10 group trên cùng suite v8, nên chưa được chọn làm mặc định theo H9 đã ghi trước khi chạy. R08/R14 còn trả lời ngoài phạm vi dù máy chấm no_tool ghi PASS; G04 gọi send khi chưa được duyệt và đã bị stub chặn. Snapshot và kết quả v8 được giữ nguyên.
+
 - v7_candidates/initial/: snapshot lần v7 đầu, ứng với runs/candidates/v7_initial/.
 - eval_group_v4.json: suite nguyên thủy.
 - eval_group_v4_reviewed.json: suite đã siết dùng cho v4/v5/v6/v7.
 - data/eval_group.json: suite v8, thay G05 bằng bibliography, giữ 5 single + 5 multi.
 - research_paper_v4.py: implementation trước bổ sung validate/error handling chung, không phải tool đăng ký riêng.
 
-Run JSON giữ metadata gốc dù đổi tên file; đối chiếu hash, version_log.csv và manifest ở report/team/review_evidence/. H7A và H8 ghi trước lần chạy tương ứng. Metric/hypothesis không được sửa để tạo đường tăng giả.
+Run JSON giữ metadata gốc dù đổi tên file; đối chiếu hash, version_log.csv và manifest ở report/team/review_evidence/. H7A, H8 và H9 ghi trước lần chạy tương ứng. Metric/hypothesis không được sửa để tạo đường tăng giả.
