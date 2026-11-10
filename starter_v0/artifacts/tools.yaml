@@ -16,22 +16,22 @@
 tools:
   # ---------------- Core tools ----------------
   - name: clarify
-    description: "Gửi một câu hỏi cho người dùng."
+    description: "Hỏi người dùng khi thiếu thông tin cần thiết như tài khoản hoặc URL, hoặc cần xác nhận nội dung trước khi gửi Telegram. Chờ người dùng trả lời trước khi thực hiện bước cần thông tin đó."
     parameters:
       type: object
       properties:
         question: {type: string, default: "", description: "Câu hỏi"}
-        response_type: {type: string, enum: [text, yes_no, choice], default: "text", description: "Kiểu trả lời"}
+        response_type: {type: string, enum: [text, yes_no, choice], default: "text", description: "Dùng text để hỏi thông tin còn thiếu; yes_no để xác nhận nội dung gửi; choice khi đưa các lựa chọn."}
         options: {type: array, default: [], items: {type: string}, description: "Các lựa chọn"}
       required: [question]
 
   - name: timeline
-    description: "Lấy các bài đăng gần đây."
+    description: "Lấy các bài đăng gần đây của một tài khoản đã xác định từ yêu cầu hoặc ngữ cảnh. Nếu chưa biết tài khoản nào, dùng clarify để hỏi, không tự chọn tài khoản."
     parameters:
       type: object
       properties:
         screenname: {type: string, default: "", description: "Tên tài khoản"}
-        limit: {type: integer, default: 5, description: "Số lượng"}
+        limit: {type: integer, default: 5, description: "Số bài đăng cần lấy; truyền đúng số lượng người dùng yêu cầu, kể cả khi đã nêu trước lượt hỏi lại."}
       required: [screenname]
 
   - name: social_search
@@ -49,18 +49,18 @@ tools:
     parameters:
       type: object
       properties:
-        query: {type: string, default: "", description: "Truy vấn"}
-        topic: {type: string, enum: [general, news], default: "general", description: "Phân loại"}
+        query: {type: string, default: "", description: "Chủ đề và các từ khóa nội dung người dùng muốn tìm. Khi tìm tin tức, thể hiện loại tin và thời gian bằng topic, timeframe; không tự thêm news, tin tức hay thời gian vào query. Giữ các từ khóa mô tả nội dung cụ thể của chủ đề."}
+        topic: {type: string, enum: [general, news], default: "general", description: "Truyền rõ news khi người dùng yêu cầu tin tức, kể cả khi đồng thời tìm trên mạng xã hội. Dùng general cho tra cứu thông tin chung."}
         timeframe: {type: string, enum: [day, week, month, year], default: "week", description: "Khoảng thời gian"}
         max_results: {type: integer, default: 5, description: "Số kết quả"}
       required: [query]
 
   - name: fetch
-    description: "Lấy nội dung từ một địa chỉ."
+    description: "Đọc nội dung bài viết từ URL đã có trong yêu cầu hoặc ngữ cảnh. Nếu người dùng chỉ nói bài này mà chưa có URL, dùng clarify để hỏi, không tự tạo URL."
     parameters:
       type: object
       properties:
-        url: {type: string, default: "", description: "Địa chỉ"}
+        url: {type: string, default: "", description: "URL bài viết đã được cung cấp hoặc xác định trong ngữ cảnh; không dùng URL giả định."}
       required: [url]
 
   - name: format
@@ -86,12 +86,12 @@ tools:
 
   # ---------------- Bonus tools ----------------
   - name: send
-    description: "Gửi một đoạn văn bản đi."
+    description: "Gửi nội dung lên Telegram, chỉ dùng sau khi người dùng đã xác nhận rõ nội dung đó. Nếu chưa xác nhận, dùng clarify với response_type=yes_no trước. Không dùng để trả lời trong cuộc chat."
     parameters:
       type: object
       properties:
-        text: {type: string, default: "", description: "Nội dung"}
-        confirmed: {type: boolean, default: false, description: "Cờ xác nhận"}
+        text: {type: string, default: "", description: "Nội dung thực tế người dùng đã xác nhận để gửi lên Telegram, không phải câu thông báo đã gửi."}
+        confirmed: {type: boolean, default: false, description: "Chỉ truyền true sau khi người dùng đã xác nhận rõ nội dung cần gửi; yêu cầu gửi ban đầu chưa phải xác nhận."}
       required: [text]
 
   - name: policy

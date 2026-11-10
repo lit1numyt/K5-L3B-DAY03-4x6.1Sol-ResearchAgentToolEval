@@ -52,7 +52,22 @@ Ví dụ: "Research agent: tìm tin theo từ khóa / theo tài khoản, đọc 
 
 > Tóm tắt các thay đổi chính trong `starter_v0/artifacts/system_prompt.md` và `starter_v0/artifacts/tools.yaml`, và tool mới nhóm viết (tên, làm gì, khi nào agent nên gọi).
 
--
+### Hiệu chỉnh đề xuất cho v1 — Người 2
+
+Nguyễn Đức Khương Lam — MSSV `2A202604020`. Dựa trên [run v0](../../starter_v0/runs/v0_B_base_openai_20261110T173859866471.json) dùng OpenAI `gpt-4o-mini`: 13/20 case pass (65%), 20/20 case được đo, không có lỗi provider.
+
+Giả thuyết chung: thay các chỉ dẫn đoán/gửi ngay/bắt buộc chọn tool và làm rõ các description còn thiếu sẽ giảm lỗi hỏi lại, ranh giới hành động và arguments quan sát được ở v0.
+
+| Case v0 | Vấn đề quan sát được và cơ sở sửa | Hiệu chỉnh |
+|---|---|---|
+| R03 | Đúng tool, topic và timeframe; query `AI news` khác `AI` nên bị chấm fail theo so khớp chuỗi. Description query chỉ ghi “Truy vấn”. | Mô tả query giữ chủ đề và từ khóa nội dung; loại tin và thời gian truyền qua topic/timeframe, không tự thêm vào query. Đây là convention chung, không hardcode đáp án AI. |
+| R08, R14 | Gọi send để trả lời toán/code; prompt yêu cầu chọn tool và chưa quy định ngoài phạm vi, send chưa nói rõ Telegram. | Bỏ yêu cầu luôn chọn tool; từ chối yêu cầu toán/code độc lập ngoài nhiệm vụ research bằng văn bản; giới hạn send cho Telegram. |
+| R10 | Tự chọn sama và không truyền limit=5, phù hợp với chỉ dẫn đoán tài khoản trong prompt. | Hỏi qua clarify(text) khi thiếu tài khoản; giữ số lượng đã cung cấp; làm rõ điều kiện dùng timeline. |
+| R11 | Tự tạo URL example.com theo chỉ dẫn giả định URL trong prompt. | Không tạo URL; dùng clarify(text) để hỏi và làm rõ điều kiện dùng fetch. |
+| R12 | Gọi send trước khi xác nhận, text là câu thông báo đã đăng; code chặn và trả needs_confirmation. | Hỏi xác nhận qua clarify(yes_no); chỉ send(confirmed=true) sau xác nhận rõ nội dung; làm rõ text là nội dung cần gửi. |
+| R13 | Gọi đủ hai tool nhưng thiếu topic=news; tool chạy với mặc định general. Query cũng lệch theo cách chấm như R03. | Mô tả topic phải truyền news khi tìm tin tức; dùng convention query chung như R03. |
+
+Chỉ sửa system prompt và các description liên quan; giữ nguyên tên tool, schema, default, code thực thi và eval case. Kiểm tra offline: `cd starter_v0 && .venv/bin/python -m pytest -q` đạt 62 passed, 17 skipped (TODO có sẵn). Chưa chạy eval v1; chưa có metric sau hiệu chỉnh và chưa kết luận các case đã pass. Người 1 cần chạy v1 cùng provider/model với v0 để đo tác động và cập nhật version log/B1.
 
 ## 4. Kết quả — PHẦN B: Chi tiết và bằng chứng
 
