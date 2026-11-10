@@ -1,0 +1,5 @@
+# APPEND these lines to your existing requirements.txt (do not replace it)
+fastapi
+uvicorn[standard]
+pydantic>=2
+python-dotenv

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Research Chatbot</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <!-- Markdown + sanitizer. To avoid CDNs, download these two files into static/js/vendor/ and change the paths. -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">Research Bot</div>
+      <button class="btn-new" id="newChat">+ New chat</button>
+      <div class="side-label">Recent chats</div>
+      <ul class="chat-list" id="chatList"></ul>
+    </aside>
+    <div class="scrim" id="scrim"></div>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open chat list">&#9776;</button>
+        <h1>Research Chatbot</h1>
+      </header>
+
+      <div class="messages" id="messages" aria-live="polite"></div>
+
+      <div class="composer-wrap">
+        <div class="error" id="error" hidden>
+          <span id="errorText"></span>
+          <button id="retryBtn">Retry</button>
+        </div>
+        <div class="composer">
+          <textarea id="input" rows="1" placeholder="Ask me anything..." maxlength="8000"></textarea>
+          <button id="sendBtn" disabled>Send</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/static/js/storage.js"></script>
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/ui.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
