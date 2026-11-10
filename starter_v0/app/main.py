@@ -77,7 +77,14 @@ def chat_stream(request: ChatRequest) -> StreamingResponse:
             if event_type == "round_started":
                 yield sse_event("progress", {"message": f"Working through research round {event['round']}…", "round": event["round"]})
             elif event_type == "tool_completed":
-                yield sse_event("progress", {"message": f"Used {event.get('tool', 'research')} tool", "round": event.get("round")})
+                tool_name = event.get("tool", "research")
+                success = bool(event.get("ok"))
+                yield sse_event("progress", {
+                    "message": f"{tool_name} {'completed' if success else 'failed'}",
+                    "tool": tool_name,
+                    "success": success,
+                    "round": event.get("round"),
+                })
             elif event_type == "completed":
                 result = event["result"]
                 text = result.get("assistant_text", "")

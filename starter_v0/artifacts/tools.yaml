@@ -123,3 +123,15 @@ tools:
         max_pages: {type: integer, default: 5, description: "Số trang"}
         max_chars: {type: integer, default: 8000, description: "Số ký tự"}
       required: [arxiv_url]
+
+  - name: research_paper
+    description: "Trả lời câu hỏi về nghiên cứu bằng cách tìm bài liên quan trên arXiv và, khi cần, đọc phần text của một bài cụ thể. Dùng cho câu hỏi về paper, phương pháp, kết quả, đóng góp, hạn chế hoặc so sánh nghiên cứu; không dùng cho tin tức chung hay câu hỏi không liên quan đến paper. Khi đã có arXiv ID, truyền arxiv_id. Bật include_text=true khi cần đọc nội dung paper để trả lời sâu hơn."
+    parameters:
+      type: object
+      properties:
+        question: {type: string, default: "", description: "Câu hỏi nghiên cứu hoặc chủ đề cần tìm trên arXiv."}
+        arxiv_id: {type: string, default: "", description: "arXiv ID như 1706.03762 hoặc URL nếu người dùng chỉ rõ một paper."}
+        max_results: {type: integer, default: 3, description: "Số paper liên quan cần trả về, tối đa 10."}
+        include_text: {type: boolean, default: false, description: "true khi cần trích text PDF để trả lời về phương pháp, kết quả hoặc hạn chế của paper."}
+        max_pages: {type: integer, default: 5, description: "Số trang PDF tối đa cần đọc khi include_text=true."}
+      required: []
