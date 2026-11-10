@@ -41,12 +41,27 @@ def _arxiv_get(url: str, *, params: dict[str, Any] | None = None) -> requests.Re
     return last_response
 
 
-def _arxiv_search_query(query: str) -> str:
+def _arxiv_search_query(query: str, *, author: str = "", title: str = "", categories: list[str] | None = None, date_from: str = "", date_to: str = "") -> str:
     cleaned = " ".join((query or "").split())
-    if ":" in cleaned:
-        return cleaned
-    terms = [term for term in re.findall(r"[A-Za-z0-9_\\-]+", cleaned) if len(term) > 1]
-    return " AND ".join(f"all:{term}" for term in terms[:8]) or cleaned
+    if cleaned and (":" in cleaned or re.search(r"\b(AND|OR|NOT)\b|[\"()]", cleaned, re.I)):
+        topic_query = cleaned
+    else:
+        terms = [term for term in re.findall(r"[A-Za-z0-9_\-]+", cleaned) if len(term) > 1]
+        topic_query = " AND ".join(f"all:{term}" for term in terms[:12]) or "all:*"
+
+    clauses = [f'({topic_query})' if topic_query else ""]
+    if title.strip():
+        clauses.append(f'ti:"{title.strip()}"')
+    if author.strip():
+        clauses.append(f'au:"{author.strip()}"')
+    category_values = [item.strip() for item in (categories or []) if item and item.strip()]
+    if category_values:
+        clauses.append("(" + " OR ".join(f"cat:{item}" for item in category_values) + ")")
+    if date_from or date_to:
+        start = re.sub(r"[^0-9]", "", date_from)[:8] or "00010101"
+        end = re.sub(r"[^0-9]", "", date_to)[:8] or "99991231"
+        clauses.append(f"submittedDate:[{start}0000 TO {end}2359]")
+    return " AND ".join(clause for clause in clauses if clause)
 
 
 def _arxiv_id(value: str) -> str:
@@ -59,24 +74,34 @@ def _entry_text(entry: ET.Element, path: str, namespaces: dict[str, str]) -> str
     return (node.text or "").strip() if node is not None and node.text else ""
 
 
-def arxiv_search(query: str = "", max_results: int = 5, sort_by: str = "relevance") -> dict[str, Any]:
+def arxiv_search(
+    query: str = "",
+    max_results: int = 5,
+    sort_by: str = "relevance",
+    sort_order: str = "descending",
+    start: int = 0,
+    date_from: str = "",
+    date_to: str = "",
+    author: str = "",
+    title: str = "",
+    categories: list[str] | None = None,
+    category: str = "",
+) -> dict[str, Any]:
+    """Search arXiv with benchmark-friendly filters and return verified metadata."""
     try:
-        max_results = max(1, min(int(max_results or 5), 10))
+        max_results = max(1, min(int(max_results or 5), 50))
+        start = max(0, int(start or 0))
         sort_by = sort_by if sort_by in {"relevance", "lastUpdatedDate", "submittedDate"} else "relevance"
-        params = {
-            "search_query": _arxiv_search_query(query),
-            "max_results": max_results,
-            "sortBy": sort_by,
-            "sortOrder": "descending",
-        }
+        sort_order = sort_order if sort_order in {"ascending", "descending"} else "descending"
+        requested_categories = list(categories or [])
+        if category.strip() and category.strip() not in requested_categories:
+            requested_categories.append(category.strip())
+        api_query = _arxiv_search_query(query, author=author, title=title, categories=requested_categories, date_from=date_from, date_to=date_to)
+        params = {"search_query": api_query, "start": start, "max_results": max_results, "sortBy": sort_by, "sortOrder": sort_order}
         response = _arxiv_get(ARXIV_API_URL, params=params)
         response.raise_for_status()
         root = ET.fromstring(response.text)
-        namespaces = {
-            "atom": "http://www.w3.org/2005/Atom",
-            "opensearch": "http://a9.com/-/spec/opensearch/1.1/",
-            "arxiv": "http://arxiv.org/schemas/atom",
-        }
+        namespaces = {"atom": "http://www.w3.org/2005/Atom", "opensearch": "http://a9.com/-/spec/opensearch/1.1/", "arxiv": "http://arxiv.org/schemas/atom"}
         total_node = root.find(".//opensearch:totalResults", namespaces)
         entries: list[dict[str, Any]] = []
         for entry in root.findall(".//atom:entry", namespaces):
@@ -86,27 +111,7 @@ def arxiv_search(query: str = "", max_results: int = 5, sort_by: str = "relevanc
             pdf_url = next((link["href"] for link in links if link.get("title") == "pdf"), f"https://arxiv.org/pdf/{arxiv_id}.pdf")
             primary = entry.find("./arxiv:primary_category", namespaces)
             summary = _entry_text(entry, "./atom:summary", namespaces).replace("\n", " ")
-            entries.append({
-                "arxiv_id": arxiv_id,
-                "title": _entry_text(entry, "./atom:title", namespaces).replace("\n", " "),
-                "summary": " ".join(summary.split()),
-                "authors": [_entry_text(author, "./atom:name", namespaces) for author in entry.findall("./atom:author", namespaces)],
-                "published": _entry_text(entry, "./atom:published", namespaces),
-                "updated": _entry_text(entry, "./atom:updated", namespaces),
-                "url": abs_url,
-                "pdf_url": pdf_url,
-                "source": "arxiv.org",
-                "primary_category": primary.get("term") if primary is not None else None,
-                "categories": [cat.get("term") for cat in entry.findall("./atom:category", namespaces)],
-            })
-        return {
-            "tool": "arxiv_search",
-            "query": query,
-            "api_query": params["search_query"],
-            "total_results": int(total_node.text) if total_node is not None and total_node.text else None,
-            "items": entries,
-            "rate_limit_note": "arXiv may return 429 if called too frequently; this tool waits at least 3 seconds between requests in-process.",
-        }
+            entries.append({"arxiv_id": arxiv_id, "title": _entry_text(entry, "./atom:title", namespaces).replace("\n", " "), "summary": " ".join(summary.split()), "authors": [_entry_text(author_node, "./atom:name", namespaces) for author_node in entry.findall("./atom:author", namespaces)], "published": _entry_text(entry, "./atom:published", namespaces), "updated": _entry_text(entry, "./atom:updated", namespaces), "url": abs_url, "pdf_url": pdf_url, "source": "arxiv.org", "primary_category": primary.get("term") if primary is not None else None, "categories": [cat.get("term") for cat in entry.findall("./atom:category", namespaces)]})
+        return {"tool": "arxiv_search", "query": query, "filters": {"author": author, "title": title, "date_from": date_from, "date_to": date_to, "categories": requested_categories, "start": start, "max_results": max_results}, "api_query": api_query, "total_results": int(total_node.text) if total_node is not None and total_node.text else None, "items": entries, "rate_limit_note": "arXiv may return 429; this tool waits at least 3 seconds between requests in-process."}
     except Exception as exc:
         return err("arxiv_search", exc)
-

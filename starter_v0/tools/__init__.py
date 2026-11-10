@@ -35,6 +35,7 @@ TOOL_FUNCTIONS = {
     "send": send_telegram,
     "policy": search_company_policy,
     "papers": arxiv_search,
+    "arxiv_search": arxiv_search,
     "paper_text": get_arxiv_paper_text,
     "research_paper": research_paper,
     # TODO CP3 (student): register your new tool here, e.g. "my_tool": my_tool_function,

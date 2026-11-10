@@ -105,13 +105,30 @@ tools:
       required: [query]
 
   - name: papers
-    description: "Tìm bài báo khoa học."
+    description: "Alias tương thích để tìm bài báo khoa học; ưu tiên dùng arxiv_search cho các truy vấn mới."
     parameters:
       type: object
       properties:
         query: {type: string, default: "", description: "Từ khóa"}
         max_results: {type: integer, default: 5, description: "Số lượng"}
         sort_by: {type: string, enum: [relevance, lastUpdatedDate, submittedDate], default: "relevance", description: "Sắp xếp"}
+      required: [query]
+
+  - name: arxiv_search
+    description: "Tìm kiếm bài báo trên arXiv bằng API chính thức. Dùng cho câu hỏi cần nghiên cứu bên ngoài, không dùng cho kiến thức chung. Trích xuất query, giới hạn kết quả, sắp xếp, tác giả, tiêu đề, khoảng ngày, category và pagination từ yêu cầu. Kết quả trả về là metadata đã lấy từ arXiv; không bịa paper, citation hoặc kết quả khi API lỗi."
+    parameters:
+      type: object
+      properties:
+        query: {type: string, default: "", description: "Chủ đề tìm kiếm. Dùng AND/OR/NOT khi người dùng nêu logic rõ ràng."}
+        max_results: {type: integer, default: 5, description: "Số kết quả tối đa, tối đa 50."}
+        sort_by: {type: string, enum: [relevance, lastUpdatedDate, submittedDate], default: "relevance", description: "Cách sắp xếp kết quả."}
+        sort_order: {type: string, enum: [ascending, descending], default: "descending", description: "Thứ tự sắp xếp."}
+        start: {type: integer, default: 0, description: "Offset phân trang; dùng 0 cho trang đầu, tăng theo batch size cho trang tiếp theo."}
+        date_from: {type: string, default: "", description: "Ngày bắt đầu YYYY-MM-DD nếu người dùng giới hạn năm/khoảng thời gian."}
+        date_to: {type: string, default: "", description: "Ngày kết thúc YYYY-MM-DD nếu người dùng giới hạn năm/khoảng thời gian."}
+        author: {type: string, default: "", description: "Tên tác giả khi người dùng yêu cầu tìm theo tác giả."}
+        title: {type: string, default: "", description: "Cụm tiêu đề khi người dùng yêu cầu tìm theo tiêu đề."}
+        categories: {type: array, default: [], items: {type: string}, description: "Danh sách category arXiv như cs.CR hoặc cs.AI."}
       required: [query]
 
   - name: paper_text
