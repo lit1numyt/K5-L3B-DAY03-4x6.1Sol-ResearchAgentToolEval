@@ -20,7 +20,7 @@
   "selected_default": "v8",
   "selection_reason": "v9 base 19/20: R12 response_type=text differs from expected yes_no; pre-registered promotion criterion not met. v9 remains an integrated, measured candidate. No rerun for a better score.",
   "v9_base_run": "starter_v0/runs/v9_B_base_openai_20261110T230751104659.json",
-  "v9_group_run": "starter_v0/runs/v9_B_group_openai_20261110T230818905094.json",
+  "v9_group_run": "starter_v0/runs/history/bibliography_suite/v9_B_group_openai_20261110T230818905094.json",
   "pytest": "130 passed, 14 skipped, 0 failed",
   "manual_review": [
     "R08: out-of-scope math solution despite no-tool PASS",
@@ -35,5 +35,12 @@
       "action": "moved without changing bytes",
       "reason": "Original v4 group dataset 9/10 is historical, distinct from reviewed v4 group dataset 10/10; keep evidence out of primary run list."
     }
-  ]
+  ],
+  "subsequent_common_comparison": {
+    "protocol": "report/team/review_evidence/common_group_comparison.json",
+    "v9_group_run": "starter_v0/runs/v9_B_group_openai_20261110T232114281236.json",
+    "group_score": "9/10",
+    "selected_default": "v8",
+    "note": "Original H9 evidence remains historical; the shared-suite rerun is the primary comparison."
+  }
 }

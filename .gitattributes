@@ -14,3 +14,6 @@ starter_v0/artifacts/eval_group_v4_reviewed.json -text
 # Keep raw console evidence intact, including intentional trailing spaces.
 report/team/review_evidence/*.txt -text -whitespace
 starter_v0/runs/**/*.log -text -whitespace
+
+# Freeze the common comparison dataset and historical input fixtures byte-for-byte.
+starter_v0/data/eval_group.json -text

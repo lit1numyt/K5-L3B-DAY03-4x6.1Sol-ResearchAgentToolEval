@@ -1,15 +1,15 @@
 # Artifact versions
 
-system_prompt.md và tools.yaml hiện trùng byte với **v8**. V8 phát triển từ snapshot v4, chỉ thêm routing/declaration build_bibliography; không thay snapshot v4.
+system_prompt.md và tools.yaml trùng byte với **v8**, cấu hình mặc định. Các snapshot v0–v9 giữ nguyên; đợt sửa phép so sánh không sửa prompt, description hay code tool.
 
-v0/v1/v2 là lịch sử; v3 là v2-tool cũ; v4 là v3 cũ có base 20/20; v5/v6/v7 là các thí nghiệm có hồi quy. V8 có run mới base 20/20 và group 10/10. Không dựng lại lịch sử tăng đều.
+V3 là v2-tool cũ; v4 là v3 cũ, có base 20/20. V5–v7 có hồi quy ở base. V8 thêm build_bibliography trên nền v4. V9 hợp nhất quy tắc xác nhận Telegram/phạm vi nhiệm vụ của Lam; base 19/20, group chung 9/10 nên chưa được chọn. V8 giữ base 20/20 và group chung mới đo 10/10.
 
-V9 hợp nhất phần hiệu chỉnh xác nhận Telegram và phạm vi nhiệm vụ từ commit 54d010f của Nguyễn Đức Khương Lam vào nền v8. Snapshot v9 giữ đủ 14 tool, chỉ thay prompt và bốn mô tả clarify/send; schema, mặc định, code và dataset không đổi. V9 đo riêng 19/20 base, 9/10 group trên cùng suite v8, nên chưa được chọn làm mặc định theo H9 đã ghi trước khi chạy. R08/R14 còn trả lời ngoài phạm vi dù máy chấm no_tool ghi PASS; G04 gọi send khi chưa được duyệt và đã bị stub chặn. Snapshot và kết quả v8 được giữ nguyên.
+**Bộ group chung:** data/eval_group.json giữ nguyên byte của eval_group_v4_reviewed.json. V4–v9 đều được đo lại trên cùng 10 câu, đúng 5 single + 5 multi; G05 là audit nguồn trùng. Không thay G05 theo tool mà phiên bản có. Protocol/hash/input verification nằm trong report/team/review_evidence/common_group_comparison.json.
 
-- v7_candidates/initial/: snapshot lần v7 đầu, ứng với runs/candidates/v7_initial/.
-- eval_group_v4.json: suite nguyên thủy.
-- eval_group_v4_reviewed.json: suite đã siết dùng cho v4/v5/v6/v7.
-- data/eval_group.json: suite v8, thay G05 bằng bibliography, giữ 5 single + 5 multi.
-- research_paper_v4.py: implementation trước bổ sung validate/error handling chung, không phải tool đăng ký riêng.
+- eval_group_v4.json: bộ group nguyên thủy, chỉ dùng đối chiếu lịch sử.
+- eval_group_v4_reviewed.json: snapshot của bộ đã siết và nay là bộ so sánh chung.
+- runs/history/bibliography_suite/eval_cases.json: bộ từng thay G05 bằng bibliography; giữ riêng để kiểm tra tool mới, không trộn điểm với bảng chung.
+- v7_candidates/initial/: cấu hình v7 ban đầu, khác snapshot H7A chính.
+- research_paper_v4.py: implementation trước sửa validate/error handling; không phải tool đăng ký riêng.
 
-Run JSON giữ metadata gốc dù đổi tên file; đối chiếu hash, version_log.csv và manifest ở report/team/review_evidence/. H7A, H8 và H9 ghi trước lần chạy tương ứng. Metric/hypothesis không được sửa để tạo đường tăng giả.
+Các run group cũ chuyển vào history, giữ nguyên JSON; version_log.csv đánh dấu historical và có sáu dòng group chung mới. H7A/H8/H9 vẫn ghi đúng bối cảnh trước từng lượt thử, không viết lại giả thuyết lịch sử theo kết quả sau này. Một phép đo chung mới không biến bộ phát triển thành bộ kiểm tra chưa từng thấy.

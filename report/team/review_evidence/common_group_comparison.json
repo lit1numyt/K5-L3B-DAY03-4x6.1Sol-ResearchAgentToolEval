@@ -1,0 +1,340 @@
+{
+  "purpose": "Correct the comparison: identical ten cases, expectations and evaluator for v4-v9. This is a protocol correction, not a new agent version.",
+  "registered_before_runs": true,
+  "dataset": "starter_v0/data/eval_group.json",
+  "dataset_id": "day03_v2_research_group_review_20261110",
+  "dataset_sha256": "1562c5e587c4c6f9378eaf9a6fd5869d9be74aadf1429da30536f9430e5310d9",
+  "cases": [
+    {
+      "id": "G01_audit_empty_and_failed_sources",
+      "kind": "single"
+    },
+    {
+      "id": "G02_audit_after_results_multiturn",
+      "kind": "multi"
+    },
+    {
+      "id": "G03_telegram_missing_content",
+      "kind": "single"
+    },
+    {
+      "id": "G04_telegram_confirm_known_content_multiturn",
+      "kind": "multi"
+    },
+    {
+      "id": "G05_audit_duplicate_sources",
+      "kind": "single"
+    },
+    {
+      "id": "G06_research_paper_limitations",
+      "kind": "single"
+    },
+    {
+      "id": "G07_audit_capabilities_without_tools",
+      "kind": "single"
+    },
+    {
+      "id": "G08_paper_filter_carryover",
+      "kind": "multi"
+    },
+    {
+      "id": "G09_paper_pagination",
+      "kind": "multi"
+    },
+    {
+      "id": "G10_audit_retained_results",
+      "kind": "multi"
+    }
+  ],
+  "single": 5,
+  "multi": 5,
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "temperature": 0.0,
+  "versions": [
+    "v4",
+    "v5",
+    "v6",
+    "v7",
+    "v8",
+    "v9"
+  ],
+  "runs_per_version": 1,
+  "send_execution": "blocked via existing run_eval_no_send.py wrapper",
+  "evaluator": "starter_v0/run_eval.py",
+  "evaluator_sha256": "a23524afc867439bdcaa4cbda0b51835b0ba2404f717808b548bad156ea25832",
+  "shared_code_commit": "ba55ff624bbc3a03b8855d8fec54afae4bb65eba",
+  "historical_group_moves": [
+    {
+      "old_path": "starter_v0/runs/v4_B_group_openai_20261110T221923054166.json",
+      "new_path": "starter_v0/runs/history/reviewed_suite/v4_B_group_openai_20261110T221923054166.json",
+      "sha256": "ac9724b5740853dd3485d6e6330e5383c066f25ba93cfb6510d5aa8784e45633",
+      "dataset_id": "day03_v2_research_group_review_20261110"
+    },
+    {
+      "old_path": "starter_v0/runs/v5_B_group_openai_20261110T215806188729.json",
+      "new_path": "starter_v0/runs/history/reviewed_suite/v5_B_group_openai_20261110T215806188729.json",
+      "sha256": "acb079dabe32aafabbbe8efeaca6ad8828aef5758bfb1a1ce0bca6b3b7645562",
+      "dataset_id": "day03_v2_research_group_review_20261110"
+    },
+    {
+      "old_path": "starter_v0/runs/v6_B_group_openai_20261110T220145613780.json",
+      "new_path": "starter_v0/runs/history/reviewed_suite/v6_B_group_openai_20261110T220145613780.json",
+      "sha256": "6c6246318ba93cd577d5622a54bdbf82a1fce9d3193e557d23fcc433a070f8e1",
+      "dataset_id": "day03_v2_research_group_review_20261110"
+    },
+    {
+      "old_path": "starter_v0/runs/v7_B_group_openai_20261110T221755047976.json",
+      "new_path": "starter_v0/runs/history/reviewed_suite/v7_B_group_openai_20261110T221755047976.json",
+      "sha256": "b130eeac468dea04cd18d1ad23fa99cd28fb3b7809614086fa7b16cccb48ff70",
+      "dataset_id": "day03_v2_research_group_review_20261110"
+    },
+    {
+      "old_path": "starter_v0/runs/v8_B_group_openai_20261110T223032240551.json",
+      "new_path": "starter_v0/runs/history/bibliography_suite/v8_B_group_openai_20261110T223032240551.json",
+      "sha256": "cf9822aeb7c87a318a87a1ce2462abfbb7807183aabc925c54c91a6f7711ac15",
+      "dataset_id": "day03_group_v8_bibliography"
+    },
+    {
+      "old_path": "starter_v0/runs/v9_B_group_openai_20261110T230818905094.json",
+      "new_path": "starter_v0/runs/history/bibliography_suite/v9_B_group_openai_20261110T230818905094.json",
+      "sha256": "876a80290e9a0467db6ba23b8d5973d0eac846bed5fa183dae158cde8d33b257",
+      "dataset_id": "day03_group_v8_bibliography"
+    }
+  ],
+  "bibliography_fixture": "starter_v0/runs/history/bibliography_suite/eval_cases.json",
+  "comparison_note": "Same prompts/tool schemas as recorded snapshots. Same shared current tool implementations, evaluator and dataset for all reruns; live external API content can still vary. No repeated reruns to select better scores.",
+  "status": "complete: all six runs valid and all ten inputs/expectations verified identical",
+  "results": {
+    "v4": {
+      "path": "starter_v0/runs/v4_B_group_openai_20261110T231937353625.json",
+      "summary": {
+        "total_cases": 10,
+        "measured_cases": 10,
+        "provider_error_cases": 0,
+        "passed_cases": 10,
+        "case_accuracy": 1.0,
+        "tool_routing_accuracy": 1.0,
+        "argument_accuracy": 1.0,
+        "multiturn_accuracy": 1.0,
+        "failure_counts": {},
+        "observed_mismatch_counts": {}
+      },
+      "prompt_hash": "89299baf402f059fd5ccb1b7669f70e180a0009ee3898df743aeb064a0c52eab",
+      "tools_hash": "4620b3b880bb04634cd0561997707dc9d8b2b874a3e7e2e871d4e8b053741050",
+      "artifact_version": "v4+p89299baf402f+t4620b3b880bb",
+      "dataset_sha256_verified_against_frozen_source": "1562c5e587c4c6f9378eaf9a6fd5869d9be74aadf1429da30536f9430e5310d9",
+      "all_case_inputs_and_expectations_verified": true,
+      "failures": []
+    },
+    "v5": {
+      "path": "starter_v0/runs/v5_B_group_openai_20261110T231937454478.json",
+      "summary": {
+        "total_cases": 10,
+        "measured_cases": 10,
+        "provider_error_cases": 0,
+        "passed_cases": 10,
+        "case_accuracy": 1.0,
+        "tool_routing_accuracy": 1.0,
+        "argument_accuracy": 1.0,
+        "multiturn_accuracy": 1.0,
+        "failure_counts": {},
+        "observed_mismatch_counts": {}
+      },
+      "prompt_hash": "c19e3c26ad34a304df378c0959bd1976b53f3d5d8d574a39f8c3f6ac0a6cd92a",
+      "tools_hash": "f8375505fd76bccad1745a816b20cecdc7dcbb6ef03e82527c6d99cd6e9415b6",
+      "artifact_version": "v5+pc19e3c26ad34+tf8375505fd76",
+      "dataset_sha256_verified_against_frozen_source": "1562c5e587c4c6f9378eaf9a6fd5869d9be74aadf1429da30536f9430e5310d9",
+      "all_case_inputs_and_expectations_verified": true,
+      "failures": []
+    },
+    "v6": {
+      "path": "starter_v0/runs/v6_B_group_openai_20261110T231937298715.json",
+      "summary": {
+        "total_cases": 10,
+        "measured_cases": 10,
+        "provider_error_cases": 0,
+        "passed_cases": 10,
+        "case_accuracy": 1.0,
+        "tool_routing_accuracy": 1.0,
+        "argument_accuracy": 1.0,
+        "multiturn_accuracy": 1.0,
+        "failure_counts": {},
+        "observed_mismatch_counts": {}
+      },
+      "prompt_hash": "4bb966897b82f96f88854526a8c207ef40408256a4864564714886c03619cafc",
+      "tools_hash": "4ce3000d2042a02099e0a8aa62b08fac43d4ede3bdeede4ca950a7034ae0c888",
+      "artifact_version": "v6+p4bb966897b82+t4ce3000d2042",
+      "dataset_sha256_verified_against_frozen_source": "1562c5e587c4c6f9378eaf9a6fd5869d9be74aadf1429da30536f9430e5310d9",
+      "all_case_inputs_and_expectations_verified": true,
+      "failures": []
+    },
+    "v7": {
+      "path": "starter_v0/runs/v7_B_group_openai_20261110T232114470645.json",
+      "summary": {
+        "total_cases": 10,
+        "measured_cases": 10,
+        "provider_error_cases": 0,
+        "passed_cases": 9,
+        "case_accuracy": 0.9,
+        "tool_routing_accuracy": 0.9,
+        "argument_accuracy": 0.9,
+        "multiturn_accuracy": 1.0,
+        "failure_counts": {
+          "wrong_tool": 1
+        },
+        "observed_mismatch_counts": {
+          "missing_tool_call": 1
+        }
+      },
+      "prompt_hash": "721e3af061bfcbf8f93eac94e2f0174edae2f5226be76d377bef54fd993e2283",
+      "tools_hash": "9c3cd7ec0366c0ff207d495ef4673dee398c8e698deff421f0086b21bc89e9c9",
+      "artifact_version": "v7+p721e3af061bf+t9c3cd7ec0366",
+      "dataset_sha256_verified_against_frozen_source": "1562c5e587c4c6f9378eaf9a6fd5869d9be74aadf1429da30536f9430e5310d9",
+      "all_case_inputs_and_expectations_verified": true,
+      "failures": [
+        {
+          "case": "G06_research_paper_limitations",
+          "calls": [
+            {
+              "name": "paper_text",
+              "args": {
+                "arxiv_url": "2305.14314",
+                "include_text": true
+              }
+            }
+          ],
+          "failures": [
+            "missing tool call research_paper",
+            "extra tool call paper_text"
+          ],
+          "tool_results": [
+            {
+              "tool": "paper_text",
+              "args": {
+                "arxiv_url": "2305.14314",
+                "include_text": true
+              },
+              "result": {
+                "error": "TypeError",
+                "message": "get_arxiv_paper_text() got an unexpected keyword argument 'include_text'"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "v8": {
+      "path": "starter_v0/runs/v8_B_group_openai_20261110T232118798370.json",
+      "summary": {
+        "total_cases": 10,
+        "measured_cases": 10,
+        "provider_error_cases": 0,
+        "passed_cases": 10,
+        "case_accuracy": 1.0,
+        "tool_routing_accuracy": 1.0,
+        "argument_accuracy": 1.0,
+        "multiturn_accuracy": 1.0,
+        "failure_counts": {},
+        "observed_mismatch_counts": {}
+      },
+      "prompt_hash": "28df43d23d49564f2e3d25b883a429532ee2b47e7358e1f9b45a0c3cb6bcae6d",
+      "tools_hash": "1985f521a55c9bc4140b7e1cda2eaf8fd023616fafc24e236bbab203e53faf05",
+      "artifact_version": "v8+p28df43d23d49+t1985f521a55c",
+      "dataset_sha256_verified_against_frozen_source": "1562c5e587c4c6f9378eaf9a6fd5869d9be74aadf1429da30536f9430e5310d9",
+      "all_case_inputs_and_expectations_verified": true,
+      "failures": []
+    },
+    "v9": {
+      "path": "starter_v0/runs/v9_B_group_openai_20261110T232114281236.json",
+      "summary": {
+        "total_cases": 10,
+        "measured_cases": 10,
+        "provider_error_cases": 0,
+        "passed_cases": 9,
+        "case_accuracy": 0.9,
+        "tool_routing_accuracy": 0.9,
+        "argument_accuracy": 0.9,
+        "multiturn_accuracy": 0.8,
+        "failure_counts": {
+          "wrong_boundary": 1
+        },
+        "observed_mismatch_counts": {
+          "missing_tool_call": 1
+        }
+      },
+      "prompt_hash": "980d47d87a9efab94116eac5637c31e372a48174314d1d1639c67aacfbfe8766",
+      "tools_hash": "c4dc31cfea7cc7ba6bf237d03a3d3d0f294f2ee8b951098b90684db3e1e55633",
+      "artifact_version": "v9+p980d47d87a9e+tc4dc31cfea7c",
+      "dataset_sha256_verified_against_frozen_source": "1562c5e587c4c6f9378eaf9a6fd5869d9be74aadf1429da30536f9430e5310d9",
+      "all_case_inputs_and_expectations_verified": true,
+      "failures": [
+        {
+          "case": "G04_telegram_confirm_known_content_multiturn",
+          "calls": [
+            {
+              "name": "send",
+              "args": {
+                "text": "AI hỗ trợ tìm kiếm tài liệu khoa học",
+                "confirmed": true
+              }
+            }
+          ],
+          "failures": [
+            "missing tool call clarify",
+            "extra tool call send"
+          ],
+          "tool_results": [
+            {
+              "tool": "send",
+              "args": {
+                "text": "AI hỗ trợ tìm kiếm tài liệu khoa học",
+                "confirmed": true
+              },
+              "result": {
+                "tool": "send",
+                "status": "blocked_for_eval",
+                "message": "No Telegram message is sent by this evaluation."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "post_evaluation_unit_tests": {
+    "passed": 200,
+    "skipped": 0,
+    "failed": 0,
+    "log": "report/team/review_evidence/pytest_tools_complete.txt",
+    "behavior_tests_cover_registry_names": [
+      "clarify",
+      "timeline",
+      "social_search",
+      "lookup",
+      "fetch",
+      "format",
+      "send",
+      "policy",
+      "papers",
+      "arxiv_search",
+      "paper_text",
+      "research_paper",
+      "audit_research_evidence",
+      "build_bibliography"
+    ],
+    "new_tool_case_counts": {
+      "research_paper": 14,
+      "audit_research_evidence": 10,
+      "build_bibliography": 16
+    },
+    "alias_note": "papers/arxiv_search share an implementation; not two new tools.",
+    "network": "offline mocked requests; tests block real HTTP",
+    "send_regression": "Only literal boolean True permits HTTP; 1 and strings such as false do not count as confirmation."
+  },
+  "post_evaluation_code_change": {
+    "path": "starter_v0/tools/send/tool.py",
+    "change": "not confirmed -> confirmed is not True",
+    "effect_on_comparison": "None: all six evaluations replaced send with the same blocking stub. Model tools, evaluator and all other tool implementations were unchanged during the six runs."
+  }
+}

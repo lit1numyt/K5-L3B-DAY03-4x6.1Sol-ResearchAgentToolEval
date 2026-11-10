@@ -41,4 +41,6 @@ Sao chép mục dưới đây cho từng thành viên.
 
 - [Báo cáo cá nhân](report/team/2A202604016_ChuNguyenTungDuong.md), [báo cáo nhóm](report/team/group_report.md), [version log](starter_v0/artifacts/version_log.csv).
 - Hợp nhất commit 54d010f của Nguyễn Đức Khương Lam thành v9, giữ tác giả và chạy kiểm chứng riêng (19/20 base, 9/10 group). V8 vẫn là mặc định; không nhận phần hiệu chỉnh của Lam là do mình viết.
+- Cố định cùng 10 case group cho v4–v9 và chạy lại sáu cấu hình; xem [protocol và kết quả](report/team/review_evidence/common_group_comparison.json).
+- Hoàn thiện test tool (200 passed, 0 skipped, 0 failed), phát hiện/sửa guard boolean của send bằng regression offline.
 - Thay đổi v8, bản tích hợp v9, UI và báo cáo được lưu cùng nhánh nộp `main`; mốc commit nằm trong thông tin nhóm ở trên. Các thành viên còn lại tự bổ sung phần mình.

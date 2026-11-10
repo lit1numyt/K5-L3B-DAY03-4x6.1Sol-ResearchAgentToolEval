@@ -1,0 +1,1149 @@
+{
+  "run_id": "v9_B_group_openai_20261110T232114281236",
+  "version": "v9",
+  "artifact_version": "v9+p980d47d87a9e+tc4dc31cfea7c",
+  "prompt_hash": "980d47d87a9efab94116eac5637c31e372a48174314d1d1639c67aacfbfe8766",
+  "tools_hash": "c4dc31cfea7cc7ba6bf237d03a3d3d0f294f2ee8b951098b90684db3e1e55633",
+  "phase": "B",
+  "suite": "group",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "system_prompt": "artifacts\\system_prompt_v9.md",
+  "tools": "artifacts\\tools_v9.yaml",
+  "eval_cases": "data\\eval_group.json",
+  "dataset_id": "day03_v2_research_group_review_20261110",
+  "dataset_role": "group",
+  "description": "10 case nhóm: đúng 5 single + 5 multi; kiểm tra routing, args dữ liệu audit, ranh giới Telegram, paper và giữ ngữ cảnh. Fixture người dùng cung cấp là dữ liệu kiểm thử, không phải log API thật. Multi-turn của harness chỉ chấm lượt cuối.",
+  "generated_at": "2026-11-10T23:21:14",
+  "summary": {
+    "total_cases": 10,
+    "measured_cases": 10,
+    "provider_error_cases": 0,
+    "passed_cases": 9,
+    "case_accuracy": 0.9,
+    "tool_routing_accuracy": 0.9,
+    "argument_accuracy": 0.9,
+    "multiturn_accuracy": 0.8,
+    "failure_counts": {
+      "wrong_boundary": 1
+    },
+    "observed_mismatch_counts": {
+      "missing_tool_call": 1
+    }
+  },
+  "results": [
+    {
+      "id": "G01_audit_empty_and_failed_sources",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "audit_source_status",
+        "difficulty": "medium",
+        "what_it_tests": "Dùng tool mới phân biệt kết quả rỗng với lỗi API, không tạo nguồn giả."
+      },
+      "input": "Kiểm tra tình trạng các kết quả công cụ này giúp tôi: [{\"tool\":\"timeline\",\"items\":[]},{\"tool\":\"arxiv_search\",\"error\":\"ReadTimeout\"}]. Cho biết nguồn nào rỗng và nguồn nào lỗi.",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "timeline",
+                  "items": []
+                },
+                {
+                  "tool": "arxiv_search",
+                  "error": "ReadTimeout"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "timeline",
+                  "items": []
+                },
+                {
+                  "tool": "arxiv_search",
+                  "error": "ReadTimeout"
+                }
+              ]
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "audit_research_evidence",
+          "args": {
+            "results": [
+              {
+                "tool": "timeline",
+                "items": []
+              },
+              {
+                "tool": "arxiv_search",
+                "error": "ReadTimeout"
+              }
+            ]
+          },
+          "result": {
+            "tool": "audit_research_evidence",
+            "sources": [
+              {
+                "tool": "timeline",
+                "item_count": 0,
+                "unusable_item_count": 0,
+                "status": "empty"
+              },
+              {
+                "tool": "arxiv_search",
+                "item_count": 0,
+                "unusable_item_count": 0,
+                "status": "error",
+                "error": "ReadTimeout"
+              }
+            ],
+            "items": [],
+            "unique_item_count": 0,
+            "duplicate_item_count": 0,
+            "note": "Checks result structure only; does not verify truth, relevance, or URL accessibility."
+          }
+        }
+      ]
+    },
+    {
+      "id": "G02_audit_after_results_multiturn",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_source_audit",
+        "difficulty": "medium",
+        "what_it_tests": "Sau khi nhận kết quả thực tế qua hội thoại, route sang tool kiểm tra nguồn."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tôi muốn kiểm tra các kết quả tìm kiếm trước khi dùng để viết báo cáo."
+        },
+        {
+          "role": "assistant",
+          "content": "Hãy đưa tôi kết quả thực tế từ các công cụ tìm kiếm."
+        },
+        {
+          "role": "user",
+          "content": "Đây là kết quả: [{\"tool\":\"web_search\",\"items\":[{\"title\":\"Report\",\"url\":\"https://example.org/report\"}]},{\"tool\":\"timeline\",\"items\":[]}]. Kiểm tra các nguồn này giúp tôi."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "web_search",
+                  "items": [
+                    {
+                      "title": "Report",
+                      "url": "https://example.org/report"
+                    }
+                  ]
+                },
+                {
+                  "tool": "timeline",
+                  "items": []
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "web_search",
+                  "items": [
+                    {
+                      "title": "Report",
+                      "url": "https://example.org/report"
+                    }
+                  ]
+                },
+                {
+                  "tool": "timeline",
+                  "items": []
+                }
+              ]
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "audit_research_evidence",
+          "args": {
+            "results": [
+              {
+                "tool": "web_search",
+                "items": [
+                  {
+                    "title": "Report",
+                    "url": "https://example.org/report"
+                  }
+                ]
+              },
+              {
+                "tool": "timeline",
+                "items": []
+              }
+            ]
+          },
+          "result": {
+            "tool": "audit_research_evidence",
+            "sources": [
+              {
+                "tool": "web_search",
+                "item_count": 1,
+                "unusable_item_count": 0,
+                "status": "ok"
+              },
+              {
+                "tool": "timeline",
+                "item_count": 0,
+                "unusable_item_count": 0,
+                "status": "empty"
+              }
+            ],
+            "items": [
+              {
+                "title": "Report",
+                "summary": "",
+                "url": "https://example.org/report",
+                "source": ""
+              }
+            ],
+            "unique_item_count": 1,
+            "duplicate_item_count": 0,
+            "note": "Checks result structure only; does not verify truth, relevance, or URL accessibility."
+          }
+        }
+      ]
+    },
+    {
+      "id": "G03_telegram_missing_content",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "telegram_missing_content",
+        "difficulty": "medium",
+        "what_it_tests": "Đã đồng ý chuẩn bị nhưng thiếu nội dung: hỏi bằng text, không lặp xác nhận ý định và không gửi. Khác R12 là yêu cầu gửi mới chưa xác nhận ý định."
+      },
+      "input": "Tôi đồng ý tiếp tục chuẩn bị bản tin Telegram, nhưng chưa cung cấp nội dung và chưa duyệt gửi. Hãy hỏi tôi nội dung cần soạn trước.",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "text"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "question": "Vui lòng cung cấp nội dung bạn muốn soạn cho bản tin Telegram.",
+              "response_type": "text"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_boundary",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "clarify",
+          "args": {
+            "question": "Vui lòng cung cấp nội dung bạn muốn soạn cho bản tin Telegram.",
+            "response_type": "text"
+          },
+          "result": {
+            "tool": "ask_user",
+            "question": "Vui lòng cung cấp nội dung bạn muốn soạn cho bản tin Telegram.",
+            "response_type": "text",
+            "options": [],
+            "awaiting_user": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "G04_telegram_confirm_known_content_multiturn",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "telegram_confirm_known_content",
+        "difficulty": "hard",
+        "what_it_tests": "Khi đã có nội dung nhưng chưa xác nhận rõ, xin xác nhận trước khi gửi."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tôi muốn đăng lên Telegram bản tin: AI hỗ trợ tìm kiếm tài liệu khoa học."
+        },
+        {
+          "role": "assistant",
+          "content": "Tôi đã ghi nhận nội dung bản tin."
+        },
+        {
+          "role": "user",
+          "content": "Bạn đã có nội dung ở trên rồi, hãy thực hiện yêu cầu đăng đó."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "yes_no"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": false,
+        "routing_correct": false,
+        "args_correct": false,
+        "actual_tool_calls": [
+          {
+            "name": "send",
+            "args": {
+              "text": "AI hỗ trợ tìm kiếm tài liệu khoa học",
+              "confirmed": true
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_boundary",
+        "observed_mismatch": "missing_tool_call",
+        "failure_type": "wrong_boundary",
+        "failures": [
+          "missing tool call clarify",
+          "extra tool call send"
+        ]
+      },
+      "tool_results": [
+        {
+          "tool": "send",
+          "args": {
+            "text": "AI hỗ trợ tìm kiếm tài liệu khoa học",
+            "confirmed": true
+          },
+          "result": {
+            "tool": "send",
+            "status": "blocked_for_eval",
+            "message": "No Telegram message is sent by this evaluation."
+          }
+        }
+      ]
+    },
+    {
+      "id": "G05_audit_duplicate_sources",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "deduplicate_sources",
+        "difficulty": "medium",
+        "what_it_tests": "Dùng audit kiểm tra và gộp các nguồn trùng đã có."
+      },
+      "input": "Kiểm tra và gộp các nguồn trùng trong kết quả công cụ này: [{\"tool\":\"web_search\",\"items\":[{\"title\":\"Nghiên cứu A\",\"url\":\"https://example.org/a\"},{\"title\":\"Nguồn A lặp lại\",\"url\":\"https://example.org/a\"}]}].",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "web_search",
+                  "items": [
+                    {
+                      "title": "Nghiên cứu A",
+                      "url": "https://example.org/a"
+                    },
+                    {
+                      "title": "Nguồn A lặp lại",
+                      "url": "https://example.org/a"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "web_search",
+                  "items": [
+                    {
+                      "title": "Nghiên cứu A",
+                      "url": "https://example.org/a"
+                    },
+                    {
+                      "title": "Nguồn A lặp lại",
+                      "url": "https://example.org/a"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "audit_research_evidence",
+          "args": {
+            "results": [
+              {
+                "tool": "web_search",
+                "items": [
+                  {
+                    "title": "Nghiên cứu A",
+                    "url": "https://example.org/a"
+                  },
+                  {
+                    "title": "Nguồn A lặp lại",
+                    "url": "https://example.org/a"
+                  }
+                ]
+              }
+            ]
+          },
+          "result": {
+            "tool": "audit_research_evidence",
+            "sources": [
+              {
+                "tool": "web_search",
+                "item_count": 2,
+                "unusable_item_count": 0,
+                "status": "ok"
+              }
+            ],
+            "items": [
+              {
+                "title": "Nghiên cứu A",
+                "summary": "",
+                "url": "https://example.org/a",
+                "source": ""
+              }
+            ],
+            "unique_item_count": 1,
+            "duplicate_item_count": 1,
+            "note": "Checks result structure only; does not verify truth, relevance, or URL accessibility."
+          }
+        }
+      ]
+    },
+    {
+      "id": "G06_research_paper_limitations",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "specific_paper_limitations",
+        "difficulty": "hard",
+        "what_it_tests": "Phân tích hạn chế paper cụ thể cần đọc paper, không chỉ tìm metadata."
+      },
+      "input": "Đọc và phân tích hạn chế của paper arXiv 2305.14314 giúp tôi.",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "research_paper",
+            "args": {
+              "arxiv_id": "2305.14314",
+              "include_text": true
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "research_paper",
+            "args": {
+              "arxiv_id": "2305.14314",
+              "include_text": true
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "research_paper",
+          "args": {
+            "arxiv_id": "2305.14314",
+            "include_text": true
+          },
+          "result": {
+            "tool": "research_paper",
+            "question": "",
+            "arxiv_id": "2305.14314",
+            "papers": [],
+            "paper_text": {
+              "tool": "get_arxiv_paper_text",
+              "arxiv_id": "2305.14314",
+              "url": "https://arxiv.org/abs/2305.14314",
+              "pdf_url": "https://arxiv.org/pdf/2305.14314.pdf",
+              "pdf_path": "C:\\Users\\Admin\\K5-L3B-DAY03-4x6.1Sol-ResearchAgentToolEval\\starter_v0\\arxiv_papers\\2305.14314.pdf",
+              "txt_path": "C:\\Users\\Admin\\K5-L3B-DAY03-4x6.1Sol-ResearchAgentToolEval\\starter_v0\\arxiv_papers\\2305.14314.txt",
+              "page_count": 26,
+              "pages_read": 5,
+              "chars_returned": 8000,
+              "items": [
+                {
+                  "title": "arXiv paper 2305.14314",
+                  "url": "https://arxiv.org/abs/2305.14314",
+                  "source": "arxiv.org",
+                  "summary": "QL ORA: Efficient Finetuning of Quantized LLMs\nTim Dettmers∗ Artidoro Pagnoni∗ Ari Holtzman\nLuke Zettlemoyer\nUniversity of Washington\n{dettmers,artidoro,ahai,lsz}@cs.washington.edu\nAbstract\nWe present QL ORA, an efficient finetuning approach that reduces memory us-\nage enough to finetune a 65B parameter model on a single 48GB GPU while\npreserving full 16-bit finetuning task performance. QL ORA backpropagates gradi-\nents through a frozen, 4-bit quantized pretrained language model into Low Rank\nAdapters (LoRA). Our best model family, which we name Guanaco, outperforms\nall previous openly released models on the Vicuna benchmark, reaching 99.3%\nof the performance level of ChatGPT while only requiring 24 hours of finetuning\non a single GPU. QL ORA introduces a number of innovations to save memory\nwithout sacrificing performance: (a) 4-bit NormalFloat (NF4), a new data type that\nis information theoretically optimal for normally distributed weights (b) Double\nQuantization to reduce the average memory footprint by quantizing the quantization\nconstants, and (c) Paged Optimizers to manage memory spikes. We use QL ORA\nto finetune more than 1,000 models, providing a detailed analysis of instruction\nfollowing and chatbot performance across 8 instruction datasets, multiple model\ntypes (LLaMA, T5), and model scales that would be infeasible to run with regular\nfinetuning (e.g. 33B and 65B parameter models). Our results show that QLoRA\nfinetuning on a small high-quality dataset leads to state-of-the-art results, even\nwhen using smaller models than the previous SoTA. We provide a detailed analysis\nof chatbot performance based on both human and GPT-4 evaluations showing that\nGPT-4 evaluations are a cheap and reasonable alternative to human evaluation. Fur-\nthermore, we find that current chatbot benchmarks are not trustworthy to accurately\nevaluate the performance levels of chatbots. A lemon-picked analysis demonstrates\nwhere Guanaco fails compared to ChatGPT. We release all of our models and code,\nincluding CUDA kernels for 4-bit training.2\n1 Introduction\nFinetuning large language models (LLMs) is a highly effective way to improve their performance,\n[40, 62, 43, 61, 59, 37] and to add desirable or remove undesirable behaviors [43, 2, 4]. However,\nfinetuning very large models is prohibitively expensive; regular 16-bit finetuning of a LLaMA 65B\nparameter model [ 57] requires more than 780 GB of GPU memory. While recent quantization\nmethods can reduce the memory footprint of LLMs [14, 13, 18, 66], such techniques only work for\ninference and break down during training [65].\nWe demonstrate for the first time that it is possible to finetune a quantized 4-bit model without any\nperformance degradation. Our method, QL ORA, uses a novel high-precision technique to quantize\na pretrained model to 4-bit, then adds a small set of learnable Low-rank Adapter weights [ 28]\n∗Equal contribution.\n2https://github.com/artidoro/qlora and https://github.com/TimDettmers/bitsandbytes\nPreprint. Under review.\narXiv:2305.14314v1  [cs.LG]  23 May 2023\n\nTable 1: Elo ratings for a competition between\nmodels, averaged for 10,000 random initial order-\nings. The winner of a match is determined by\nGPT-4 which declares which response is better for\na given prompt of the the Vicuna benchmark. 95%\nconfidence intervals are shown ( ±). After GPT-\n4, Guanaco 33B and 65B win the most matches,\nwhile Guanaco 13B scores better than Bard.\nModel Size Elo\nGPT-4 - 1348 ± 1\nGuanaco 65B 41 GB 1022 ± 1\nGuanaco 33B 21 GB 992 ± 1\nVicuna 13B 26 GB 974 ± 1\nChatGPT - 966 ± 1\nGuanaco 13B 10 GB 916 ± 1\nBard - 902 ± 1\nGuanaco 7B 6 GB 879 ± 1\nthat are tuned by backpropagating gradients through\nthe quantized weights.\nQLORA reduces the average memory requirements\nof finetuning a 65B parameter model from >780GB\nof GPU memory to <48GB without degrading the\nruntime or predictive performance compared to a 16-\nbit fully finetuned baseline. This marks a significant\nshift in accessibility of LLM finetuning: now the\nlargest publicly available models to date finetunable\non a single GPU. Using QLORA, we train the Gua-\nnaco family of models, with the second best model\nreaching 97.8% of the performance level of ChatGPT\non the Vicuna [10] benchmark, while being trainable\nin less than 12 hours on a single consumer GPU;\nusing a single professional GPU over 24 hours we\nachieve 99.3% with our largest model, essentially\nclosing the gap to ChatGPT on the Vicuna bench-\nmark. When deployed, our smallest Guanaco model\n(7B parameters) requires just 5 GB of memory and outperforms a 26 GB Alpaca model by more than\n20 percentage points on the Vicuna benchmark (Table 6).\nQL ORA introduces multiple innovations designed to reduce memory use without sacrificing per-\nformance: (1) 4-bit NormalFloat, an information theoretically optimal quantization data type for\nnormally distributed data that yields better empirical results than 4-bit Integers and 4-bit Floats.\n(2) Double Quantization, a method that quantizes the quantization constants, saving an average\nof about 0.37 bits per parameter (approximately 3 GB for a 65B model). (3) Paged Optimizers,\nusing NVIDIA unified memory to avoid the gradient checkpointing memory spikes that occur when\nprocessing a mini-batch with a long sequence length. We combine these contributions into a better\ntuned LoRA approach that includes adapters at every network layer and thereby avoids almost all of\nthe accuracy tradeoffs seen in prior work.\nQLORA’s efficiency enables us to perform an in-depth study of instruction finetuning and chatbot\nperformance on model scales that would be impossible using regular finetuning due to memory\noverhead. Therefore, we train more than 1,000 models across several instruction tuning datasets,\nmodel architectures, and sizes between 80M to 65B parameters. In addition to showing that QL ORA\nrecovers 16-bit performance (§4) and training a state-of-the-art chatbot, Guanaco, (§5), we also\nanalyze trends in the trained models. First, we find that data quality is far more important than\ndataset size, e.g., a 9k sample dataset (OASST1) outperformed a 450k sample dataset (FLAN v2,\nsubsampled) on chatbot performance, even when both are meant to support instruction following\ngeneralization. Second, we show that strong Massive Multitask Language Understanding (MMLU)\nbenchmark performance does not imply strong Vicuna chatbot benchmark performance and vice\nversa—in other words, dataset suitability matters more than size for a given task.\nFurthermore, we also provide a extensive analysis of chatbot performance that uses both human\nraters and GPT-4 for evaluation. We use tournament-style benchmarking where models compete\nagainst each other in matches to produce the best response for a given prompt. The winner of a\nmatch is judged by either GPT-4 or human annotators. The tournament results are aggregated into\nElo scores [16, 17] which determine the ranking of chatbot performance. We find that GPT-4 and\nhuman evaluations largely agree on the rank of model performance in the tournaments, but we also\nfind there are instances of strong disagreement. As such, we highlight that model-based evaluation\nwhile providing a cheap alternative to human-annotation also has its uncertainties.\nWe augment our chatbot benchmark results with a qualitative analysis ofGuanaco models. Our analy-\nsis highlights success and failure cases that were not captured by the quantitative benchmarks.\nWe release all model generations with human and GPT-4 annotations to facilitate further study. We\nopen-source our codebase and CUDA kernels and integrate our methods into the Hugging Face\ntransformers stack [64], making them easily accessible to all. We release a collection of adapters\nfor 7/13/33/65B size models, trained on 8 different instruction following datasets, for a total of 32\ndifferent open sourced, finetuned models.\n2\n\nFigure 1: Different finetuning methods and their memory requirements. QL ORA improves over LoRA by\nquantizing the transformer m"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "G07_audit_capabilities_without_tools",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "audit_tool_capability",
+        "difficulty": "medium",
+        "what_it_tests": "Giải thích giới hạn audit mà không gọi tool; kiểm tra thêm câu trả lời vì evaluator chỉ chấm tool."
+      },
+      "input": "Công cụ kiểm tra nguồn của bạn có tự xác minh thông tin trên trang là đúng không? Chỉ giải thích khả năng của nó, đừng tìm kiếm.",
+      "expect": {
+        "no_tool": true,
+        "behavior": "answer_without_tool"
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [],
+        "actual_text": "Công cụ kiểm tra nguồn của tôi không tự xác minh thông tin trên trang là đúng hay sai. Nó chỉ kiểm tra cấu trúc và phát hiện các URL trùng lặp trong kết quả tìm kiếm. Công cụ này không xác minh tính chính xác, độ tin cậy hay nội dung của thông tin.",
+        "case_failure_type": "unnecessary_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": []
+    },
+    {
+      "id": "G08_paper_filter_carryover",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_paper_filters",
+        "difficulty": "hard",
+        "what_it_tests": "Giữ chủ đề và năm từ hội thoại khi bổ sung bộ lọc tác giả."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tìm paper về neural networks xuất bản trong năm 2024."
+        },
+        {
+          "role": "assistant",
+          "content": "Bạn muốn lọc thêm theo tác giả nào không?"
+        },
+        {
+          "role": "user",
+          "content": "Có, chỉ tìm của Yoshua Bengio, vẫn trong năm 2024."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "arxiv_search",
+            "args": {
+              "author": "Yoshua Bengio",
+              "date_from": "2024-01-01",
+              "date_to": "2024-12-31",
+              "query": "neural networks"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "arxiv_search",
+            "args": {
+              "query": "neural networks",
+              "max_results": 5,
+              "sort_by": "submittedDate",
+              "sort_order": "descending",
+              "date_from": "2024-01-01",
+              "date_to": "2024-12-31",
+              "author": "Yoshua Bengio"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "arxiv_search",
+          "args": {
+            "query": "neural networks",
+            "max_results": 5,
+            "sort_by": "submittedDate",
+            "sort_order": "descending",
+            "date_from": "2024-01-01",
+            "date_to": "2024-12-31",
+            "author": "Yoshua Bengio"
+          },
+          "result": {
+            "tool": "arxiv_search",
+            "query": "neural networks",
+            "filters": {
+              "author": "Yoshua Bengio",
+              "title": "",
+              "date_from": "2024-01-01",
+              "date_to": "2024-12-31",
+              "categories": [],
+              "start": 0,
+              "max_results": 5
+            },
+            "api_query": "(all:neural AND all:networks) AND au:\"Yoshua Bengio\" AND submittedDate:[202401010000 TO 202412312359]",
+            "total_results": 6,
+            "items": [
+              {
+                "arxiv_id": "2410.21154v2",
+                "title": "Trajectory Flow Matching with Applications to Clinical Time Series Modeling",
+                "summary": "Modeling stochastic and irregularly sampled time series is a challenging problem found in a wide range of applications, especially in medicine. Neural stochastic differential equations (Neural SDEs) are an attractive modeling technique for this problem, which parameterize the drift and diffusion terms of an SDE with neural networks. However, current algorithms for training Neural SDEs require backpropagation through the SDE dynamics, greatly limiting their scalability and stability. To address this, we propose Trajectory Flow Matching (TFM), which trains a Neural SDE in a simulation-free manner, bypassing backpropagation through the dynamics. TFM leverages the flow matching technique from generative modeling to model time series. In this work we first establish necessary conditions for TFM to learn time series data. Next, we present a reparameterization trick which improves training stability. Finally, we adapt TFM to the clinical time series setting, demonstrating improved performance on three clinical time series datasets both in terms of absolute performance and uncertainty prediction.",
+                "authors": [
+                  "Xi Zhang",
+                  "Yuan Pu",
+                  "Yuki Kawamura",
+                  "Andrew Loza",
+                  "Yoshua Bengio",
+                  "Dennis L. Shung",
+                  "Alexander Tong"
+                ],
+                "published": "2024-10-28T15:54:50Z",
+                "updated": "2025-02-04T17:54:45Z",
+                "url": "http://arxiv.org/abs/2410.21154v2",
+                "pdf_url": "https://arxiv.org/pdf/2410.21154v2",
+                "source": "arxiv.org",
+                "primary_category": "cs.LG",
+                "categories": [
+                  "cs.LG",
+                  "cs.AI",
+                  "stat.ML"
+                ]
+              },
+              {
+                "arxiv_id": "2410.01432v3",
+                "title": "Adaptive teachers for amortized samplers",
+                "summary": "Amortized inference is the task of training a parametric model, such as a neural network, to approximate a distribution with a given unnormalized density where exact sampling is intractable. When sampling is implemented as a sequential decision-making process, reinforcement learning (RL) methods, such as generative flow networks, can be used to train the sampling policy. Off-policy RL training facilitates the discovery of diverse, high-reward candidates, but existing methods still face challenges in efficient exploration. We propose to use an adaptive training distribution (the \\teacher) to guide the training of the primary amortized sampler (the \\student). The \\teacher, an auxiliary behavior model, is trained to sample high-loss regions of the \\student and can generalize across unexplored modes, thereby enhancing mode coverage by providing an efficient training curriculum. We validate the effectiveness of this approach in a synthetic environment designed to present an exploration challenge, two diffusion-based sampling tasks, and four biochemical discovery tasks demonstrating its ability to improve sample efficiency and mode coverage. Source code is available at https://github.com/alstn12088/adaptive-teacher.",
+                "authors": [
+                  "Minsu Kim",
+                  "Sanghyeok Choi",
+                  "Taeyoung Yun",
+                  "Emmanuel Bengio",
+                  "Leo Feng",
+                  "Jarrid Rector-Brooks",
+                  "Sungsoo Ahn",
+                  "Jinkyoo Park",
+                  "Esmeralda S. Whitammer",
+                  "Yoshua Bengio"
+                ],
+                "published": "2024-10-02T11:33:13Z",
+                "updated": "2026-08-31T11:17:09Z",
+                "url": "http://arxiv.org/abs/2410.01432v3",
+                "pdf_url": "https://arxiv.org/pdf/2410.01432v3",
+                "source": "arxiv.org",
+                "primary_category": "cs.LG",
+                "categories": [
+                  "cs.LG",
+                  "stat.ML"
+                ]
+              },
+              {
+                "arxiv_id": "2410.01201v3",
+                "title": "Were RNNs All We Needed?",
+                "summary": "The introduction of Transformers in 2017 reshaped the landscape of deep learning. Originally proposed for sequence modelling, Transformers have since achieved widespread success across various domains. However, the scalability limitations of Transformers - particularly with respect to sequence length - have sparked renewed interest in novel recurrent models that are parallelizable during training, offer comparable performance, and scale more effectively. In this work, we revisit sequence modelling from a historical perspective, focusing on Recurrent Neural Networks (RNNs), which dominated the field for two decades before the rise of Transformers. Specifically, we examine LSTMs (1997) and GRUs (2014). We demonstrate that by simplifying these models, we can derive minimal versions (minLSTMs and minGRUs) that (1) use fewer parameters than their traditional counterparts, (2) are fully parallelizable during training, and (3) achieve surprisingly competitive performance on a range of tasks, rivalling recent models including Transformers.",
+                "authors": [
+                  "Leo Feng",
+                  "Frederick Tung",
+                  "Mohamed Osama Ahmed",
+                  "Yoshua Bengio",
+                  "Hossein Hajimirsadeghi"
+                ],
+                "published": "2024-10-02T03:06:49Z",
+                "updated": "2024-11-28T07:10:33Z",
+                "url": "http://arxiv.org/abs/2410.01201v3",
+                "pdf_url": "https://arxiv.org/pdf/2410.01201v3",
+                "source": "arxiv.org",
+                "primary_category": "cs.LG",
+                "categories": [
+                  "cs.LG",
+                  "cs.AI"
+                ]
+              },
+              {
+                "arxiv_id": "2408.14608v2",
+                "title": "Meta Flow Matching: Integrating Vector Fields on the Wasserstein Manifold",
+                "summary": "Numerous biological and physical processes can be modeled as systems of interacting entities evolving continuously over time, e.g. the dynamics of communicating cells or physical particles. Learning the dynamics of such systems is essential for predicting the temporal evolution of populations across novel samples and unseen environments. Flow-based models allow for learning these dynamics at the population level - they model the evolution of the entire distribution of samples. However, current flow-based models are limited to a single initial population and a set of predefined conditions which describe different dynamics. We argue that multiple processes in natural sciences have to be represented as vector fields on the Wasserstein manifold of probability densities. That is, the change of the population at any moment in time depends on the population itself due to the interactions between samples. In particular, this is crucial for personalized medicine where the development of diseases and their respective treatment response depend on the microenvironment of cells specific to each patient. We propose Meta Flow Matching (MFM), a practical approach to integrate along these vector fields on the Wasserstein manifold by amortizing the flow model over the initial populations. Namely, we embed the population of samples using a Graph Neural Network (GNN) and use these embeddings to train a Flow Matching model. This gives MFM the ability to generalize over the initial distributions, unlike previously proposed methods. We demonstrate the ability of MFM to improve the prediction of individual treatment responses on a large-scale multi-patient single-cell drug screen dataset.",
+                "authors": [
+                  "Lazar Atanackovic",
+                  "Xi Zhang",
+                  "Brandon Amos",
+                  "Mathieu Blanchette",
+                  "Leo J. Lee",
+                  "Yoshua Bengio",
+                  "Alexander Tong",
+                  "Kirill Neklyudov"
+                ],
+                "published": "2024-08-26T20:05:31Z",
+                "updated": "2025-03-03T23:31:16Z",
+                "url": "http://arxiv.org/abs/2408.14608v2",
+                "pdf_url": "https://arxiv.org/pdf/2408.14608v2",
+                "source": "arxiv.org",
+                "primary_category": "cs.LG",
+                "categories": [
+                  "cs.LG",
+                  "stat.ML"
+                ]
+              },
+              {
+                "arxiv_id": "2405.13956v2",
+                "title": "Attention as an RNN",
+                "summary": "The advent of Transformers marked a significant breakthrough in sequence modelling, providing a highly performant architecture capable of leveraging GPU parallelism. However, Transformers are computationally expensive at inference time, limiting their applications, particularly in low-resource settings (e.g., mobile and embedded devices). Addressing this, we (1) begin by showing that attention can be viewed as a special Recurrent Neural Network (RNN) with the ability to compute its \\textit{many-to-one} RNN output efficiently. We then (2) show that popular attention-based models such as Transformers can be viewed as RNN variants. However, unlike traditional RNNs (e.g., LSTMs), these models cannot be updated efficiently with new tokens, an important property in sequence modelling. Tackling this, we (3) introduce a new efficient method of computing attention's \\textit{many-to-many} RNN output based on the parallel prefix scan algorithm. Building on the new attention formulation, we (4) introduce \\textbf{Aaren}, an attention-based module that can not only (i) be trained in parallel (like Transformers) but also (ii) be updated efficiently with new tokens, requiring only constant memory for inferences (like traditional RNNs). Empirically, we show Aarens achieve comparable performance to Transformers on $38$ datasets spread across four popular sequential problem settings: reinforcement learning, event forecasting, time series classification, and time series forecasting tasks while being more time and memory-efficient.",
+                "authors": [
+                  "Leo Feng",
+                  "Frederick Tung",
+                  "Hossein Hajimirsadeghi",
+                  "Mohamed Osama Ahmed",
+                  "Yoshua Bengio",
+                  "Greg Mori"
+                ],
+                "published": "2024-05-22T19:45:01Z",
+                "updated": "2024-05-28T04:44:06Z",
+                "url": "http://arxiv.org/abs/2405.13956v2",
+                "pdf_url": "https://arxiv.org/pdf/2405.13956v2",
+                "source": "arxiv.org",
+                "primary_category": "cs.LG",
+                "categories": [
+                  "cs.LG"
+                ]
+              }
+            ],
+            "rate_limit_note": "arXiv may return 429; this tool waits at least 3 seconds between requests in-process."
+          }
+        }
+      ]
+    },
+    {
+      "id": "G09_paper_pagination",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_pagination",
+        "difficulty": "hard",
+        "what_it_tests": "Giữ query=AI agents và chuyển start=5, max_results=5. Chỉ đo arguments phân trang; không chứng minh IDs thực tế không trùng."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tìm 5 paper đầu tiên về AI agents trên arXiv."
+        },
+        {
+          "role": "assistant",
+          "content": "Tôi đã hiển thị 5 paper đầu tiên."
+        },
+        {
+          "role": "user",
+          "content": "Cho tôi 5 paper tiếp theo cùng chủ đề, đừng lặp lại trang trước."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "arxiv_search",
+            "args": {
+              "start": 5,
+              "max_results": 5,
+              "query": "AI agents"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "arxiv_search",
+            "args": {
+              "query": "AI agents",
+              "max_results": 5,
+              "start": 5
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "arxiv_search",
+          "args": {
+            "query": "AI agents",
+            "max_results": 5,
+            "start": 5
+          },
+          "result": {
+            "tool": "arxiv_search",
+            "query": "AI agents",
+            "filters": {
+              "author": "",
+              "title": "",
+              "date_from": "",
+              "date_to": "",
+              "categories": [],
+              "start": 5,
+              "max_results": 5
+            },
+            "api_query": "(all:AI AND all:agents)",
+            "total_results": 13727,
+            "items": [
+              {
+                "arxiv_id": "2112.01298v2",
+                "title": "Meaningful human control: actionable properties for AI system development",
+                "summary": "How can humans remain in control of artificial intelligence (AI)-based systems designed to perform tasks autonomously? Such systems are increasingly ubiquitous, creating benefits - but also undesirable situations where moral responsibility for their actions cannot be properly attributed to any particular person or group. The concept of meaningful human control has been proposed to address responsibility gaps and mitigate them by establishing conditions that enable a proper attribution of responsibility for humans; however, clear requirements for researchers, designers, and engineers are yet inexistent, making the development of AI-based systems that remain under meaningful human control challenging. In this paper, we address the gap between philosophical theory and engineering practice by identifying, through an iterative process of abductive thinking, four actionable properties for AI-based systems under meaningful human control, which we discuss making use of two applications scenarios: automated vehicles and AI-based hiring. First, a system in which humans and AI algorithms interact should have an explicitly defined domain of morally loaded situations within which the system ought to operate. Second, humans and AI agents within the system should have appropriate and mutually compatible representations. Third, responsibility attributed to a human should be commensurate with that human's ability and authority to control the system. Fourth, there should be explicit links between the actions of the AI agents and actions of humans who are aware of their moral responsibility. We argue that these four properties will support practically-minded professionals to take concrete steps toward designing and engineering for AI systems that facilitate meaningful human control.",
+                "authors": [
+                  "Luciano Cavalcante Siebert",
+                  "Maria Luce Lupetti",
+                  "Evgeni Aizenberg",
+                  "Niek Beckers",
+                  "Arkady Zgonnikov",
+                  "Herman Veluwenkamp",
+                  "David Abbink",
+                  "Elisa Giaccardi",
+                  "Geert-Jan Houben",
+                  "Catholijn M. Jonker",
+                  "Jeroen van den Hoven",
+                  "Deborah Forster",
+                  "Reginald L. Lagendijk"
+                ],
+                "published": "2021-11-25T11:05:37Z",
+                "updated": "2022-05-19T15:28:01Z",
+                "url": "http://arxiv.org/abs/2112.01298v2",
+                "pdf_url": "https://arxiv.org/pdf/2112.01298v2",
+                "source": "arxiv.org",
+                "primary_category": "cs.CY",
+                "categories": [
+                  "cs.CY",
+                  "cs.AI"
+                ]
+              },
+              {
+                "arxiv_id": "2603.17419v1",
+                "title": "Caging the Agents: A Zero Trust Security Architecture for Autonomous AI in Healthcare",
+                "summary": "Autonomous AI agents powered by large language models are being deployed in production with capabilities including shell execution, file system access, database queries, and multi-party communication. Recent red teaming research demonstrates that these agents exhibit critical vulnerabilities in realistic settings: unauthorized compliance with non-owner instructions, sensitive information disclosure, identity spoofing, cross-agent propagation of unsafe practices, and indirect prompt injection through external resources [7]. In healthcare environments processing Protected Health Information, every such vulnerability becomes a potential HIPAA violation. This paper presents a security architecture deployed for nine autonomous AI agents in production at a healthcare technology company. We develop a six-domain threat model for agentic AI in healthcare covering credential exposure, execution capability abuse, network egress exfiltration, prompt integrity failures, database access risks, and fleet configuration drift. We implement four-layer defense in depth: (1) kernel level workload isolation using gVisor on Kubernetes, (2) credential proxy sidecars preventing agent containers from accessing raw secrets, (3) network egress policies restricting each agent to allowlisted destinations, and (4) a prompt integrity framework with structured metadata envelopes and untrusted content labeling. We report results from 90 days of deployment including four HIGH severity findings discovered and remediated by an automated security audit agent, progressive fleet hardening across three VM image generations, and defense coverage mapped to all eleven attack patterns from recent literature. All configurations, audit tooling, and the prompt integrity framework are released as open source.",
+                "authors": [
+                  "Saikat Maiti"
+                ],
+                "published": "2026-03-18T06:54:47Z",
+                "updated": "2026-03-18T06:54:47Z",
+                "url": "http://arxiv.org/abs/2603.17419v1",
+                "pdf_url": "https://arxiv.org/pdf/2603.17419v1",
+                "source": "arxiv.org",
+                "primary_category": "cs.CR",
+                "categories": [
+                  "cs.CR",
+                  "cs.AI"
+                ]
+              },
+              {
+                "arxiv_id": "2604.00187v2",
+                "title": "Explainable AI for Blind and Low-Vision Users: Navigating Trust, Modality, and Interpretability in the Agentic Era",
+                "summary": "Explainable Artificial Intelligence (XAI) is critical for ensuring trust and accountability, yet its development remains predominantly visual. For blind and low-vision (BLV) users, the lack of accessible explanations creates a fundamental barrier to the independent use of AI-driven assistive technologies. This problem intensifies as AI systems shift from single-query tools into autonomous agents that take multi-step actions and make consequential decisions across extended task horizons, where a single undetected error can propagate irreversibly before any feedback is available. This paper investigates the unique XAI requirements of the BLV community through a comprehensive analysis of user interviews and contemporary research. By examining usage patterns across environmental perception and decision support, we identify a significant modality gap. Empirical evidence suggests that while BLV users highly value conversational explanations, they frequently experience \"self-blame\" for AI failures. The paper concludes with a research agenda for accessible Explainable AI in agentic systems, advocating for multimodal interfaces, blame-aware explanation design, and participatory development.",
+                "authors": [
+                  "Abu Noman Md Sakib",
+                  "Protik Dey",
+                  "Zijie Zhang",
+                  "Taslima Akter"
+                ],
+                "published": "2026-03-31T19:39:52Z",
+                "updated": "2026-05-02T04:55:58Z",
+                "url": "http://arxiv.org/abs/2604.00187v2",
+                "pdf_url": "https://arxiv.org/pdf/2604.00187v2",
+                "source": "arxiv.org",
+                "primary_category": "cs.HC",
+                "categories": [
+                  "cs.HC",
+                  "cs.AI",
+                  "cs.ET"
+                ]
+              },
+              {
+                "arxiv_id": "2605.21825v1",
+                "title": "Toward AI VIS Co-Scientists: A General and End-to-End Agent Harness for Solving Complex Data Visualization Tasks",
+                "summary": "The ability to inspect, interpret, and communicate complex data is crucial for virtually any scientific endeavor, but often requires significant expertise outside the core domain ranging from data management and analysis to visualization design and implementation. We present an end-to-end agentic harness that, based on only the data and a high level description of the tasks, independently designs custom visual analysis applications (VIS apps). This represents an important step towards a general AI co-scientist envisioned by many as an autonomous system that can autonomously execute long horizon tasks based on high-level directions. Our proposed VIS co-scientist is an essential component of this broader AI co-scientist vision: a harness that can autonomously analyze data and design visualization solutions using a collection of agents and specialized skills that coordinate exploratory analysis, plan, configure the environment, implement, validate the interface, and most importantly evaluate the overall task completion. Each stage produces document and instruction artifacts that guide downstream work and enable iterative refinement. We validate this approach on IEEE SciVis Contests spanning multiple science and engineering fields. These contests serve as ideal proving grounds because they encode real-world complexity: ambiguous requirements, diverse data modalities, design trade-offs, and task-driven validation. Given only the data and target tasks, our system autonomously produces functional single-page VIS Apps with verified linked-view behavior, highly customized to domain experts' specified tasks and needs.",
+                "authors": [
+                  "Haichao Miao",
+                  "Zhimin Li",
+                  "Kuangshi Ai",
+                  "Kaiyuan Tang",
+                  "Chaoli Wang",
+                  "Peer-Timo Bremer",
+                  "Shusen Liu"
+                ],
+                "published": "2026-05-20T23:49:28Z",
+                "updated": "2026-05-20T23:49:28Z",
+                "url": "http://arxiv.org/abs/2605.21825v1",
+                "pdf_url": "https://arxiv.org/pdf/2605.21825v1",
+                "source": "arxiv.org",
+                "primary_category": "cs.AI",
+                "categories": [
+                  "cs.AI",
+                  "cs.HC"
+                ]
+              },
+              {
+                "arxiv_id": "2607.02703v1",
+                "title": "LLMoxie: Exploring Agentic AI for Scientific Software Development",
+                "summary": "In this paper, we describe LLMoxie, an institutional AI platform whose three-tiered architecture supports multi-cloud and on-premise inference, a LiteLLM/MLflow control plane for authentication, budgeting, PII masking, and observability, and an application augmentation layer for AI coding agents. Layered on top, an open-source RSE-Plugins ecosystem encodes accumulated RSE knowledge as a Plugin-Agent-Skill hierarchy spanning scientific Python practice, domain-specific knowledge, a six-phase research-and-implement workflow, and project lifecycle management. Scientific software is judged less by raw code quality than by whether it can be cited, audited, reproduced, and extended. Off-the-shelf AI coding agents, optimized against commercial software benchmarks, are poorly calibrated for this setting: they ignore the conventions of the scientific Python libraries they invoke, mishandle sensitive or embargoed data, and leave decision trails that are difficult to reconstruct after the fact. We report on twenty months of practice at a university-based research software engineering (RSE) center, where RSEs embedded across astronomy, earth and climate science, agriculture, and health projects worked to close this gap. We characterize the recurring infrastructure, governance, and process challenges of adopting Agentic AI inside a multi-domain RSE center, describe the platform and plugin design, and distill operational lessons from real scientific software deployments. Together, the platform and plugins shift AI coding agents from generic code generators into domain-aware collaborators that respect community norms and produce auditable provenance of technical reasoning.",
+                "authors": [
+                  "Landung Setiawan",
+                  "Anant Mittal",
+                  "Cordero Core",
+                  "Anshul Tambay",
+                  "Carlos Garcia Jurado Suarez",
+                  "David A. C. Beck",
+                  "Andrew J. Connolly",
+                  "Vani Mandava"
+                ],
+                "published": "2026-07-02T18:46:27Z",
+                "updated": "2026-07-02T18:46:27Z",
+                "url": "http://arxiv.org/abs/2607.02703v1",
+                "pdf_url": "https://arxiv.org/pdf/2607.02703v1",
+                "source": "arxiv.org",
+                "primary_category": "cs.SE",
+                "categories": [
+                  "cs.SE",
+                  "cs.AI",
+                  "cs.DC",
+                  "cs.MA"
+                ]
+              }
+            ],
+            "rate_limit_note": "arXiv may return 429; this tool waits at least 3 seconds between requests in-process."
+          }
+        }
+      ]
+    },
+    {
+      "id": "G10_audit_retained_results",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_audit_context",
+        "difficulty": "hard",
+        "what_it_tests": "Dùng kết quả đã có trong hội thoại để audit, không tự bịa nguồn."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tôi có kết quả các nguồn để kiểm tra."
+        },
+        {
+          "role": "assistant",
+          "content": "Kết quả đã nhận: [{\"tool\":\"arxiv_search\",\"error\":\"ReadTimeout\"},{\"tool\":\"web_search\",\"items\":[]}]."
+        },
+        {
+          "role": "user",
+          "content": "Hãy kiểm tra các kết quả vừa nêu và phân biệt nguồn lỗi với nguồn rỗng."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "arxiv_search",
+                  "error": "ReadTimeout"
+                },
+                {
+                  "tool": "web_search",
+                  "items": []
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "arxiv_search",
+                  "error": "ReadTimeout"
+                },
+                {
+                  "tool": "web_search",
+                  "items": []
+                }
+              ]
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "audit_research_evidence",
+          "args": {
+            "results": [
+              {
+                "tool": "arxiv_search",
+                "error": "ReadTimeout"
+              },
+              {
+                "tool": "web_search",
+                "items": []
+              }
+            ]
+          },
+          "result": {
+            "tool": "audit_research_evidence",
+            "sources": [
+              {
+                "tool": "arxiv_search",
+                "item_count": 0,
+                "unusable_item_count": 0,
+                "status": "error",
+                "error": "ReadTimeout"
+              },
+              {
+                "tool": "web_search",
+                "item_count": 0,
+                "unusable_item_count": 0,
+                "status": "empty"
+              }
+            ],
+            "items": [],
+            "unique_item_count": 0,
+            "duplicate_item_count": 0,
+            "note": "Checks result structure only; does not verify truth, relevance, or URL accessibility."
+          }
+        }
+      ]
+    }
+  ]
+}

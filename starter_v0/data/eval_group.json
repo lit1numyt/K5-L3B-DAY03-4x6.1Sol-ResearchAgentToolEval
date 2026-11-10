@@ -1,7 +1,7 @@
 {
-  "dataset_id": "day03_group_v8_bibliography",
+  "dataset_id": "day03_v2_research_group_review_20261110",
   "dataset_role": "group",
-  "description": "10 case nhóm, 5 single + 5 multi; G05 kiểm tra tool mới v8 build_bibliography. Thay một case audit trùng phạm vi, không tăng số case.",
+  "description": "10 case nhóm: đúng 5 single + 5 multi; kiểm tra routing, args dữ liệu audit, ranh giới Telegram, paper và giữ ngữ cảnh. Fixture người dùng cung cấp là dữ liệu kiểm thử, không phải log API thật. Multi-turn của harness chỉ chấm lượt cuối.",
   "allowed_failure_types": [
     "wrong_tool",
     "wrong_arg_value",
@@ -149,39 +149,39 @@
       }
     },
     {
-      "id": "G05_build_bibliography",
+      "id": "G05_audit_duplicate_sources",
       "phase": "B",
       "suite": "group",
-      "query": "Xuất BibTeX từ metadata paper đã có này, không tìm lại: [{\"title\": \"QLoRA: Efficient Finetuning of Quantized LLMs\", \"url\": \"https://arxiv.org/abs/2305.14314\", \"arxiv_id\": \"2305.14314\", \"authors\": [\"Tim Dettmers\", \"Artidoro Pagnoni\", \"Ari Holtzman\", \"Luke Zettlemoyer\"], \"year\": 2023}]",
+      "query": "Kiểm tra và gộp các nguồn trùng trong kết quả công cụ này: [{\"tool\":\"web_search\",\"items\":[{\"title\":\"Nghiên cứu A\",\"url\":\"https://example.org/a\"},{\"title\":\"Nguồn A lặp lại\",\"url\":\"https://example.org/a\"}]}].",
       "failure_type": "wrong_tool",
       "expect": {
         "tool_calls": [
           {
-            "name": "build_bibliography",
+            "name": "audit_research_evidence",
             "args": {
-              "papers": [
+              "results": [
                 {
-                  "title": "QLoRA: Efficient Finetuning of Quantized LLMs",
-                  "url": "https://arxiv.org/abs/2305.14314",
-                  "arxiv_id": "2305.14314",
-                  "authors": [
-                    "Tim Dettmers",
-                    "Artidoro Pagnoni",
-                    "Ari Holtzman",
-                    "Luke Zettlemoyer"
-                  ],
-                  "year": 2023
+                  "tool": "web_search",
+                  "items": [
+                    {
+                      "title": "Nghiên cứu A",
+                      "url": "https://example.org/a"
+                    },
+                    {
+                      "title": "Nguồn A lặp lại",
+                      "url": "https://example.org/a"
+                    }
+                  ]
                 }
-              ],
-              "format": "bibtex"
+              ]
             }
           }
         ]
       },
       "metadata": {
-        "skill": "bibliography_export",
+        "skill": "deduplicate_sources",
         "difficulty": "medium",
-        "what_it_tests": "Route tới tool mới v8 và truyền nguyên metadata/format, không gọi search hoặc tự bịa citation."
+        "what_it_tests": "Dùng audit kiểm tra và gộp các nguồn trùng đã có."
       }
     },
     {

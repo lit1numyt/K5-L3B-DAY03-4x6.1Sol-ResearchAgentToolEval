@@ -137,7 +137,7 @@
       "old_path": "starter_v0/runs/v4_B_group_openai_20261110T215806188729.json",
       "new_path": "starter_v0/runs/archive/v4_review1/v4_B_group_openai_20261110T215806188729.json",
       "sha256": "acb079dabe32aafabbbe8efeaca6ad8828aef5758bfb1a1ce0bca6b3b7645562",
-      "final_path": "starter_v0/runs/v5_B_group_openai_20261110T215806188729.json"
+      "final_path": "starter_v0/runs/history/reviewed_suite/v5_B_group_openai_20261110T215806188729.json"
     },
     {
       "old_path": "starter_v0/runs/v4_B_base_openai_20261110T220250416618.json",
@@ -149,7 +149,7 @@
       "old_path": "starter_v0/runs/v4_B_group_openai_20261110T220145613780.json",
       "new_path": "starter_v0/runs/archive/v4_review2/v4_B_group_openai_20261110T220145613780.json",
       "sha256": "6c6246318ba93cd577d5622a54bdbf82a1fce9d3193e557d23fcc433a070f8e1",
-      "final_path": "starter_v0/runs/v6_B_group_openai_20261110T220145613780.json"
+      "final_path": "starter_v0/runs/history/reviewed_suite/v6_B_group_openai_20261110T220145613780.json"
     },
     {
       "old_path": "starter_v0/runs/v4_B_base_openai_20261110T220737211627.json",
@@ -175,7 +175,7 @@
       "new_path": "starter_v0/runs/v4_B_group_openai_20261110T215806188729.json",
       "sha256": "acb079dabe32aafabbbe8efeaca6ad8828aef5758bfb1a1ce0bca6b3b7645562",
       "selection": "Selected configuration: complete tool contract; 19/20 base and 10/10 strengthened group. Rejected later revisions are retained.",
-      "final_path": "starter_v0/runs/v5_B_group_openai_20261110T215806188729.json"
+      "final_path": "starter_v0/runs/history/reviewed_suite/v5_B_group_openai_20261110T215806188729.json"
     }
   ],
   "consecutive_version_note": "See consecutive_version_manifest.json for the current v4-v7 filenames.",

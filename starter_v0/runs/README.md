@@ -1,24 +1,31 @@
 # Run index
 
-**Bản hiện hành: v8**, phát triển từ v4 và thêm build_bibliography. V4 gốc vẫn giữ nguyên.
+**Bản hiện hành: v8**. Bảng group dưới đây chỉ dùng đợt đo chung: nguyên một bộ 10 câu (5 single + 5 multi), cùng model/evaluator/code tool, một lượt cho mỗi snapshot v4–v9.
 
-| Bản | Base | Group | Vai trò |
+| Bản | Base | Group chung | Vai trò |
 |---|---:|---:|---|
 | v0 | 13/20 | — | baseline |
 | v1 | 17/20 | — | vòng 1 |
 | v2 | 18/20 | — | vòng 2 |
 | v3 | 19/20 | — | v2-tool cũ |
-| v4 | 20/20 | 10/10 suite đã siết | nền của v8; v3 cũ |
-| v5 | 19/20 | 10/10 | thí nghiệm hồi quy |
-| v6 | 17/20 | 10/10 | thí nghiệm hồi quy |
-| v7 H7A | 18/20 | 9/10 | thí nghiệm chưa đạt |
-| v8 | 20/20 | 10/10 suite v8 | hiện hành, có tool mới |
-| v9 | 19/20 | 9/10 cùng suite v8 | hợp nhất Lam, chưa chọn làm mặc định |
+| v4 | 20/20 | 10/10 | nền của v8; v3 cũ |
+| v5 | 19/20 | 10/10 | thí nghiệm hồi quy ở base |
+| v6 | 17/20 | 10/10 | thí nghiệm hồi quy ở base |
+| v7 | 18/20 | 9/10 | H7A, chưa đạt |
+| v8 | 20/20 | 10/10 | mặc định, có bibliography |
+| v9 | 19/20 | 9/10 | hợp nhất Lam, chưa chọn |
 
-V8 dùng v8_B_base_openai_20261110T223125274893.json và v8_B_group_openai_20261110T223032240551.json, cùng hash. V4 base gốc v4_B_base_openai_20261110T213656627758.json còn nguyên. Group v4 cũ 9/10 trên dataset khác, giữ trong [history/v4_original_suite](history/v4_original_suite/v4_B_group_openai_20261110T213600677281.json); v4_B_group_openai_20261110T221923054166.json là group đã siết 10/10. Group v8 thay G05 bằng bibliography nên không coi cùng dataset.
+- [v4: 10/10](v4_B_group_openai_20261110T231937353625.json)
+- [v5: 10/10](v5_B_group_openai_20261110T231937454478.json)
+- [v6: 10/10](v6_B_group_openai_20261110T231937298715.json)
+- [v7: 9/10](v7_B_group_openai_20261110T232114470645.json)
+- [v8: 10/10](v8_B_group_openai_20261110T232118798370.json)
+- [v9: 9/10](v9_B_group_openai_20261110T232114281236.json)
 
-V9 dùng v9_B_base_openai_20261110T230751104659.json và v9_B_group_openai_20261110T230818905094.json, cùng snapshot v9, đủ measured và 0 provider error. R12 sai response_type; G04 gọi send trước khi duyệt và bị blocked_for_eval. R08/R14 vẫn trả lời ngoài phạm vi dù no_tool PASS. H9 chưa đạt điều kiện chọn, nên cấu hình mặc định vẫn là v8. V9 giữ nguyên kết quả để đối chiếu; không chạy lại chỉ để tìm điểm cao hơn.
+V7 sai G06 (paper_text nhận include_text không hợp lệ); v9 sai G04 (thử gửi chưa duyệt, bị blocked_for_eval). Tất cả run chung đo đủ 10 case, 0 provider error. SHA dataset và đối chiếu từng input/expect ở [protocol](../../report/team/review_evidence/common_group_comparison.json). Base dùng bộ cố định 20 câu đã có; không chạy lại base trong đợt sửa phép so sánh này.
 
-V7 ban đầu ở candidates/v7_initial/, snapshot ở artifacts/v7_candidates/initial/. JSON lịch sử giữ nguyên byte nên metadata version/run_id/đường dẫn có thể khác tên file mới; dùng hash và manifest đối chiếu. 19 run thăm dò đã xóa theo yêu cầu, các run chính vẫn còn. evidence_audit_experiment chứa script/fixture lịch sử; arxiv là benchmark khác schema.
+Run group cũ nằm trong history/reviewed_suite, history/bibliography_suite và history/v4_original_suite; không đưa điểm của các bộ khác nhau vào bảng trên. Fixture bibliography cũ nằm cùng thư mục history/bibliography_suite. Run v8 ở đó vẫn là bằng chứng routing tool mới, không phải phép so sánh chung. V7 ban đầu ở candidates/v7_initial; đó là cấu hình khác snapshot H7A được so sánh ở đây.
 
-Eval mới chặn gửi Telegram. Routing/args PASS không bảo đảm dữ liệu/final answer đúng. Transcript CLI thật ở ../transcripts/.
+JSON lịch sử giữ nguyên nội dung; tên file có thể khác metadata gốc. Chỉ di chuyển đường dẫn và cập nhật manifest. 19 run thăm dò đã xóa theo yêu cầu trước đó; các run hồi quy vẫn còn. evidence_audit_experiment chứa script/fixture lịch sử; arxiv là benchmark khác schema.
+
+Eval mới chặn gửi Telegram. Routing/args PASS không bảo đảm final answer đúng hoặc chứng minh gửi thật. Transcript CLI ở ../transcripts/.

@@ -75,7 +75,7 @@ V3 tích hợp research_paper để phân biệt tìm metadata với đọc nộ
 
 Các thử nghiệm v5–v7 tiếp tục làm rõ mô tả tool và điều kiện hỏi lại, nhưng có hồi quy. V5 đoán tài khoản; v6 hỏi thừa hoặc truyền thiếu kiểu câu hỏi; v7 vẫn gọi thêm tool ở một số lượt. Nhóm giữ các kết quả này để phân tích, thay vì sửa số liệu hoặc chỉ trình bày lần chạy tốt. H7A dùng bảng quyết định và ví dụ đối chiếu cũng chưa đạt mục tiêu.
 
-V8 chọn lại v4 làm nền và chỉ mở thêm một tác vụ: xuất tài liệu tham khảo. [Giả thuyết H8](review_evidence/v8_hypothesis.md), được ghi trước khi chạy, là một tool có phạm vi hẹp và điều kiện sử dụng rõ có thể bổ sung tác vụ mới mà giữ được kết quả base. build_bibliography nhận metadata thật, xuất BibTeX/plain và cảnh báo tác giả hoặc năm còn thiếu. Tool không tìm kiếm, không xác minh bài báo và không tự điền dữ liệu chưa có. Nó được đăng ký trong registry/YAML, có TOOL.md, 9 unit test và một case group riêng.
+V8 chọn lại v4 làm nền và chỉ mở thêm một tác vụ: xuất tài liệu tham khảo. [Giả thuyết H8](review_evidence/v8_hypothesis.md), được ghi trước khi chạy, là một tool có phạm vi hẹp và điều kiện sử dụng rõ có thể bổ sung tác vụ mới mà giữ được kết quả base. build_bibliography nhận metadata thật, xuất BibTeX/plain và cảnh báo tác giả hoặc năm còn thiếu. Tool không tìm kiếm, không xác minh bài báo và không tự điền dữ liệu chưa có. Nó được đăng ký trong registry/YAML, có TOOL.md, 16 unit test và bằng chứng routing bibliography riêng. Case này không nằm trong bảng điểm group dùng để so sánh v4–v9.
 
 Sau v8, nhóm hợp nhất [commit 54d010f của Nguyễn Đức Khương Lam](https://github.com/lit1numyt/K5-L3B-DAY03-4x6.1Sol-ResearchAgentToolEval/commit/54d010f4b233f763b3d5b51eb8a10e794595f14d) thành v9. Phần phân tích của Lam chỉ ra rằng không gọi tool chưa đồng nghĩa đã từ chối đúng: ở v3, R14 vẫn hướng dẫn thuật toán Fibonacci sau câu từ chối. V9 vì vậy giới hạn theo nhiệm vụ, không chỉ theo định dạng code hay văn xuôi; việc giải thích phương pháp từ nguồn nghiên cứu vẫn thuộc phạm vi.
 
@@ -87,7 +87,7 @@ UI dùng lại vòng gọi tool của agent. Trong lần rà soát, nhóm sửa 
 
 ### B1. Version Evidence
 
-Lấy từ `starter_v0/artifacts/version_log.csv` và `starter_v0/runs/*.json`. Chỉ dùng run có `provider_error_cases == 0` và `measured_cases == total_cases`.
+Bằng chứng base lấy từ `starter_v0/artifacts/version_log.csv` và các run JSON. Chỉ dùng run đo đủ case, không lỗi provider.
 
 | Version | Changed Artifact | Hypothesis | Metric Before | Metric After | Run File |
 |---|---|---|---:|---:|---|
@@ -102,15 +102,26 @@ Lấy từ `starter_v0/artifacts/version_log.csv` và `starter_v0/runs/*.json`. 
 | v8 | prompt + tools; build_bibliography | H8: thêm xuất bibliography, giữ kết quả base | 1.00 (v4) | 1.00 | [run v8](../../starter_v0/runs/v8_B_base_openai_20261110T223125274893.json) |
 | v9 | prompt + 4 mô tả clarify/send; hợp nhất Lam | H9: làm rõ duyệt nội dung và phạm vi nhiệm vụ, giữ routing | 1.00 (v8) | 0.95 | [run v9](../../starter_v0/runs/v9_B_base_openai_20261110T230751104659.json) |
 
-Metric trong bảng là tỷ lệ case đúng tool và arguments của bộ base. Tất cả run đều dùng OpenAI gpt-4o-mini, đo đủ 20 case và không có lỗi provider. **V8 đạt 20/20 base và [10/10 group](../../starter_v0/runs/v8_B_group_openai_20261110T223032240551.json)**, cùng hash prompt `28df43d23d49…` và tools `1985f521a55c…`. V8 được phát triển từ v4 nên mốc trước của H8 là 1.00 của v4.
+Bảng trên là tỷ lệ case đúng tool và arguments của bộ base cố định 20 câu, dùng OpenAI gpt-4o-mini. V8 phát triển từ v4 nên mốc trước của H8 là 1.00 của v4. V5–v7 có hồi quy; không dùng lịch sử này để dựng đường điểm tăng đều hoặc quy tăng điểm riêng cho tool mới.
 
-V9 đạt **19/20 base và [9/10 group](../../starter_v0/runs/v9_B_group_openai_20261110T230818905094.json)**, đo đủ case, không lỗi provider và dùng cùng bộ group với v8. Hai run cùng hash prompt `980d47d87a9e…` và tools `c4dc31cfea7c…`. Kết quả chưa đáp ứng điều kiện chọn v9 đã ghi trước trong H9, nên nhóm giữ v8 làm mặc định; v9 vẫn được lưu để đối chiếu và giữ đóng góp của Lam trong lịch sử merge.
+Để so sánh group công bằng, nhóm chạy lại v4–v9 trên nguyên một bộ 10 câu trong data/eval_group.json, gồm 5 single và 5 multi. Mỗi phiên bản được chạy một lượt, giữ snapshot prompt/YAML của chính nó; tất cả dùng cùng model, evaluator và code tool hiện hành. Không đổi câu hỏi hoặc đáp án theo phiên bản.
 
-V5–v7 không làm điểm tăng đều và không được coi là các lần cải tiến thành công. V7 ban đầu cũng có run 18/20 base, 9/10 group trong thư mục candidates; H7A mới vẫn 18/20 và 9/10. Những run này được giữ. Rubric cho phép phiên bản không tăng điểm nếu phân tích trung thực.
+| Phiên bản | Group chung | Case chưa đạt | Run |
+|---|---:|---|---|
+| v4 | 10/10 | — | [group v4](../../starter_v0/runs/v4_B_group_openai_20261110T231937353625.json) |
+| v5 | 10/10 | — | [group v5](../../starter_v0/runs/v5_B_group_openai_20261110T231937454478.json) |
+| v6 | 10/10 | — | [group v6](../../starter_v0/runs/v6_B_group_openai_20261110T231937298715.json) |
+| v7 | 9/10 | G06 | [group v7](../../starter_v0/runs/v7_B_group_openai_20261110T232114470645.json) |
+| v8 | 10/10 | — | [group v8](../../starter_v0/runs/v8_B_group_openai_20261110T232118798370.json) |
+| v9 | 9/10 | G04 | [group v9](../../starter_v0/runs/v9_B_group_openai_20261110T232114281236.json) |
 
-Các bộ group có thay đổi: [run v4 trên bộ nguyên thủy](../../starter_v0/runs/history/v4_original_suite/v4_B_group_openai_20261110T213600677281.json) đạt 9/10, bản đã siết arguments đạt 10/10, còn bản v8 thay G05 bằng bibliography. Run dùng bộ nguyên thủy được chuyển vào history để phân biệt với bằng chứng chính; nội dung JSON không đổi. Vì vậy không dùng chênh lệch điểm group giữa các bộ để khẳng định model tiến bộ trên cùng phép đo. Một số vòng cũng sửa đồng thời prompt và description, nên chưa tách được tác động của từng thay đổi. Riêng base v3 không gọi research_paper, do đó không thể quy mức tăng điểm cho tool đó.
+Cả sáu run đều đo đủ 10/10 case, không có lỗi provider. [Biên bản phép đo chung](review_evidence/common_group_comparison.json) ghi SHA-256 của dataset `1562c5e587c4…`, hash evaluator và đối chiếu toàn bộ input/expect của từng run với bộ đã cố định. V7 sai G06; v9 sai G04. V8 giữ 20/20 base và 10/10 group chung, nên vẫn là mặc định. V9 có 19/20 base, 9/10 group chung và chưa được chọn.
 
-Run JSON lịch sử giữ nguyên nội dung dù đổi tên file; metadata bên trong có thể còn tên cũ. [Manifest](review_evidence/consecutive_version_manifest.json) và [bảng tổng hợp](review_evidence/version_summary.json) giúp đối chiếu. Hai hash chỉ xác định prompt/YAML, không bao gồm mọi thay đổi code. Các eval mới chặn send, nên không phải bằng chứng gửi Telegram thật.
+Trước lần sửa phương pháp này, nhóm từng thay G05 bằng bibliography ở v8. Các run đó dùng bộ khác nên được chuyển vào history và không đưa vào bảng so sánh chung. [Run bổ sung v8](../../starter_v0/runs/history/bibliography_suite/v8_B_group_openai_20261110T223032240551.json) vẫn chứng minh routing build_bibliography ở G05, cùng 16 unit test; đây là kiểm tra khả năng mới mà v4–v7 chưa có. Nó không thay thế một câu trong bộ chung.
+
+Các câu group đã được dùng trong quá trình phát triển, không phải một bộ chưa từng thấy. Dữ liệu từ API ngoài vẫn có thể thay đổi; một lượt đo chưa chứng minh độ ổn định hay tác động riêng của từng câu prompt. Evaluator chủ yếu chấm tool/args, nên cần đọc câu trả lời và luồng xác nhận bên cạnh điểm số.
+
+Run JSON lịch sử giữ nguyên nội dung dù đổi tên hoặc chuyển thư mục; metadata có thể còn tên cũ. [Manifest](review_evidence/consecutive_version_manifest.json) và [bảng tổng hợp](review_evidence/version_summary.json) giúp đối chiếu. Hash prompt/YAML không bao gồm mọi thay đổi code. Toàn bộ eval mới chặn send, không phải bằng chứng gửi Telegram thật.
 
 ### B2. Failure Analysis
 
@@ -130,32 +141,30 @@ V1 sửa được phần lớn lỗi v0 nhưng hỏi thừa ở R01/R05. R08/R14
 
 Ở v3, R14 được chấm PASS do không gọi tool nhưng vẫn hướng dẫn thuật toán Fibonacci; phân tích của Lam được kiểm tra lại trên run gốc. Đây là cơ sở cho quy tắc v9 không thực hiện nhiệm vụ đã từ chối bằng giả mã, công thức hoặc hướng dẫn tương đương. R10 của v0 chỉ được tính lỗi tự đoán tài khoản; việc không truyền limit riêng không tạo lỗi số lượng vì mặc định 5 đã trùng yêu cầu.
 
-Ở các bản thử sau v4, v5 sai R10; v6 sai R01/R11/R12; v7 ban đầu còn lỗi gửi sớm ở G04. H7A khắc phục các lỗi nhắm tới trong lượt đó nhưng gọi thêm social_search ở M02/M06 và gửi include_text vào paper_text không nhận tham số này. V8 không có FAIL trong base/group đã chạy, nhưng vẫn cần kiểm tra các hành vi ngoài phạm vi máy chấm.
+Ở các bản thử sau v4, v5 sai R10; v6 sai R01/R11/R12; v7 ban đầu còn lỗi gửi sớm ở G04. H7A khắc phục các lỗi nhắm tới trong lượt đó nhưng gọi thêm social_search ở M02/M06 và gửi include_text vào paper_text không nhận tham số này. V8 không có FAIL trong base và group chung đã chạy, nhưng vẫn cần kiểm tra các hành vi ngoài phạm vi máy chấm.
 
-V9 không đạt R12 vì dùng clarify(text) thay vì yes_no. Ở G04, model gọi send(confirmed=true) cho nội dung chưa được duyệt; stub trả blocked_for_eval nên không gửi Telegram thật. R08/R14 được chấm PASS do không gọi tool, nhưng khi đọc actual_text vẫn thấy lời giải tích phân và code Fibonacci. Vì vậy H9 chưa được hỗ trợ trong lượt đo này, kể cả ở chất lượng từ chối mà điểm tự động không phản ánh. Chưa thể quy nguyên nhân riêng cho một câu sửa hoặc kết luận về mọi lần chạy.
+V9 không đạt R12 của base vì dùng clarify(text) thay vì yes_no. Trong đợt group chung, G04 gọi send(confirmed=true) cho nội dung chưa được duyệt; stub trả blocked_for_eval nên không gửi Telegram thật. V7 sai G06 khi gọi paper_text với include_text, tham số mà implementation không nhận, dẫn đến TypeError. Ở base v9, R08/R14 được chấm PASS do không gọi tool nhưng actual_text vẫn có lời giải tích phân và code Fibonacci. H9 chưa được hỗ trợ trong lượt đo này; điểm tự động không bao quát chất lượng từ chối.
 
 ### B3. Team Eval Cases
 
-Liệt kê đúng 10 case trong `starter_v0/data/eval_group.json` (5 single turn + 5 multi turn). Cột Result là kết quả v8 được chọn làm mặc định; v9 dùng lại đúng bộ này và sai G04, các case còn lại PASS.
+Bộ dưới đây được giữ nguyên cho cả v4, v5, v6, v7, v8 và v9: cùng 10 câu, input, ngữ cảnh và đáp án. Single gồm G01/G03/G05/G06/G07; multi gồm G02/G04/G08/G09/G10. Cột Result là kết quả v8 đang được chọn; điểm từng phiên bản ở B1.
 
 | Case ID | What It Tests | Expected Tool/Behavior | Result |
 |---|---|---|---|
-| G01_audit_empty_and_failed_sources | Single: Phân biệt nguồn rỗng và API lỗi | audit với results đúng input | PASS |
-| G02_audit_after_results_multiturn | Multi: Dùng kết quả được bổ sung qua hội thoại | audit với results trong hội thoại | PASS |
-| G03_telegram_missing_content | Single: Đã đồng ý chuẩn bị nhưng chưa có nội dung | clarify(response_type="text") | PASS |
-| G04_telegram_confirm_known_content_multiturn | Multi: Có nội dung nhưng chưa duyệt đăng | clarify(response_type="yes_no"), chưa send | PASS |
-| G05_build_bibliography | Single: Xuất tài liệu tham khảo bằng tool mới v8 | build_bibliography, đúng papers và format="bibtex" | PASS |
-| G06_research_paper_limitations | Single: Đọc nội dung để phân tích paper cụ thể | research_paper, ID đúng và include_text=true | PASS |
-| G07_audit_capabilities_without_tools | Single: Giải thích giới hạn audit, không gọi thừa | Không gọi tool | PASS |
-| G08_paper_filter_carryover | Multi: Giữ ngữ cảnh khi bổ sung bộ lọc tác giả | arxiv_search, giữ chủ đề/năm và thêm author | PASS |
-| G09_paper_pagination | Multi: Giữ chủ đề và chuyển sang trang paper tiếp | arxiv_search, giữ query, start=5, max_results=5 | PASS |
-| G10_audit_retained_results | Multi: Kiểm tra các kết quả đã có trong ngữ cảnh | audit với results đã có | PASS |
+| G01_audit_empty_and_failed_sources | Single: phân biệt nguồn rỗng và API lỗi | audit với đúng results đã cung cấp | PASS |
+| G02_audit_after_results_multiturn | Multi: nhận kết quả qua hội thoại rồi kiểm tra | audit với đúng results trong hội thoại | PASS |
+| G03_telegram_missing_content | Single: đã đồng ý chuẩn bị nhưng chưa có nội dung | clarify(response_type="text"), chưa send | PASS |
+| G04_telegram_confirm_known_content_multiturn | Multi: có nội dung nhưng chưa duyệt đăng | clarify(response_type="yes_no"), chưa send | PASS |
+| G05_audit_duplicate_sources | Single: kiểm tra các nguồn trùng URL | audit với đúng payload có hai URL trùng | PASS |
+| G06_research_paper_limitations | Single: đọc paper để phân tích hạn chế | research_paper, arxiv_id đúng, include_text=true | PASS |
+| G07_audit_capabilities_without_tools | Single: giải thích giới hạn audit | Không gọi tool, không nhận là tự xác minh sự thật | PASS |
+| G08_paper_filter_carryover | Multi: bổ sung tác giả, giữ chủ đề và năm | arxiv_search, query/author/date_from/date_to đúng | PASS |
+| G09_paper_pagination | Multi: lấy trang tiếp theo, giữ chủ đề | arxiv_search, query="AI agents", start=5, max_results=5 | PASS |
+| G10_audit_retained_results | Multi: dùng kết quả đã có trong ngữ cảnh | audit với đúng results nguồn lỗi/rỗng | PASS |
 
-Cả ba bộ đều giữ 5 single + 5 multi: v4 gốc dùng eval_group_v4.json; v4 chạy lại và v5–v7 dùng eval_group_v4_reviewed.json; v8–v9 dùng data/eval_group.json. Ở v4–v7, G05 kiểm tra audit nguồn trùng; từ v8, G05 kiểm tra bibliography. Các case multi là ngữ cảnh hội thoại đóng gói để chấm lượt cuối, không phải năm phiên chat tương tác đầy đủ.
+[Run group chung v8](../../starter_v0/runs/v8_B_group_openai_20261110T232118798370.json) đo đủ 10 case và không lỗi provider. G05 luôn là audit nguồn trùng trong phép so sánh này; bibliography được kiểm tra riêng, không thay câu theo phiên bản. G01/G02/G05/G10 chấm cả payload; G08/G09 chấm cả chủ đề giữ lại. Hai bộ eval cố định của thầy không bị sửa.
 
-[Run group v8](../../starter_v0/runs/v8_B_group_openai_20261110T223032240551.json) đo đủ 10 case, không có lỗi provider. G05 thay một case audit trùng phạm vi để kiểm tra tool mới; số single/multi vẫn là 5/5. Các case audit kiểm tra cả dữ liệu truyền vào; G08/G09 kiểm tra cả chủ đề giữ lại. Hai bộ eval cố định của thầy không bị sửa.
-
-Bộ này chấm lượt chọn tool cuối trong ngữ cảnh nhiều lượt, chưa phải hội thoại tương tác đầy đủ. Evaluator dùng tool_choice=required khi kỳ vọng có tool. G04 vẫn cần xem câu hỏi có duyệt đúng nội dung không; G06 cần đọc phần phân tích; G07 cần nói đúng giới hạn audit; G09 chưa chứng minh IDs thực tế không trùng. Các giới hạn này không được suy ra từ điểm 10/10.
+Các case multi đóng gói ba lượt hội thoại và chấm lượt chọn tool cuối, chưa phải phiên chat tương tác đầy đủ. Evaluator dùng tool_choice=required khi kỳ vọng có tool. G04 vẫn cần xem câu hỏi có duyệt đúng nội dung không; G06 cần đọc phần phân tích; G07 cần nói đúng giới hạn audit; G09 chưa chứng minh IDs thực tế không trùng. Điểm 10/10 chỉ xác nhận các điều kiện được chấm.
 
 ### B4. Live Chat Evidence
 
@@ -176,12 +185,12 @@ Trên trình duyệt, UI đã gọi build_bibliography thành công và hiển t
 
 | Item | Evidence File | What Worked | Risk / Guardrail |
 |---|---|---|---|
-| Tool mới build_bibliography (v8) | [tool.py](../../starter_v0/tools/build_bibliography/tool.py), [TOOL.md](../../starter_v0/tools/build_bibliography/TOOL.md), registry/YAML | Xuất BibTeX/plain từ metadata đã có; bỏ nguồn trùng, báo trường thiếu | Không tìm kiếm/xác minh; input sai trả error dict |
+| Tool mới build_bibliography (v8) | [tool.py](../../starter_v0/tools/build_bibliography/tool.py), [TOOL.md](../../starter_v0/tools/build_bibliography/TOOL.md), registry/YAML, [routing G05 bổ sung](../../starter_v0/runs/history/bibliography_suite/v8_B_group_openai_20261110T223032240551.json) | Xuất BibTeX/plain từ metadata đã có; bỏ nguồn trùng, báo trường thiếu | Không tìm kiếm/xác minh; input sai trả error dict |
 | Tool nhóm research_paper và audit | Code/TOOL.md trong tools/; registry/YAML | Bổ sung validate, xử lý lỗi và test | Hai tool đã có trước phiên này; không tính alias arxiv_search là tool mới |
-| Unit test tool mới (≥ 3 test/tool) | [test_tools_todo.py](../../starter_v0/tests/test_tools_todo.py), [test audit](../../starter_v0/tests/test_audit_research_evidence.py), [pytest](review_evidence/pytest_v9.txt) | Bibliography 9 test; research_paper 12; audit 10. Toàn suite: **130 passed, 14 skipped, 0 failed** | Test offline; 14 skip là TODO tool starter |
+| Unit test tool mới (≥ 3 test/tool) | [test_tools_todo.py](../../starter_v0/tests/test_tools_todo.py), [test audit](../../starter_v0/tests/test_audit_research_evidence.py), [test bổ sung](../../starter_v0/tests/test_tools_regression.py), [pytest](review_evidence/pytest_tools_complete.txt) | Bibliography 16 test; research_paper 14; audit 10. Test hành vi có cho đủ 14 tên tool trong registry. Toàn suite: **200 passed, 0 skipped, 0 failed** | Test offline, API/PDF được mock; không có Telegram thật |
 | UI (lệnh chạy + link dùng thử) | [UI docs](../../docs/UI.md), [run.ps1](../../starter_v0/run.ps1), [UI tests](../../starter_v0/tests/test_web_app.py), ảnh B4 | 12 test UI/loop; đã chạy chat thật và mở saved run đúng | Chạy local; public link chờ bổ sung; Telegram mặc định tắt |
 
-Ví dụ, unit test kiểm tra tool bibliography không bịa năm/tác giả khi thiếu metadata và trả lỗi với URL không dùng được. Eval chọn đúng tên tool chưa đủ phát hiện các lỗi code này. Regression UI kiểm tra một saved case PASS phải được hiển thị đúng, đồng thời giữ thông báo lỗi tool.
+Ví dụ, unit test kiểm tra tool bibliography không bịa năm/tác giả khi thiếu metadata và trả lỗi với URL không dùng được. Eval chọn đúng tên tool chưa đủ phát hiện các lỗi code này. Regression UI kiểm tra một saved case PASS phải được hiển thị đúng, đồng thời giữ thông báo lỗi tool. Toàn bộ 14 TODO đã được điền; nhóm bổ sung test cho metadata arXiv, phân trang, lỗi HTTP/timeout, giới hạn trích PDF và ranh giới policy. Hai tên papers/arxiv_search dùng chung implementation, không được tính là hai tool mới.
 
 ### B5. Bonus Evidence
 
@@ -192,9 +201,11 @@ Chỉ điền nếu nhóm làm bonus (ghi riêng, tối đa 10 điểm). Tool c�
 | Small Local Model | xem B7 |  |  |
 | Hơn 3 tool mới (≥ 4) |  |  |  |
 | `send` gửi thật lên Telegram sau xác nhận | transcript |  |  |
-| Test challenge (0 skipped / regression test) | `pytest` output |  |  |
+| Test challenge (0 skipped / regression test) | [pytest](review_evidence/pytest_tools_complete.txt), [test regression](../../starter_v0/tests/test_tools_regression.py), [send](../../starter_v0/tools/send/tool.py) | 200 passed, 0 skipped, 0 failed; phát hiện và sửa guard chấp nhận giá trị truthy | HTTP mock, không gửi thật; vẫn cần duyệt nội dung độc lập với model |
 
-Hiện chưa nhận bonus: còn 14 skipped; regression UI/evaluator không tự tính là bug tool starter. Nhóm có 3 tool mới, chưa đủ mốc 4; chưa có bằng chứng model local hoặc gửi Telegram thật. Các thành viên tự bổ sung nếu có bằng chứng phù hợp.
+Test challenge có bằng chứng đáp ứng tiêu chí 0 skipped và regression cho bug tool starter, tương ứng 1 điểm bonus theo rubric, tách khỏi điểm chính. Các bonus khác chưa nhận: nhóm có 3 tool mới, chưa đủ mốc 4; chưa có bằng chứng model local hoặc gửi Telegram thật. Các thành viên tự bổ sung nếu có bằng chứng phù hợp.
+
+Test regression phát hiện send coi chuỗi "false" và số 1 là xác nhận vì dùng phép kiểm tra truthy. Code được sửa để chỉ chấp nhận boolean True; các giá trị còn lại không gọi HTTP. Đây là sửa implementation dùng chung sau đợt group. Cả sáu run group đều thay send bằng stub, nên sửa guard không làm thay đổi phép so sánh đó; các snapshot prompt/YAML cũng không đổi. Guard kiểu dữ liệu chưa thay thế trạng thái duyệt đúng nội dung độc lập với model.
 
 ### B7. Small Local Model Challenge (bonus)
 
@@ -224,13 +235,13 @@ Lỗi đặc thù của model nhỏ (đếm từ run JSON):
 
 ## 5. Khó khăn và cách xử lý
 
-Khi đối chiếu R12 và G03 cũ, nhóm thấy hai case đang kiểm tra khác giai đoạn của yêu cầu gửi. Bộ base được giữ nguyên; G03 được làm rõ là đã đồng ý chuẩn bị nhưng chưa có nội dung. Những lần đổi bộ group đều được ghi lại để tránh so sánh nhầm.
+Khi đối chiếu R12 và G03 cũ, nhóm nhận ra chúng kiểm tra khác giai đoạn của yêu cầu gửi. G03 được làm rõ là đã đồng ý chuẩn bị nhưng chưa có nội dung; bộ base được giữ nguyên. Sau đó, việc thay G05 khi thêm bibliography làm các điểm group không còn cùng phép đo. Nhóm khắc phục bằng cách cố định một bộ 10 câu dùng được cho v4–v9 và chạy lại cả sáu cấu hình, không sửa prompt để tìm điểm cao hơn.
 
-Các sửa đổi v5–v7 làm rõ một số quy tắc nhưng gây lỗi mới. Nhóm không tiếp tục thay mọi thứ cùng lúc, mà lấy v4 làm nền cho H8: thêm riêng chức năng bibliography. Kết quả v8 giữ được 20/20 base và đạt 10/10 group mới; các run hồi quy vẫn còn.
+Các sửa đổi v5–v7 làm rõ một số quy tắc nhưng gây lỗi mới ở base. Nhóm lấy v4 làm nền cho H8 và thêm riêng bibliography. V8 giữ 20/20 base và đạt 10/10 trên bộ group chung mới đo; các run hồi quy và các bộ group cũ vẫn được giữ trong lịch sử.
 
 Lần hợp nhất với Lam có conflict ở prompt, YAML và báo cáo vì cả hai nhánh cùng sửa các phần này. Nhóm lấy v8 làm nền, chỉ nhận quy tắc mới có liên quan vào snapshot v9, giữ schema và 14 tool, rồi đo lại. Việc v9 có hồi quy được ghi nguyên trạng; cấu hình chạy chính quay về v8 theo tiêu chí đã đặt trước.
 
-Về kỹ thuật, Python hệ thống thiếu FastAPI nên test phải chạy trong .venv của repo. UI cũng từng nhận raw run thay vì cấu trúc evaluation/actual, dẫn tới hiển thị FAIL sai; lỗi này đã được sửa và có regression test. Sau khi hợp nhất, pytest vẫn đạt 130 passed, 14 skipped, 0 failed; đây là kiểm tra offline, không thay kết quả eval model.
+Về kỹ thuật, Python hệ thống thiếu FastAPI nên test phải chạy trong .venv của repo. UI cũng từng nhận raw run thay vì cấu trúc evaluation/actual, dẫn tới hiển thị FAIL sai; lỗi này đã được sửa và có regression test. Sau khi hợp nhất, pytest vẫn đạt 200 passed, 0 skipped, 0 failed; đây là kiểm tra offline, không thay kết quả eval model.
 
 Phần deployment và khó khăn riêng của các thành viên khác để họ bổ sung. Chưa có bằng chứng Phần A hoàn thành trước 16:30; báo cáo không ghi lùi thời gian.
 
@@ -249,12 +260,12 @@ Nguyễn Đức Khương Lam — 2A202604020 có phần phân tích/hiệu chỉ
 - Failure nào cần review thủ công thay vì chấm tự động? Nội dung trả lời ngoài phạm vi dù no_tool, câu hỏi duyệt đúng nội dung ở G04, phân tích paper có căn cứ ở G06 và việc lặp IDs ở G09. Demo CLI cũng cho thấy hỏi bằng text chưa đồng nghĩa gọi clarify đúng luồng.
 - Nếu có thêm một vòng, nhóm sẽ thử giả thuyết nào? Tách từng ranh giới, dùng một bộ câu hỏi chưa dùng để sửa prompt, và kiểm tra việc duyệt nguyên văn trước send bằng trạng thái ứng dụng độc lập với model.
 
-V8 đạt điểm tối đa ở hai suite đã chạy, nhưng chưa đủ cơ sở nhận toàn bộ rubric. V9 được hợp nhất và lưu riêng với kết quả 19/20, 9/10; nhóm không đổi nhãn các run tốt của v8 để thay bằng chứng cho v9. V8 vẫn thừa hưởng một số description còn chung chung và quy tắc tin cậy nguồn chưa đầy đủ của v4. UI đã chạy local và có transcript thật, song public URL, thời điểm hoàn thành Phần A và phần các thành viên khác còn thiếu. Khi bật gửi thật, code vẫn dựa vào confirmed do model đưa vào; web demo hiện chặn delivery. Các giới hạn này cần được giữ trong kết luận, không che bằng điểm 20/20.
+V8 đạt 20/20 base và 10/10 trên phép đo group chung, nhưng chưa đủ cơ sở nhận toàn bộ rubric. V9 được hợp nhất và lưu riêng với kết quả 19/20, 9/10; nhóm không đổi nhãn các run tốt của v8 để thay bằng chứng cho v9. V8 vẫn thừa hưởng một số description còn chung chung và quy tắc tin cậy nguồn chưa đầy đủ của v4. UI đã chạy local và có transcript thật, song public URL, thời điểm hoàn thành Phần A và phần các thành viên khác còn thiếu. Khi bật gửi thật, code vẫn dựa vào confirmed do model đưa vào; web demo hiện chặn delivery. Các giới hạn này cần được giữ trong kết luận, không che bằng điểm 20/20.
 
 ## 8. Tài liệu tham khảo
 
 - [RUBRIC.md](../../RUBRIC.md), [RULES.md](../../RULES.md), [CHECKPOINTS.md](../../CHECKPOINTS.md), [SUBMISSION.md](../../SUBMISSION.md) và README của repo.
 - [Tool folder contract](../../starter_v0/tools/README.md), prompt/YAML, code tool, run và transcript được dẫn ở từng mục.
-- [Biên bản rà soát](rubric_review.md), [giả thuyết H8](review_evidence/v8_hypothesis.md), [H9](review_evidence/v9_hypothesis.md), [biên bản hợp nhất](review_evidence/merge_v9_review.json), [pytest](review_evidence/pytest_v9.txt), [bảng số đo](review_evidence/version_summary.json) và [hướng dẫn UI](../../docs/UI.md).
+- [Biên bản rà soát](rubric_review.md), [giả thuyết H8](review_evidence/v8_hypothesis.md), [H9](review_evidence/v9_hypothesis.md), [biên bản hợp nhất](review_evidence/merge_v9_review.json), [phép đo group chung](review_evidence/common_group_comparison.json), [pytest](review_evidence/pytest_tools_complete.txt), [bảng số đo](review_evidence/version_summary.json) và [hướng dẫn UI](../../docs/UI.md).
 - AI hỗ trợ: Codex. Nội dung được kiểm tra bằng file thật, hash, unit test, API run và trình duyệt; không dùng nhận xét của AI thay cho bằng chứng.
 - Tài liệu ngoài hoặc code/dữ liệu của các thành viên khác: để thành viên liên quan bổ sung.

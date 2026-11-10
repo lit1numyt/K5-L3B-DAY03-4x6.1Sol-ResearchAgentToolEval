@@ -11,6 +11,6 @@ requires_confirmation: true
 ---
 # send
 
-Posts text to a Telegram channel. The message is only sent when `confirmed` is true.
+Posts text to a Telegram channel. The message is only sent when `confirmed` is the boolean `True`; truthy strings or numbers do not count as confirmation.
 
 Only post to the configured private group channel after approval of the exact text in the current conversation. A preparation request is not publication approval.
