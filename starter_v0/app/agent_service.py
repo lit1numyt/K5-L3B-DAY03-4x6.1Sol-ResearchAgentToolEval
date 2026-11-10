@@ -10,6 +10,8 @@ from chat import run_model_tool_loop, trim_history
 from env_loader import load_lab_env
 from providers import make_provider
 from tools import load_tool_declarations, to_openai_tools
+from tools import TOOL_FUNCTIONS
+from versioning import artifact_version_dict, build_artifact_version
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,6 +30,7 @@ class AgentService:
         self.tools_path = self._path_env("TOOLS_PATH", ROOT / "artifacts" / "tools.yaml")
         self._provider: Any | None = None
         self._tools: list[dict[str, Any]] | None = None
+        self.disable_delivery = os.getenv("WEB_DEMO_ENABLE_SEND", "0").lower() not in {"1", "true", "yes"}
 
     @staticmethod
     def _positive_int(name: str, default: int, *, maximum: int) -> int:
@@ -53,6 +56,30 @@ class AgentService:
             self._tools = to_openai_tools(declarations)
         return self._tools
 
+    def _get_tool_functions(self) -> dict[str, Any]:
+        functions = dict(TOOL_FUNCTIONS)
+        if self.disable_delivery:
+            functions["send"] = lambda **kwargs: {
+                "tool": "send_telegram",
+                "status": "needs_confirmation",
+                "awaiting_user": True,
+                "message": "Telegram delivery is disabled in the web demo. No message was sent.",
+            }
+        return functions
+
+    def metadata(self) -> dict[str, Any]:
+        version = build_artifact_version("web-demo", self.system_prompt_path, self.tools_path)
+        return {
+            "provider": self.provider_name,
+            "model": self.model or getattr(self._get_provider(), "default_model", None),
+            **artifact_version_dict(version),
+            "system_prompt": self.system_prompt_path.name,
+            "tools": self.tools_path.name,
+            "history_window": self.history_window,
+            "max_tool_rounds": self.max_tool_rounds,
+            "delivery_mode": "disabled_for_web_demo" if self.disable_delivery else "enabled_by_configuration",
+        }
+
     def chat(self, messages: list[dict[str, str]]) -> dict[str, Any]:
         system_prompt = self.system_prompt_path.read_text(encoding="utf-8")
         history = trim_history(messages, self.history_window)
@@ -62,6 +89,7 @@ class AgentService:
             tools=self._get_tools(),
             model=self.model,
             max_tool_rounds=self.max_tool_rounds,
+            tool_functions=self._get_tool_functions(),
         )
 
     def stream_chat(self, messages: list[dict[str, str]]):
@@ -79,6 +107,7 @@ class AgentService:
                     model=self.model,
                     max_tool_rounds=self.max_tool_rounds,
                     on_event=events.put,
+                    tool_functions=self._get_tool_functions(),
                 )
                 events.put({"type": "finished", "result": result})
             except Exception as exc:

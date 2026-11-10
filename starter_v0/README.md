@@ -27,6 +27,21 @@ Because the existing provider interface is synchronous, the current stream wraps
 
 The web configuration uses `BOT_PROVIDER`, `BOT_MODEL`, `HISTORY_WINDOW`, and `MAX_TOOL_ROUNDS`; provider credentials retain the names documented in `.env.example` and the existing provider modules.
 
+### Demo and benchmark UI
+
+The web app has two modes:
+
+- **Live chat**: runs the existing multi-round agent loop and shows each real tool call, sanitized arguments, execution status, waiting states, and provider interruptions.
+- **Benchmark lab**: reads cases from `data/eval_base.json` or `data/eval_group.json`, shows expected behavior, lists saved run JSON read-only, and only calls a provider when **Run selected case live** is clicked. Live benchmark PASS/FAIL is computed with the same `case_messages`, `tool_choice`, and `evaluate_phase_b` logic used by `run_eval.py`.
+
+Tool execution success is intentionally shown separately from benchmark PASS/FAIL: a tool may run successfully while the model selected the wrong tool or supplied wrong arguments.
+
+The UI shows the provider, model, artifact version, prompt hash, tools hash, history window, and tool-round limit for the current configuration. Existing run files are never presented as results of a new live request.
+
+For a safe shared demo, Telegram delivery is disabled in the web app by default. The UI can demonstrate `clarify`/confirmation and will show `send` as a waiting state, but it will not send a real message. Only enable delivery intentionally with `WEB_DEMO_ENABLE_SEND=1`, a protected deployment, explicit user confirmation, and a reviewed exact message.
+
+For Cloudflare Tunnel sharing, keep Uvicorn bound to `127.0.0.1`, expose only the app through the tunnel, enable Cloudflare Access or an equivalent access policy, and monitor provider/API quotas. Do not publish `.env`, `/docs`, saved secrets, or an unprotected action-capable bot.
+
 Suggested demo prompts:
 
 - `Find 5 recent papers about Retrieval-Augmented Generation and summarize the top results.`

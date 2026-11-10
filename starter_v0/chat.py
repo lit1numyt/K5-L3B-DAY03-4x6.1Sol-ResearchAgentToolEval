@@ -41,8 +41,8 @@ def trim_history(history: list[dict[str, str]], window: int) -> list[dict[str, s
     return history[-window * 2:]
 
 
-def execute_tool_call(call: ToolCall) -> dict[str, Any]:
-    func = TOOL_FUNCTIONS.get(call.name)
+def execute_tool_call(call: ToolCall, tool_functions: dict[str, Any] | None = None) -> dict[str, Any]:
+    func = (tool_functions or TOOL_FUNCTIONS).get(call.name)
     if not func:
         return {
             "tool": call.name,
@@ -85,6 +85,7 @@ def run_model_tool_loop(
     model: str | None,
     max_tool_rounds: int,
     on_event: Any | None = None,
+    tool_functions: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     def emit(event: dict[str, Any]) -> None:
         if on_event is not None:
@@ -107,14 +108,17 @@ def run_model_tool_loop(
 
         if not calls:
             rounds.append(round_record)
+            emit({"type": "no_tool_called", "round": round_index})
             emit({"type": "completed", "result": {
                 "status": "answered",
+                "execution_status": "no_tool_called",
                 "assistant_text": response.text or "",
                 "rounds": rounds,
                 "tool_events": all_tool_events,
             }})
             return {
                 "status": "answered",
+                "execution_status": "no_tool_called",
                 "assistant_text": response.text or "",
                 "rounds": rounds,
                 "tool_events": all_tool_events,
@@ -123,21 +127,39 @@ def run_model_tool_loop(
         working_messages.append(assistant_tool_message(response.text, calls))
         non_clarification_events: list[dict[str, Any]] = []
 
-        for call in calls:
+        for call_index, call in enumerate(calls, start=1):
             print(f"🔧 {call.name}({json.dumps(call.args, ensure_ascii=False, sort_keys=True)})")
-            event = execute_tool_call(call)
-            emit({"type": "tool_completed", "round": round_index, "tool": event.get("tool"), "ok": "error" not in event.get("result", {})})
+            emit({
+                "type": "tool_started",
+                "round": round_index,
+                "call_index": call_index,
+                "tool": call.name,
+                "args": call.args,
+            })
+            event = execute_tool_call(call, tool_functions)
             round_record["tool_results"].append(event)
             all_tool_events.append(event)
 
             # Detect the clarification/pause tool by its output flag (rename-proof),
             # not by a hard-coded tool name.
             result = event.get("result", {})
-            if isinstance(result, dict) and result.get("awaiting_user"):
+            waiting = isinstance(result, dict) and (result.get("awaiting_user") or result.get("status") == "needs_confirmation")
+            failed = isinstance(result, dict) and bool(result.get("error"))
+            emit({
+                "type": "tool_completed",
+                "round": round_index,
+                "call_index": call_index,
+                "tool": event.get("tool"),
+                "args": event.get("args", {}),
+                "status": "waiting" if waiting else "failed" if failed else "succeeded",
+                "error": result.get("error") if failed and isinstance(result, dict) else None,
+            })
+            if waiting:
                 question = result.get("question") or call.args.get("question") or "Bạn bổ sung thêm thông tin nhé."
                 rounds.append(round_record)
                 emit({"type": "completed", "result": {
                     "status": "waiting_for_user",
+                    "execution_status": "waiting_for_user",
                     "assistant_text": question,
                     "rounds": rounds,
                     "tool_events": all_tool_events,
@@ -156,6 +178,7 @@ def run_model_tool_loop(
 
     result = {
         "status": "max_tool_rounds",
+        "execution_status": "max_tool_rounds",
         "assistant_text": f"Stopped after {max_tool_rounds} tool rounds. Inspect the transcript for details.",
         "rounds": rounds,
         "tool_events": all_tool_events,

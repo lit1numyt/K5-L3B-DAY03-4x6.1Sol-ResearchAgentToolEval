@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#111827">
   <title>Research Chatbot</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/benchmark.css">
 </head>
 <body>
   <div class="app-shell">
@@ -19,11 +20,18 @@
     <main class="main-panel">
       <header class="topbar">
         <button class="mobile-menu" id="mobile-menu" aria-label="Open conversations">☰</button>
-        <div><div class="eyebrow">RESEARCH WORKSPACE</div><h1 id="chat-title">New conversation</h1></div>
+        <div><div class="eyebrow">DAY 03 RESEARCH AGENT</div><h1 id="chat-title">New conversation</h1></div>
+        <div class="mode-tabs" role="tablist"><button class="mode-tab active" id="chat-mode" type="button">Live chat</button><button class="mode-tab" id="benchmark-mode" type="button">Benchmark lab</button></div>
         <div class="status-pill"><span></span> Ready</div>
       </header>
       <section class="messages" id="messages" aria-live="polite"></section>
-      <div class="composer-wrap">
+      <section class="benchmark-panel" id="benchmark-panel" hidden>
+        <div class="benchmark-heading"><div><div class="eyebrow">EVIDENCE MODE</div><h2>Benchmark cases</h2><p>Inspect saved evidence without making API calls, or explicitly run one case live.</p></div><div class="run-meta" id="run-meta">Loading run metadata…</div></div>
+        <div class="benchmark-controls"><label>Dataset<select id="benchmark-dataset"><option value="base">Base eval</option><option value="group">Group eval</option></select></label><label>Case<select id="benchmark-case"></select></label><button class="new-chat benchmark-run" id="run-benchmark" type="button">Run selected case live</button></div>
+        <div class="saved-runs"><label>Saved runs<select id="saved-run"><option value="">Choose a saved run (read-only)</option></select></label><button class="new-chat" id="load-saved-run" type="button">Inspect saved run</button></div>
+        <div class="benchmark-grid"><article class="evidence-card"><div class="card-label">Selected case</div><div id="case-details" class="case-details"></div></article><article class="evidence-card"><div class="card-label">Evaluation result</div><div id="benchmark-result" class="benchmark-result"><p>Select a case, inspect its expectation, or run it live.</p></div></article></div>
+      </section>
+      <div class="composer-wrap" id="composer-wrap">
         <div class="composer-hint">Ask about research, sources, policies, papers, or web findings.</div>
         <form class="composer" id="composer">
           <textarea id="message-input" rows="1" maxlength="12000" placeholder="Ask the research agent anything..." aria-label="Message"></textarea>
