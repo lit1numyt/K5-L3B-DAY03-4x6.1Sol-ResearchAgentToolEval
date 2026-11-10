@@ -135,3 +135,12 @@ tools:
         include_text: {type: boolean, default: false, description: "true khi cần trích text PDF để trả lời về phương pháp, kết quả hoặc hạn chế của paper."}
         max_pages: {type: integer, default: 5, description: "Số trang PDF tối đa cần đọc khi include_text=true."}
       required: []
+
+  - name: find_article_candidates
+    description: "Tìm các bài viết ứng viên khi người dùng cung cấp chi tiết nhận dạng như tiêu đề, tác giả hoặc chủ đề đặc trưng nhưng chưa có URL. Dùng fetch nếu đã có URL; dùng lookup để tìm web chung. Nếu chỉ nói bài này mà không có chi tiết nhận dạng thì hỏi lại bằng clarify, không tự đoán. Trả các ứng viên để người dùng lựa chọn nếu chưa rõ, không khẳng định kết quả đầu tiên đúng."
+    parameters:
+      type: object
+      properties:
+        description: {type: string, description: "Chi tiết nhận dạng bài viết do người dùng cung cấp; không được tự bịa."}
+        max_results: {type: integer, minimum: 1, maximum: 10, default: 5, description: "Số ứng viên tối đa."}
+      required: [description]
