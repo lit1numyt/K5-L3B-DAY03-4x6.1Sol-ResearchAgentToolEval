@@ -26,3 +26,13 @@ Useful endpoints are `/`, `/health`, `/api/chat`, `/api/chat/stream`, and `/docs
 Because the existing provider interface is synchronous, the current stream wraps the reliable multi-round agent loop and progressively delivers the completed answer after execution. Provider-native token streaming can be added later without changing the frontend event contract.
 
 The web configuration uses `BOT_PROVIDER`, `BOT_MODEL`, `HISTORY_WINDOW`, and `MAX_TOOL_ROUNDS`; provider credentials retain the names documented in `.env.example` and the existing provider modules.
+
+## ArXiv function-calling benchmark
+
+Run the terminal-only benchmark from `starter_v0/` with a configured provider:
+
+```bash
+./.venv/bin/python arxiv_funtion_test/run_arxiv_eval.py --provider openrouter
+```
+
+Useful options include `--model MODEL`, `--max-cases N`, and `--output-dir PATH`. The evaluator runs the 20 cases in `arxiv_funtion_test/`, prints per-case scores and rubric dimensions, reports critical failures, and saves a detailed JSON report under `runs/arxiv/`. The evaluator treats the repository's existing `papers` tool as the rubric's `arxiv_search` function name and does not penalize parameters that the current arXiv tool does not expose; those are reported as API limitations.
