@@ -1,0 +1,3 @@
+# Preserve the exact bytes hashed by the recorded benchmark runs.
+starter_v0/artifacts/system_prompt_v[012].md -text whitespace=cr-at-eol
+starter_v0/artifacts/tools_v[012].yaml -text whitespace=cr-at-eol
