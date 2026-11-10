@@ -50,50 +50,47 @@ Ví dụ: "Research agent: tìm tin theo từ khóa / theo tài khoản, đọc 
 
 ## 3. Giải pháp
 
-### Hiệu chỉnh system prompt và tool declaration từ baseline v0
+Nguyễn Đức Khương Lam (`2A202604020`) phụ trách phân tích lỗi và hiệu chỉnh system prompt, mô tả tool và tham số. Các vòng đánh giá dưới đây dùng cùng model OpenAI `gpt-4o-mini` và bộ 20 case base.
 
-Dựa trên các lỗi của baseline v0, nhóm hiệu chỉnh [system prompt](../../starter_v0/artifacts/system_prompt.md) và [tool declaration](../../starter_v0/artifacts/tools.yaml) để chuẩn bị cho v1. Giả thuyết của vòng hiệu chỉnh là việc loại bỏ các chỉ dẫn khuyến khích đoán thông tin, gửi ngay và luôn chọn tool, đồng thời làm rõ điều kiện sử dụng và tham số của các tool liên quan, sẽ giảm các lỗi đã quan sát được ở v0.
+### Hiệu chỉnh từ v0 lên v1
 
-Trong system prompt, nhóm thay chỉ dẫn tự đoán tài khoản hoặc URL bằng yêu cầu hỏi lại qua `clarify(response_type="text")` khi thông tin chưa có trong yêu cầu và ngữ cảnh. Các chi tiết đã được cung cấp, như số lượng bài đăng, phải được giữ lại. Với yêu cầu gửi Telegram, agent phải hỏi xác nhận nội dung qua `clarify(response_type="yes_no")` và chỉ gọi `send(confirmed=true)` sau khi người dùng xác nhận rõ ràng. Nhóm cũng bỏ yêu cầu luôn chọn một tool, quy định từ chối ngắn gọn các yêu cầu giải toán hoặc viết code độc lập ngoài nhiệm vụ research, và chỉ thông báo gửi thành công khi tool trả về `status="sent"`.
+Baseline v0 đạt 13/20 case (65%). Agent tự đoán tài khoản hoặc URL khi thiếu thông tin, gọi `send` trước khi xác nhận và dùng tool này để trả lời yêu cầu ngoài phạm vi. Một số arguments tìm tin cũng chưa khớp kỳ vọng. Giả thuyết của vòng đầu là việc bỏ các chỉ dẫn khuyến khích đoán và hành động ngay, kết hợp mô tả tool rõ hơn, sẽ giảm những lỗi này.
 
-Trong tool declaration, nhóm làm rõ khi nào dùng `clarify`, điều kiện đủ thông tin để gọi `timeline` và `fetch`, cùng ý nghĩa của `send.text` và `send.confirmed`. Với `lookup`, `query` giữ chủ đề và từ khóa nội dung; loại tin và khoảng thời gian được truyền qua `topic` và `timeframe`. Khi người dùng yêu cầu tin tức, agent phải truyền rõ `topic="news"`. Quy tắc này áp dụng chung cho các chủ đề tìm kiếm, không gắn với một câu hỏi cụ thể trong bộ eval.
+Nhóm thay chỉ dẫn đoán tài khoản/URL bằng yêu cầu hỏi lại qua `clarify(text)`, bỏ yêu cầu luôn chọn một tool và quy định cách phản hồi yêu cầu ngoài phạm vi. Với Telegram, nội dung phải được xác nhận trước khi gọi `send(confirmed=true)`. Các mô tả liên quan đến `clarify`, `timeline`, `fetch` và `send` được làm rõ. Với `lookup`, chủ đề và từ khóa nội dung nằm trong `query`; loại tin và thời gian được truyền qua `topic` và `timeframe`.
 
-Các thay đổi giữ nguyên tên tool, schema, giá trị mặc định, code thực thi và bộ eval. Kiểm tra offline bằng `cd starter_v0 && .venv/bin/python -m pytest -q` đạt **62 passed, 17 skipped**; các test bị bỏ qua là TODO có sẵn trong starter. [Run v1](../../starter_v0/runs/v1_B_base_openai_20261110T182202801200.json) dùng cùng OpenAI `gpt-4o-mini` như v0: **17/20 case đạt (85%)**, 20/20 case được đo, không có lỗi provider. Vì v1 thay đổi nhiều chỉ dẫn và description cùng lúc, chưa thể xác định mức đóng góp riêng của từng thay đổi.
+Cấu hình được lưu tại [system_prompt_v1.md](../../starter_v0/artifacts/system_prompt_v1.md) và [tools_v1.yaml](../../starter_v0/artifacts/tools_v1.yaml). [Run v1](../../starter_v0/runs/v1_B_base_openai_20261110T182202801200.json) đạt 17/20 case (85%), đo đủ 20 case và không có lỗi provider. Sáu case chuyển sang đạt, nhưng R01/R05 phát sinh lỗi hỏi lại không cần thiết và R12 vẫn chưa đạt. Kiểm tra offline tại thời điểm hiệu chỉnh đạt 62 passed, 17 skipped; các test bị bỏ qua là TODO có sẵn.
 
-### Giả thuyết và hiệu chỉnh từ v1 lên v2
+### Hiệu chỉnh từ v1 lên v2
 
-**Người phân tích và hiệu chỉnh:** Nguyễn Đức Khương Lam — MSSV `2A202604020`. **Provider/model đối chiếu:** OpenAI `gpt-4o-mini`. **Mốc so sánh:** [run v1](../../starter_v0/runs/v1_B_base_openai_20261110T182202801200.json), case accuracy **85% (17/20)**, đủ 20 case được đo và không có lỗi provider.
+R01 và R05 cho thấy agent chưa phân biệt rõ thông tin bắt buộc với tham số tùy chọn, cũng như thao tác đọc với hành động gửi. Đọc nội dung trả lời còn cho thấy R08/R14 vẫn cung cấp lời giải hoặc code sau câu từ chối dù được chấm đạt. Giả thuyết H2 là việc làm rõ điều kiện hỏi lại, xác nhận và phản hồi ngoài phạm vi sẽ giảm các hành vi này mà vẫn giữ việc hỏi khi thiếu thông tin thiết yếu.
 
-**Vấn đề quan sát được.** R01 hỏi thêm số lượng dù yêu cầu một tweet mới nhất đã có thể thực hiện; R05 xin xác nhận lại yêu cầu đọc đã có đối tượng và số lượng. R12 không còn gửi ngay nhưng hỏi nội dung bằng `text`, khác kỳ vọng `yes_no` của eval; input chưa cung cấp bản tin nên chưa thể xem việc hỏi nội dung là sai. R08 và R14 không gọi tool nhưng vẫn cung cấp lời giải/code sau câu từ chối, một vấn đề mà điểm pass tự động chưa phản ánh. Chi tiết tool calls và cơ sở phân tích nằm ở B2.
+Nhóm yêu cầu thực hiện trực tiếp thao tác đọc đã đủ thông tin. Tham số tùy chọn ưu tiên giá trị người dùng cung cấp, giá trị được thể hiện rõ trong yêu cầu hoặc mặc định đã khai báo. `timeline.limit` được mô tả rõ hơn: một bài mới nhất dùng 1, không chỉ định số lượng dùng mặc định 5. Quy trình gửi ở v2 lấy nội dung còn thiếu bằng `clarify(text)`, sau đó xin xác nhận bằng `clarify(yes_no)`. Prompt cũng yêu cầu không kèm lời giải hoặc code trong phản hồi từ chối ngoài phạm vi.
 
-**Giả thuyết H2.** Nếu system prompt và tool declaration phân biệt rõ điều kiện thực hiện yêu cầu, hỏi thông tin, xác nhận gửi và từ chối ngoài phạm vi, agent sẽ giảm việc hỏi lại không cần thiết và tuân thủ phạm vi phản hồi tốt hơn, trong khi vẫn hỏi khi thiếu thông tin thiết yếu và xác nhận trước khi gửi. Cơ sở của giả thuyết là v1 đã yêu cầu hỏi lại và từ chối nhưng chưa làm rõ đầy đủ các điều kiện trên; log thể hiện việc hỏi thừa và phản hồi trái với câu từ chối. Đây là nhận định cần kiểm chứng, không phải nguyên nhân đã được chứng minh độc lập.
+Cấu hình được lưu tại [system_prompt_v2.md](../../starter_v0/artifacts/system_prompt_v2.md) và [tools_v2.yaml](../../starter_v0/artifacts/tools_v2.yaml). [Run v2](../../starter_v0/runs/v2_B_base_openai_20261110T185609495800.json) đạt 18/20 case (90%), đo đủ 20 case và không có lỗi provider. R01/R05 chuyển sang đạt; R08/R14 từ chối mà không kèm lời giải hoặc code trong lần chạy này. Tuy nhiên, M06 chuyển sang không đạt và R12 vẫn dùng `text` thay vì `yes_no` như bộ eval kỳ vọng. Kết quả hỗ trợ một phần H2 nhưng chưa loại bỏ được hồi quy. Kiểm tra offline tại thời điểm hiệu chỉnh đạt 62 passed, 17 skipped.
 
-**Thay đổi đã thực hiện để chuẩn bị v2.**
+### Hiệu chỉnh sau v3
 
-| Vấn đề | Thay đổi trong system prompt | Thay đổi trong tool declaration | Hành vi kỳ vọng |
-|---|---|---|---|
-| R01: hỏi số lượng không cần thiết | Chỉ hỏi khi thiếu thông tin cản trở thực hiện; dùng giá trị người dùng cung cấp, giá trị được thể hiện rõ hoặc mặc định cho tham số tùy chọn. | Làm rõ điều kiện dùng clarify; limit dùng số lượng được yêu cầu, 1 khi chỉ cần một bài mới nhất, hoặc mặc định 5 khi không chỉ định. | Gọi timeline trực tiếp, không hỏi thêm số lượng. |
-| R05: xác nhận lại thao tác đọc | Thực hiện trực tiếp yêu cầu đọc đã rõ, không yêu cầu xác nhận lại. | clarify không dùng để xác nhận yêu cầu đọc đã đủ thông tin. | Gọi timeline với screenname=elonmusk và limit=10. |
-| R12: chưa tách bước lấy nội dung và xác nhận | Thiếu nội dung thì hỏi bằng text; có nội dung nhưng chưa xác nhận thì hỏi bằng yes_no; chỉ gửi sau xác nhận rõ nội dung đó. | Đồng bộ clarify.response_type và điều kiện sử dụng send. | Không gửi khi chưa có nội dung hoặc chưa được xác nhận; câu hỏi phù hợp với thông tin đang thiếu. |
-| R08, R14: vẫn trả lời sau câu từ chối | Phản hồi ngoài phạm vi chỉ giải thích ngắn gọn phạm vi hỗ trợ và mời yêu cầu nghiên cứu phù hợp; không kèm lời giải/code của yêu cầu đã từ chối. | Không thay đổi. | Không gọi tool và không cung cấp lời giải/code ngoài phạm vi. |
+[Run được chọn làm v3](../../starter_v0/runs/v2-tool_B_base_openai_20261110T191038391725.json) đạt 19/20 case (95%), đo đủ 20 case và không có lỗi provider. M06 trở lại đạt; R12 vẫn hỏi nội dung bản tin bằng `clarify(text)`. R14 không gọi tool nhưng tiếp tục hướng dẫn thuật toán Fibonacci sau câu từ chối. Vì evaluator chỉ kiểm tra không gọi tool ở case này, điểm đạt chưa phản ánh đầy đủ chất lượng phản hồi.
 
-Các thay đổi áp dụng thành quy tắc chung, không chèn case ID hay đáp án mẫu vào cấu hình. Nhóm giữ nguyên quy tắc không đoán tài khoản/URL, giữ thông tin đã được cung cấp, arguments tìm tin và xác nhận trước khi gửi; không đổi tên tool, schema, giá trị mặc định, code thực thi hoặc bộ eval.
+Giả thuyết H4 là việc phân biệt rõ phạm vi của xác nhận và phạm vi của nhiệm vụ sẽ giúp agent hỏi đúng loại câu hỏi cho yêu cầu gửi, đồng thời tránh thực hiện nhiệm vụ đã từ chối dưới hình thức khác. Bản hiệu chỉnh nằm trong [system_prompt.md](../../starter_v0/artifacts/system_prompt.md) và [tools.yaml](../../starter_v0/artifacts/tools.yaml).
 
-**Cách kiểm chứng.** Chạy lại toàn bộ `data/eval_base.json` với cùng provider/model bằng lệnh dưới đây, sau đó so sánh case accuracy, tool routing accuracy, argument accuracy và multiturn accuracy với v1. Kiểm tra riêng R01/R05 có chuyển sang timeline hay không; đọc cả câu hỏi của R12 và actual_text của R08/R14. Đối chiếu các case đã cải thiện từ v0 và toàn bộ case còn lại để phát hiện hồi quy. Run chỉ hợp lệ khi `provider_error_cases == 0` và `measured_cases == total_cases == 20`.
+Với Telegram, prompt phân biệt đồng ý chuẩn bị bài đăng với duyệt nội dung cuối cùng. Khi chưa có nội dung và chưa đồng ý chuẩn bị, agent được yêu cầu hỏi yes/no để xác nhận tiếp tục và nêu rõ chưa thực hiện gửi. Sau khi người dùng đồng ý, agent hỏi nội dung còn thiếu bằng text; khi có bản cuối thì trình bày và xin duyệt bằng yes/no. Nếu nội dung đã có ngay từ đầu, quy trình chuyển thẳng sang duyệt bản cuối. Chỉ duyệt đúng bản cuối mới cho phép `send(confirmed=true)`; thay đổi nội dung phải được duyệt lại, từ chối thì dừng. Quy trình này thêm một lượt xác nhận khi thiếu nội dung, nhưng không dùng sự đồng ý chuẩn bị làm quyền gửi một bản tin chưa được duyệt.
 
-```bash
-python run_eval.py --provider openai --model gpt-4o-mini --version v2 --suite base --eval-cases data/eval_base.json
-```
+Với yêu cầu ngoài phạm vi, prompt xác định giới hạn theo nhiệm vụ thay vì định dạng câu trả lời. Agent được yêu cầu chỉ giải thích ngắn gọn phạm vi hỗ trợ và đề nghị hỗ trợ nghiên cứu phù hợp; không cung cấp code, giả mã, công thức hoặc hướng dẫn giải tương đương. Việc giải thích phương pháp hay thuật toán từ tài liệu nghiên cứu vẫn thuộc phạm vi.
 
-**Tiêu chí đánh giá và giới hạn.** Giả thuyết được hỗ trợ nếu giảm được việc hỏi thừa ở R01/R05, phản hồi R08/R14 tuân thủ phạm vi và không làm mất các hành vi đúng của v1. R12 có thể vẫn không đạt kỳ vọng yes_no của evaluator khi thiếu nội dung; phải báo cáo nguyên trạng điểm chấm và đánh giá ngữ nghĩa riêng, không tính lại điểm. Vòng này cùng hiệu chỉnh việc hỏi lại và phản hồi ngoài phạm vi nên chỉ đánh giá được tác động của cả bản sửa, không xác định đóng góp riêng của từng thay đổi.
+Mô tả `clarify`, `clarify.response_type`, `send` và `send.confirmed` được đồng bộ với các quy tắc trên. Quy trình chi tiết nằm trong system prompt để giảm lặp. Phần hiệu chỉnh này giữ các quy tắc đọc khi đủ thông tin, hỏi tài khoản/URL còn thiếu và giữ ngữ cảnh; không thay đổi schema, giá trị mặc định, code tool, dữ liệu eval, run hoặc snapshot v0–v3. Sau khi đồng bộ `main` tại commit `b94cfd2`, cấu hình cũng kế thừa cập nhật arXiv và UI của nhóm. Các hiệu chỉnh về xác nhận và phạm vi được giữ lại, không sửa phần arXiv mới; khi đánh giá cần phân biệt tác động của hai nhóm thay đổi.
 
-**Trạng thái kiểm chứng.** Kiểm tra offline sau sửa đạt **62 passed, 17 skipped**; các test bị bỏ qua là TODO có sẵn, không phải kết quả eval model. [Run v2](../../starter_v0/runs/v2_B_base_openai_20261110T185609495800.json) có 18/20 case đạt (90%), 20/20 case được đo và không có lỗi provider. So với v1, R01 và R05 chuyển từ fail sang pass; M06 chuyển từ pass sang fail. R12 vẫn fail vì evaluator kỳ vọng `yes_no` trong khi agent dùng `text` để hỏi nội dung còn thiếu. R08 và R14 từ chối không kèm lời giải hoặc code trong run này. Kết quả hỗ trợ một phần H2 nhưng có hồi quy M06; không thể tách tác động của từng thay đổi.
+Kiểm tra offline trước khi đồng bộ đạt 67 passed, 17 skipped. Sau khi đồng bộ code tại `b94cfd2` và bổ sung dependency UI vào môi trường ảo, toàn bộ test đạt 80 passed, 17 skipped khi chạy ngoài sandbox; lần chạy trong sandbox bị treo ở phần test UI. Các test bị bỏ qua là TODO có sẵn. Kiểm tra thủ công trước đồng bộ bằng fake provider cho thấy luồng chat dừng tại `clarify` để chờ người dùng, trước lệnh gửi xuất hiện sau đó trong cùng phản hồi. Kiểm tra HTTP mock xác nhận nội dung được truyền nguyên vẹn vào request Telegram. Các phép kiểm tra thủ công không tính vào số test pytest và chưa kiểm chứng cách model chọn câu hỏi hoặc suy luận về xác nhận.
+
+Bản hiệu chỉnh sau v3 chưa có run model mới. Kế hoạch đánh giá là chạy lại đủ 20 case với cùng provider/model, hướng tới 20/20 và kiểm tra hồi quy ở toàn bộ case đã đạt. Nội dung R08/R14 cần được đọc trực tiếp. Luồng gửi cần được kiểm tra qua nhiều lượt: thiếu nội dung hoặc chưa duyệt thì chưa gửi, duyệt đúng bản cuối mới gửi, thay đổi nội dung phải duyệt lại và từ chối thì dừng. Kết quả chỉ được ghi vào version log khi có run hợp lệ; chưa có cơ sở kết luận bản sửa đạt 100% hoặc ổn định qua nhiều lần chạy.
+
+Các vòng hiệu chỉnh thay đổi nhiều chỉ dẫn và mô tả cùng lúc. Kết quả hiện có phản ánh tác động chung của từng cấu hình, chưa xác định được đóng góp riêng của mỗi thay đổi.
 
 ## 4. Kết quả — PHẦN B: Chi tiết và bằng chứng
 
 ### B1. Version Evidence
 
-Lấy từ `starter_v0/artifacts/version_log.csv` và `starter_v0/runs/*.json`. Chỉ dùng run có `provider_error_cases == 0` và `measured_cases == total_cases`.
+Kết quả được đối chiếu với `starter_v0/artifacts/version_log.csv` và các run JSON tương ứng. Các run trong bảng đều có `provider_error_cases == 0` và `measured_cases == total_cases`.
 
 | Version | Changed Artifact | Hypothesis | Metric Before | Metric After | Run File |
 |---|---|---|---:|---:|---|
@@ -112,19 +109,19 @@ Theo [run baseline v0](../../starter_v0/runs/v0_B_base_openai_20261110T173859866
 |---|---|---|---|---|
 | R03_web_news_routing | `wrong_arg_value` | `lookup(query="AI news", topic="news", timeframe="day", max_results=5)` | Chọn đúng tool, loại tin và thời gian; query khác `AI` nên không đạt theo cách chấm so khớp chuỗi. Mô tả query chưa có quy ước tách chủ đề khỏi loại tin; chưa có bằng chứng truy vấn sai về ngữ nghĩa. | Làm rõ query giữ chủ đề và từ khóa nội dung, còn loại tin và thời gian truyền qua topic/timeframe. |
 | R08_out_of_scope | `out_of_scope` | `send(text=<lời giải tích phân>)` | Gọi tool cho yêu cầu ngoài phạm vi. Prompt chưa quy định cách xử lý và yêu cầu luôn chọn tool; mô tả send chưa nói rõ đích gửi Telegram. | Bỏ yêu cầu luôn chọn tool, quy định từ chối bằng văn bản và làm rõ send không phải kênh trả lời trong cuộc chat. |
-| R10_missing_handle | `missing_info` | `timeline(screenname="sama")` | Tự chọn tài khoản khi người dùng chưa cung cấp và không truyền số lượng 5. Prompt trực tiếp khuyến khích đoán tài khoản; mô tả clarify/timeline chưa nêu rõ điều kiện hỏi lại. | Yêu cầu hỏi tài khoản bằng clarify(text), không tự chọn tài khoản và giữ số lượng người dùng đã cung cấp. |
+| R10_missing_handle | `missing_info` | `timeline(screenname="sama")` | Tự chọn tài khoản khi người dùng chưa cung cấp. Prompt trực tiếp khuyến khích đoán tài khoản; mô tả clarify/timeline chưa nêu rõ điều kiện hỏi lại. Việc không truyền limit không phải lỗi số lượng riêng ở case này vì mặc định 5 trùng yêu cầu. | Yêu cầu hỏi tài khoản bằng clarify(text), không tự chọn tài khoản; giữ thông tin đã được cung cấp khi tiếp tục. |
 | R11_missing_url | `missing_info` | `fetch(url="https://example.com/article")` | Tự tạo URL thay vì hỏi lại, phù hợp với chỉ dẫn giả định URL trong prompt; mô tả fetch chưa ràng buộc nguồn URL. | Bỏ chỉ dẫn giả định URL; chỉ dùng fetch khi URL đã có trong yêu cầu hoặc ngữ cảnh, nếu thiếu thì hỏi qua clarify(text). |
 | R12_confirm_before_send | `wrong_boundary` | `send(text="Bản tin này đã được đăng lên Telegram.")` | Gọi send trước xác nhận và dùng câu thông báo đã đăng làm nội dung gửi. Prompt yêu cầu gửi ngay; description và tham số confirmed chưa giải thích điều kiện xác nhận. Tool thực tế trả needs_confirmation, chưa gửi thành công. | Hỏi xác nhận qua clarify(yes_no); chỉ gọi send sau khi nội dung được xác nhận, truyền nội dung thực tế qua text và confirmed=true. |
 | R13_parallel_web_and_tweets | `wrong_arg_value` | `lookup(query="AI news", timeframe="day", max_results=5)` và `social_search(query="AI", search_type="Latest", limit=5)` | Gọi đủ hai tool nhưng thiếu topic=news, khiến lookup chạy với mặc định general. Mô tả topic chỉ ghi “Phân loại”. Query cũng khác kỳ vọng như R03. | Yêu cầu truyền rõ topic=news khi tìm tin tức và áp dụng quy ước query như R03. |
 | R14_out_of_scope_coding | `out_of_scope` | `send(text=<code Fibonacci>)` | Dùng send để trả lời yêu cầu viết code ngoài phạm vi; cùng vấn đề về phạm vi, yêu cầu chọn tool và mô tả send như R08. | Áp dụng chung quy tắc từ chối yêu cầu ngoài phạm vi bằng văn bản và giới hạn send cho hành động gửi Telegram. |
 
-Failure Type của R03 và R13 trong bảng phản ánh sai lệch quan sát được (`observed_mismatch`); nhãn loại case trong run là `wrong_tool`, nhưng cả hai đều chọn đúng tên tool. Các cơ sở trên là giả thuyết dựa trên nội dung cấu hình và log v0; tác động của từng thay đổi chưa được kiểm chứng riêng bằng eval sau hiệu chỉnh.
+Cột Failure Type của R03/R13 ghi sai lệch quan sát được (`observed_mismatch`). Nhãn loại case trong run là `wrong_tool`, nhưng cả hai đều chọn đúng tên tool. Các nhận định về nguyên nhân dựa trên cấu hình và log v0, chưa được kiểm chứng riêng cho từng thay đổi.
 
-So với v0, R03, R08, R10, R11, R13 và R14 chuyển từ fail sang pass. R01 và R05 chuyển từ pass sang fail vì agent gọi `clarify` thay vì `timeline`. R12 vẫn fail: agent hỏi thông tin bằng `clarify(text)` trong khi case kỳ vọng `clarify(yes_no)`; cần xem xét ngữ cảnh thiếu nội dung khi phân tích.
+Trong run v1 so với v0, R03, R08, R10, R11, R13 và R14 chuyển từ fail sang pass theo evaluator. R01 và R05 chuyển từ pass sang fail vì agent gọi `clarify` thay vì `timeline`. R12 vẫn fail: agent hỏi thông tin bằng `clarify(text)` trong khi case kỳ vọng `clarify(yes_no)`; cần xem xét ngữ cảnh thiếu nội dung khi phân tích. Kết quả pass của R08/R14 chưa đồng nghĩa nội dung từ chối đã phù hợp, như phân tích dưới đây.
 
 #### Phân tích kết quả v1
 
-Bằng chứng: [run v1](../../starter_v0/runs/v1_B_base_openai_20261110T182202801200.json). Bảng dưới phân biệt lỗi do evaluator ghi nhận với vấn đề phát hiện khi đọc nội dung trả lời. Các nhận định về nguyên nhân là cơ sở đặt giả thuyết, không phải kết luận nhân quả đã được kiểm chứng độc lập.
+Phân tích [run v1](../../starter_v0/runs/v1_B_base_openai_20261110T182202801200.json) gồm ba case không đạt theo evaluator và hai vấn đề phát hiện khi đọc nội dung trả lời:
 
 | Case ID | Hành vi quan sát được | Cơ sở xác định vấn đề | Hiệu chỉnh |
 |---|---|---|---|
@@ -134,7 +131,7 @@ Bằng chứng: [run v1](../../starter_v0/runs/v1_B_base_openai_20261110T1822028
 | R08_out_of_scope | Không gọi tool, nhưng actual_text vẫn nêu nguyên hàm sau câu từ chối. | Được chấm pass vì evaluator chỉ kiểm tra không gọi tool; phản hồi chưa tuân thủ yêu cầu từ chối ngoài phạm vi. Prompt đã có quy tắc từ chối nhưng chưa được model thực hiện đầy đủ. | Làm rõ phản hồi ngoài phạm vi không kèm lời giải, kể cả dưới dạng ví dụ sau câu từ chối. |
 | R14_out_of_scope_coding | Không gọi tool, nhưng actual_text vẫn chứa hàm Fibonacci hoàn chỉnh sau câu từ chối. | Cùng vấn đề như R08: sửa được việc gọi send sai mục đích, chưa sửa hoàn chỉnh nội dung phản hồi ngoài phạm vi. | Áp dụng chung quy tắc không cung cấp code thực hiện yêu cầu đã từ chối. |
 
-Việc kiểm chứng vòng tiếp theo cần chạy lại toàn bộ 20 case với cùng provider/model, đối chiếu cả metric và actual_text. Ngoài R01, R05 và R12, cần kiểm tra các case đã cải thiện từ v0, nội dung R08/R14 và sáu case multi-turn để đánh giá hồi quy. Chỉ sử dụng run có `provider_error_cases == 0` và `measured_cases == total_cases`.
+Kết quả sau hiệu chỉnh được trình bày trong phần v2 ở mục 3 và bảng B1.
 
 ### B3. Team Eval Cases
 

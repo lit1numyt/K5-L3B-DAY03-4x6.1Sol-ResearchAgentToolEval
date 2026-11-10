@@ -16,12 +16,12 @@
 tools:
   # ---------------- Core tools ----------------
   - name: clarify
-    description: "Hỏi khi thiếu thông tin cần thiết để thực hiện đúng yêu cầu, như tài khoản, URL hoặc nội dung cần gửi; hoặc hỏi xác nhận nội dung đã có trước khi gửi Telegram. Không hỏi lại yêu cầu đọc đã rõ hoặc tham số tùy chọn có thể suy ra hay dùng mặc định. Chờ câu trả lời trước khi thực hiện bước phụ thuộc vào thông tin đó."
+    description: "Hỏi thông tin thiết yếu còn thiếu hoặc xin xác nhận gửi Telegram theo quy trình trong system prompt: xác nhận chuẩn bị khi chưa có nội dung, bổ sung nội dung rồi duyệt bản cuối. Không hỏi lại yêu cầu đọc đã rõ hoặc tham số tùy chọn có thể suy ra hay dùng mặc định. Chờ câu trả lời trước khi thực hiện bước phụ thuộc."
     parameters:
       type: object
       properties:
         question: {type: string, default: "", description: "Câu hỏi"}
-        response_type: {type: string, enum: [text, yes_no, choice], default: "text", description: "Dùng text để hỏi thông tin còn thiếu, gồm nội dung cần gửi; yes_no để xác nhận nội dung gửi đã có; choice khi đưa các lựa chọn."}
+        response_type: {type: string, enum: [text, yes_no, choice], default: "text", description: "text để hỏi thông tin còn thiếu; yes_no để xác nhận tiếp tục chuẩn bị bài đăng hoặc duyệt bản cuối. Đồng ý chuẩn bị chưa cho phép gửi. choice khi đưa các lựa chọn."}
         options: {type: array, default: [], items: {type: string}, description: "Các lựa chọn"}
       required: [question]
 
@@ -86,12 +86,12 @@ tools:
 
   # ---------------- Bonus tools ----------------
   - name: send
-    description: "Gửi nội dung lên Telegram, chỉ dùng khi đã có nội dung và người dùng đã xác nhận rõ nội dung đó. Nếu thiếu nội dung, hỏi bằng clarify(text); nếu đã có nội dung nhưng chưa xác nhận, hỏi bằng clarify(yes_no). Không dùng để trả lời trong cuộc chat."
+    description: "Gửi nội dung cuối cùng đã được người dùng duyệt lên Telegram. Nếu chưa đủ nội dung hoặc chưa duyệt bản cuối, dùng clarify theo quy trình gửi trong system prompt và chờ người dùng trả lời. Đồng ý chuẩn bị bài đăng chưa cho phép gửi. Không dùng để trả lời trong cuộc chat."
     parameters:
       type: object
       properties:
         text: {type: string, default: "", description: "Nội dung thực tế người dùng đã xác nhận để gửi lên Telegram, không phải câu thông báo đã gửi."}
-        confirmed: {type: boolean, default: false, description: "Chỉ truyền true sau khi người dùng đã xác nhận rõ nội dung cần gửi; yêu cầu gửi ban đầu chưa phải xác nhận."}
+        confirmed: {type: boolean, default: false, description: "Chỉ truyền true khi người dùng đã duyệt đúng nội dung cuối cùng trong text; yêu cầu gửi hoặc đồng ý chuẩn bị bài đăng chưa phải duyệt nội dung. Nếu sửa nội dung thì phải được duyệt lại."}
       required: [text]
 
   - name: policy
