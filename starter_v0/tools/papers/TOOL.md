@@ -4,7 +4,7 @@ track: bonus
 kind: live_api
 provider: arXiv API
 requires_env: [ARXIV_USER_AGENT]
-inputs: [query, max_results, sort_by]
+inputs: [query, max_results, sort_by, sort_order, start, date_from, date_to, author, title, categories, category]
 outputs: [items, total_results]
 side_effect: false
 ---

@@ -1,0 +1,53 @@
+Running 5 multi-turn conversations (2 turns each), seed=20261110...
+
+MT01: H03 -> H09
+🔧 arxiv_search({"max_results": 5, "query": "Andrew Ng machine learning", "sort_by": "relevance"})
+🔧 arxiv_search({"max_results": 5, "query": "Andrew Ng deep learning", "sort_by": "relevance"})
+🔧 arxiv_search({"date_from": "2024-01-01", "date_to": "2026-12-31", "max_results": 5, "query": "LLM security", "sort_by": "submittedDate", "sort_order": "descending"})
+  T1 MT01.T1/H03: 8/10 PASS
+  T2 MT01.T2/H09: 6/10 FAIL
+
+MT02: M07 -> H04
+🔧 arxiv_search({"max_results": 5, "query": "Attention Is All You Need"})
+🔧 arxiv_search({"max_results": 5, "query": "LLM security", "sort_by": "lastUpdatedDate", "sort_order": "descending"})
+  T1 MT02.T1/M07: 7/10 FAIL
+  T2 MT02.T2/H04: 5/10 FAIL
+
+MT03: H10 -> M05
+🔧 arxiv_search({"max_results": 5, "query": "AI-powered vulnerability detection", "sort_by": "relevance"})
+🔧 arxiv_search({"max_results": 5, "query": "Graph Neural Networks in cybersecurity", "sort_by": "relevance"})
+  T1 MT03.T1/H10: 8/10 PASS
+  T2 MT03.T2/M05: 8/10 PASS
+
+MT04: M02 -> M03
+🔧 arxiv_search({"date_from": "2024-01-01", "date_to": "2024-12-31", "max_results": 5, "query": "LLM agents", "sort_by": "submittedDate", "sort_order": "descending"})
+🔧 arxiv_search({"author": "Yoshua Bengio", "max_results": 5, "query": "deep learning", "sort_by": "relevance"})
+  T1 MT04.T1/M02: 8/10 PASS
+  T2 MT04.T2/M03: 8/10 PASS
+
+MT05: M09 -> M04
+🔧 arxiv_search({"categories": ["cs.CR"], "max_results": 10, "query": "malware detection machine learning", "sort_by": "relevance"})
+🔧 arxiv_search({"max_results": 3, "query": "adversarial attacks on neural networks", "sort_by": "relevance"})
+  T1 MT05.T1/M09: 10/10 PASS
+  T2 MT05.T2/M04: 8/10 PASS
+
+ArXiv Function Calling Benchmark
+================================================================================================
+ID     DIFFICULTY SCORE   STATUS   CRITICAL   NOTES
+------------------------------------------------------------------------------------------------
+MT01.T1/H03 hard        8/10   PASS     -          Not scored: repository arXiv tool does not expose 'author'; At
+MT01.T2/H09 hard        6/10   FAIL     -          Not scored: repository arXiv tool does not expose 'date_from';
+MT02.T1/M07 medium      7/10   FAIL     -          Not scored: repository arXiv tool does not expose 'title'; At 
+MT02.T2/H04 hard        5/10   FAIL     -          query: expected 'LLM security NOT prompt engineering', got 'LL
+MT03.T1/H10 hard        8/10   PASS     -          At least one tool execution returned an error
+MT03.T2/M05 medium      8/10   PASS     -          At least one tool execution returned an error
+MT04.T1/M02 medium      8/10   PASS     -          Not scored: repository arXiv tool does not expose 'date_from';
+MT04.T2/M03 medium      8/10   PASS     -          Not scored: repository arXiv tool does not expose 'author'; At
+MT05.T1/M09 medium     10/10   PASS     -          Not scored: repository arXiv tool does not expose 'category'
+MT05.T2/M04 medium      8/10   PASS     -          At least one tool execution returned an error
+------------------------------------------------------------------------------------------------
+Cases: 10 | Passed: 7 | Critical failures: 0
+Score: 76/100 (76.0/100) — Good
+Dimensions: tool selection 100.0% | arguments 85.0% | queries 85.0% | execution 55.0% | final response 55.0%
+
+Saved multi-turn benchmark: runs\arxiv\sample_5single_5multi_seed20261110\multi\arxiv_multiturn_eval_openai_20261110T210904.json

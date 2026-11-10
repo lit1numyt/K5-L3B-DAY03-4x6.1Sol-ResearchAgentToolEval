@@ -108,17 +108,19 @@ def run_model_tool_loop(
 
         if not calls:
             rounds.append(round_record)
-            emit({"type": "no_tool_called", "round": round_index})
+            execution_status = "tool_called" if all_tool_events else "no_tool_called"
+            if not all_tool_events:
+                emit({"type": "no_tool_called", "round": round_index})
             emit({"type": "completed", "result": {
                 "status": "answered",
-                "execution_status": "no_tool_called",
+                "execution_status": execution_status,
                 "assistant_text": response.text or "",
                 "rounds": rounds,
                 "tool_events": all_tool_events,
             }})
             return {
                 "status": "answered",
-                "execution_status": "no_tool_called",
+                "execution_status": execution_status,
                 "assistant_text": response.text or "",
                 "rounds": rounds,
                 "tool_events": all_tool_events,
@@ -203,6 +205,7 @@ def main() -> None:
     parser.add_argument("--transcripts-dir", type=Path, default=ROOT / "transcripts")
     parser.add_argument("--history-window", type=int, default=5, help="Keep the last N user/assistant pairs in context.")
     parser.add_argument("--max-tool-rounds", type=int, default=4)
+    parser.add_argument("--disable-send", action="store_true", help="Keep real research tools but block Telegram delivery for a safe live demo.")
     args = parser.parse_args()
 
     system_prompt = args.system_prompt.read_text(encoding="utf-8")
@@ -231,12 +234,16 @@ def main() -> None:
         "created_at": now_iso(),
         "updated_at": now_iso(),
         "turns": [],
+        "delivery_mode": "disabled_by_flag" if args.disable_send else "enabled_by_configuration",
     }
 
     print(f"Research Agent chat. artifact_version={artifact_version.artifact_version}")
     print("Type /exit to stop.")
 
     history: list[dict[str, str]] = []
+    tool_functions = dict(TOOL_FUNCTIONS)
+    if args.disable_send:
+        tool_functions["send"] = lambda **kwargs: {"tool": "send_telegram", "status": "needs_confirmation", "awaiting_user": True, "question": "Telegram delivery is disabled for this live demonstration; no message was sent."}
     turn_index = 0
     while True:
         try:
@@ -274,6 +281,7 @@ def main() -> None:
                 tools=openai_tools,
                 model=args.model,
                 max_tool_rounds=args.max_tool_rounds,
+                tool_functions=tool_functions,
             )
             turn_record.update(result)
             assistant_text = result["assistant_text"]

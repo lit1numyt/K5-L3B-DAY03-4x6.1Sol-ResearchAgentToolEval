@@ -72,3 +72,15 @@ def test_eval_cases_only_expect_declared_tools(eval_file: str) -> None:
     for case in data.get("cases", []):
         for call in case.get("expect", {}).get("tool_calls", []):
             assert call["name"] in DECLARED, f"{eval_file}:{case['id']} expects undeclared tool '{call['name']}'"
+
+
+def test_current_tool_folders_follow_frontmatter_contract() -> None:
+    for name in DECLARED:
+        folder = ROOT / "tools" / name
+        assert (folder / "tool.py").is_file(), name
+        front = yaml.safe_load((folder / "TOOL.md").read_text(encoding="utf-8").split("---")[1])
+        assert front["track"] in {"core", "bonus"}, name
+        assert front["kind"] in {"live_api", "local_formatter", "local_knowledge", "action", "control"}, name
+        assert set(DECLARED[name]["parameters"]["properties"]) <= set(front["inputs"]), name
+        if front["kind"] == "action":
+            assert front.get("requires_confirmation") is True, name

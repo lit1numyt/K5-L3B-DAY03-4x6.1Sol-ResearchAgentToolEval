@@ -1,0 +1,137 @@
+{
+  "suite_name": "ArXiv Function Calling Evaluation",
+  "version": "1.0",
+  "total_cases": 5,
+  "difficulty_distribution": {
+    "medium": 2,
+    "hard": 3
+  },
+  "tool_name": "arxiv_search",
+  "test_cases": [
+    {
+      "id": "M10",
+      "difficulty": "medium",
+      "category": "tool_selection",
+      "input": "What is the difference between supervised learning and unsupervised learning?",
+      "expected_tool_behavior": {
+        "should_call_tool": false,
+        "tool_calls": []
+      },
+      "expected_behavior": [
+        "Answer directly using existing knowledge",
+        "Do not unnecessarily invoke arXiv search"
+      ]
+    },
+    {
+      "id": "M06",
+      "difficulty": "medium",
+      "category": "sorting",
+      "input": "Find the latest papers about AI-driven penetration testing.",
+      "expected_tool_behavior": {
+        "should_call_tool": true,
+        "tool_calls": [
+          {
+            "tool": "arxiv_search",
+            "arguments": {
+              "query": "AI-driven penetration testing",
+              "sort_by": "submittedDate",
+              "sort_order": "descending"
+            }
+          }
+        ]
+      },
+      "expected_behavior": [
+        "Search for AI-driven penetration testing",
+        "Sort results by newest submission date"
+      ]
+    },
+    {
+      "id": "H06",
+      "difficulty": "hard",
+      "category": "complex_filtering",
+      "input": "Find papers about malware detection using GNNs. Search both cs.CR and cs.LG, exclude papers about image classification, and return the 10 most recently submitted results.",
+      "expected_tool_behavior": {
+        "should_call_tool": true,
+        "tool_calls": [
+          {
+            "tool": "arxiv_search",
+            "arguments": {
+              "query": "malware detection graph neural networks NOT image classification",
+              "categories": [
+                "cs.CR",
+                "cs.LG"
+              ],
+              "max_results": 10,
+              "sort_by": "submittedDate",
+              "sort_order": "descending"
+            }
+          }
+        ]
+      },
+      "expected_behavior": [
+        "Combine the topic constraints",
+        "Handle multiple categories correctly",
+        "Exclude image classification papers",
+        "Sort by newest submission date",
+        "Return up to 10 results"
+      ]
+    },
+    {
+      "id": "H02",
+      "difficulty": "hard",
+      "category": "boolean_logic",
+      "input": "Find papers about RAG and agentic AI. I want papers that discuss both concepts, not papers discussing either one independently.",
+      "expected_tool_behavior": {
+        "should_call_tool": true,
+        "tool_calls": [
+          {
+            "tool": "arxiv_search",
+            "arguments": {
+              "query": "\"retrieval augmented generation\" AND \"agentic AI\""
+            }
+          }
+        ]
+      },
+      "expected_behavior": [
+        "Interpret the request as an AND condition",
+        "Avoid returning papers that only discuss one concept",
+        "Preserve the relationship between both topics"
+      ]
+    },
+    {
+      "id": "H01",
+      "difficulty": "hard",
+      "category": "multi_filter_search",
+      "input": "Find 10 papers about LLM-based autonomous penetration testing published between 2023 and 2026. Prioritize papers from cs.CR and cs.AI.",
+      "expected_tool_behavior": {
+        "should_call_tool": true,
+        "tool_calls": [
+          {
+            "tool": "arxiv_search",
+            "arguments": {
+              "query": "LLM autonomous penetration testing",
+              "date_from": "2023-01-01",
+              "date_to": "2026-12-31",
+              "categories": [
+                "cs.CR",
+                "cs.AI"
+              ],
+              "max_results": 10
+            }
+          }
+        ]
+      },
+      "expected_behavior": [
+        "Apply the requested date range",
+        "Search the two requested categories",
+        "Return up to 10 relevant results",
+        "Preserve the intended category semantics"
+      ]
+    }
+  ],
+  "selection": {
+    "seed": 20261110,
+    "source": "arxiv_funtion_test/arxiv_function_calling_test.json",
+    "purpose": "single_cases.json"
+  }
+}

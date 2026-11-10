@@ -1,12 +1,20 @@
 ---
 name: research_paper
-track: web
-kind: composed_live_api
+track: core
+kind: live_api
 provider: arXiv API + local PDF extraction
-requires_env: [ARXIV_USER_AGENT]
-inputs: [question, arxiv_id, max_results, include_text, max_pages]
-outputs: [papers, paper_text]
-side_effect: false
+requires_env:
+- ARXIV_USER_AGENT
+inputs:
+- question
+- arxiv_id
+- max_results
+- include_text
+- max_pages
+outputs:
+- papers
+- paper_text
+side_effect: local_file_write
 ---
 # research_paper
 

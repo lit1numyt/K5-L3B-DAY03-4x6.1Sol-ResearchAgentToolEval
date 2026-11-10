@@ -11,6 +11,8 @@ from .clarify.tool import ask_user
 from .papers.tool import arxiv_search
 from .paper_text.tool import get_arxiv_paper_text
 from .research_paper.tool import research_paper
+from .audit_research_evidence.tool import audit_research_evidence
+from .build_bibliography.tool import build_bibliography
 from .timeline.tool import get_user_tweets
 from .fetch.tool import read_url
 from .format.tool import render_digest
@@ -38,6 +40,8 @@ TOOL_FUNCTIONS = {
     "arxiv_search": arxiv_search,
     "paper_text": get_arxiv_paper_text,
     "research_paper": research_paper,
+    "audit_research_evidence": audit_research_evidence,
+    "build_bibliography": build_bibliography,
     # TODO CP3 (student): register your new tool here, e.g. "my_tool": my_tool_function,
     # then declare it in artifacts/tools.yaml and run `pytest tests/test_tool_contract.py`.
 }

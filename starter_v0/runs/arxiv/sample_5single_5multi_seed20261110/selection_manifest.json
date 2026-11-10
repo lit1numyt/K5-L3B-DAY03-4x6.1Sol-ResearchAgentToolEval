@@ -1,0 +1,40 @@
+{
+  "seed": 20261110,
+  "single_ids": [
+    "M10",
+    "M06",
+    "H06",
+    "H02",
+    "H01"
+  ],
+  "multi_pairs": [
+    [
+      "H03",
+      "H09"
+    ],
+    [
+      "M07",
+      "H04"
+    ],
+    [
+      "H10",
+      "M05"
+    ],
+    [
+      "M02",
+      "M03"
+    ],
+    [
+      "M09",
+      "M04"
+    ]
+  ],
+  "source_commit": "b94cfd2",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "note": "Multi-turn pairs are generated from standalone questions by teammate script, not handcrafted context-dependent conversations.",
+  "prompt_sha256": "b50b368c731d4450d1ecd0dcbf5332fc42cfec67dd919bf6edcf78570c450f94",
+  "prompt_sha256_file": "prompt_used.md",
+  "tools_sha256": "9d47b5793c287fa7f672063de5bbddcd3401e3dd5139af0cfdcc5f94e098444e",
+  "tools_sha256_file": "tools_used.yaml"
+}

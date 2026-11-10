@@ -1,0 +1,417 @@
+{
+  "suite": {
+    "suite_name": "ArXiv Function Calling Evaluation",
+    "version": "1.0",
+    "total_cases": 5,
+    "difficulty_distribution": {
+      "medium": 2,
+      "hard": 3
+    },
+    "tool_name": "arxiv_search",
+    "test_cases": [
+      {
+        "id": "M10",
+        "difficulty": "medium",
+        "category": "tool_selection",
+        "input": "What is the difference between supervised learning and unsupervised learning?",
+        "expected_tool_behavior": {
+          "should_call_tool": false,
+          "tool_calls": []
+        },
+        "expected_behavior": [
+          "Answer directly using existing knowledge",
+          "Do not unnecessarily invoke arXiv search"
+        ]
+      },
+      {
+        "id": "M06",
+        "difficulty": "medium",
+        "category": "sorting",
+        "input": "Find the latest papers about AI-driven penetration testing.",
+        "expected_tool_behavior": {
+          "should_call_tool": true,
+          "tool_calls": [
+            {
+              "tool": "arxiv_search",
+              "arguments": {
+                "query": "AI-driven penetration testing",
+                "sort_by": "submittedDate",
+                "sort_order": "descending"
+              }
+            }
+          ]
+        },
+        "expected_behavior": [
+          "Search for AI-driven penetration testing",
+          "Sort results by newest submission date"
+        ]
+      },
+      {
+        "id": "H06",
+        "difficulty": "hard",
+        "category": "complex_filtering",
+        "input": "Find papers about malware detection using GNNs. Search both cs.CR and cs.LG, exclude papers about image classification, and return the 10 most recently submitted results.",
+        "expected_tool_behavior": {
+          "should_call_tool": true,
+          "tool_calls": [
+            {
+              "tool": "arxiv_search",
+              "arguments": {
+                "query": "malware detection graph neural networks NOT image classification",
+                "categories": [
+                  "cs.CR",
+                  "cs.LG"
+                ],
+                "max_results": 10,
+                "sort_by": "submittedDate",
+                "sort_order": "descending"
+              }
+            }
+          ]
+        },
+        "expected_behavior": [
+          "Combine the topic constraints",
+          "Handle multiple categories correctly",
+          "Exclude image classification papers",
+          "Sort by newest submission date",
+          "Return up to 10 results"
+        ]
+      },
+      {
+        "id": "H02",
+        "difficulty": "hard",
+        "category": "boolean_logic",
+        "input": "Find papers about RAG and agentic AI. I want papers that discuss both concepts, not papers discussing either one independently.",
+        "expected_tool_behavior": {
+          "should_call_tool": true,
+          "tool_calls": [
+            {
+              "tool": "arxiv_search",
+              "arguments": {
+                "query": "\"retrieval augmented generation\" AND \"agentic AI\""
+              }
+            }
+          ]
+        },
+        "expected_behavior": [
+          "Interpret the request as an AND condition",
+          "Avoid returning papers that only discuss one concept",
+          "Preserve the relationship between both topics"
+        ]
+      },
+      {
+        "id": "H01",
+        "difficulty": "hard",
+        "category": "multi_filter_search",
+        "input": "Find 10 papers about LLM-based autonomous penetration testing published between 2023 and 2026. Prioritize papers from cs.CR and cs.AI.",
+        "expected_tool_behavior": {
+          "should_call_tool": true,
+          "tool_calls": [
+            {
+              "tool": "arxiv_search",
+              "arguments": {
+                "query": "LLM autonomous penetration testing",
+                "date_from": "2023-01-01",
+                "date_to": "2026-12-31",
+                "categories": [
+                  "cs.CR",
+                  "cs.AI"
+                ],
+                "max_results": 10
+              }
+            }
+          ]
+        },
+        "expected_behavior": [
+          "Apply the requested date range",
+          "Search the two requested categories",
+          "Return up to 10 relevant results",
+          "Preserve the intended category semantics"
+        ]
+      }
+    ],
+    "selection": {
+      "seed": 20261110,
+      "source": "arxiv_funtion_test/arxiv_function_calling_test.json",
+      "purpose": "single_cases.json"
+    }
+  },
+  "rubric": "ArXiv Function Calling Evaluation Rubric",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "generated_at": "2026-11-10T21:01:30",
+  "summary": {
+    "total_cases": 5,
+    "passed_cases": 2,
+    "earned_score": 34,
+    "maximum_score": 50,
+    "normalized_score": 68.0,
+    "performance": "Needs Improvement",
+    "critical_failures": 1,
+    "critical_failure_counts": {
+      "CF06": 1
+    },
+    "dimensions": {
+      "tool_selection": 100.0,
+      "argument_extraction": 60.0,
+      "query_construction": 80.0,
+      "execution_strategy": 60.0,
+      "final_response": 50.0
+    }
+  },
+  "results": [
+    {
+      "test_id": "M10",
+      "difficulty": "medium",
+      "category": "tool_selection",
+      "earned_score": 10,
+      "maximum_score": 10,
+      "dimension_scores": {
+        "tool_selection": 2,
+        "argument_extraction": 2,
+        "query_construction": 2,
+        "execution_strategy": 2,
+        "final_response": 2
+      },
+      "critical_failure": false,
+      "critical_failure_ids": [],
+      "passed": true,
+      "notes": "OK",
+      "actual_tool_calls": [],
+      "tool_events": [],
+      "assistant_text": "Supervised learning and unsupervised learning are two fundamental approaches in machine learning, each serving different purposes and utilizing different types of data.\n\n### Supervised Learning:\n1. **Definition**: In supervised learning, the model is trained on a labeled dataset, which means that each training example is paired with an output label.\n2. **Goal**: The primary goal is to learn a mapping from inputs to outputs, allowing the model to predict the output for new, unseen data.\n3. **Examples**: Common tasks include classification (e.g., spam detection, image recognition) and regression (e.g., predicting house prices).\n4. **Data Requirement**: Requires a large amount of labeled data, which can be time-consuming and expensive to obtain.\n5. **Algorithms**: Examples include linear regression, logistic regression, decision trees, support vector machines, and neural networks.\n\n### Unsupervised Learning:\n1. **Definition**: In unsupervised learning, the model is trained on data without labeled responses. The algorithm tries to learn the underlying structure or distribution in the data.\n2. **Goal**: The main goal is to identify patterns, groupings, or features in the data without prior knowledge of the outcomes.\n3. **Examples**: Common tasks include clustering (e.g., customer segmentation, grouping similar documents) and dimensionality reduction (e.g., PCA).\n4. **Data Requirement**: Does not require labeled data, making it easier to work with large datasets where labels are not available.\n5. **Algorithms**: Examples include k-means clustering, hierarchical clustering, and principal component analysis (PCA).\n\n### Summary:\n- **Supervised Learning**: Uses labeled data to predict outcomes; focuses on mapping inputs to outputs.\n- **Unsupervised Learning**: Uses unlabeled data to find patterns or groupings; focuses on understanding the structure of the data.",
+      "status": "answered"
+    },
+    {
+      "test_id": "M06",
+      "difficulty": "medium",
+      "category": "sorting",
+      "earned_score": 7,
+      "maximum_score": 10,
+      "dimension_scores": {
+        "tool_selection": 2,
+        "argument_extraction": 1,
+        "query_construction": 2,
+        "execution_strategy": 1,
+        "final_response": 1
+      },
+      "critical_failure": false,
+      "critical_failure_ids": [],
+      "passed": false,
+      "notes": "sort_by: expected 'submittedDate', got 'lastUpdatedDate'; Not scored: repository arXiv tool does not expose 'sort_order'; At least one tool execution returned an error",
+      "actual_tool_calls": [
+        {
+          "name": "arxiv_search",
+          "args": {
+            "query": "AI-driven penetration testing",
+            "max_results": 5,
+            "sort_by": "lastUpdatedDate"
+          }
+        }
+      ],
+      "tool_events": [
+        {
+          "tool": "arxiv_search",
+          "args": {
+            "query": "AI-driven penetration testing",
+            "max_results": 5,
+            "sort_by": "lastUpdatedDate"
+          },
+          "result": {
+            "tool": "arxiv_search",
+            "error": "ReadTimeout",
+            "message": "HTTPSConnectionPool(host='export.arxiv.org', port=443): Read timed out. (read timeout=30)"
+          }
+        }
+      ],
+      "assistant_text": "It seems there was a timeout error while trying to retrieve the latest papers on AI-driven penetration testing from arXiv. Unfortunately, I couldn't fetch any results at this moment. \n\nIf you would like, I can try again or assist you with a different topic.",
+      "status": "answered"
+    },
+    {
+      "test_id": "H06",
+      "difficulty": "hard",
+      "category": "complex_filtering",
+      "earned_score": 4,
+      "maximum_score": 10,
+      "dimension_scores": {
+        "tool_selection": 2,
+        "argument_extraction": 1,
+        "query_construction": 1,
+        "execution_strategy": 1,
+        "final_response": 0
+      },
+      "critical_failure": true,
+      "critical_failure_ids": [
+        "CF06"
+      ],
+      "passed": false,
+      "notes": "query: expected 'malware detection graph neural networks NOT image classification', got 'malware detection GNN'; Not scored: repository arXiv tool does not expose 'categories'; Not scored: repository arXiv tool does not expose 'sort_order'; Low query similarity (0.49): 'malware detection GNN'; Made more searches than the rubric requires; Tool failed but the response did not acknowledge the failure",
+      "actual_tool_calls": [
+        {
+          "name": "arxiv_search",
+          "args": {
+            "query": "malware detection GNN",
+            "max_results": 10,
+            "sort_by": "submittedDate",
+            "sort_order": "descending",
+            "categories": [
+              "cs.CR"
+            ]
+          }
+        },
+        {
+          "name": "arxiv_search",
+          "args": {
+            "query": "malware detection GNN",
+            "max_results": 10,
+            "sort_by": "submittedDate",
+            "sort_order": "descending",
+            "categories": [
+              "cs.LG"
+            ]
+          }
+        }
+      ],
+      "tool_events": [
+        {
+          "tool": "arxiv_search",
+          "args": {
+            "query": "malware detection GNN",
+            "max_results": 10,
+            "sort_by": "submittedDate",
+            "sort_order": "descending",
+            "categories": [
+              "cs.CR"
+            ]
+          },
+          "result": {
+            "tool": "arxiv_search",
+            "error": "ReadTimeout",
+            "message": "HTTPSConnectionPool(host='export.arxiv.org', port=443): Read timed out. (read timeout=30)"
+          }
+        },
+        {
+          "tool": "arxiv_search",
+          "args": {
+            "query": "malware detection GNN",
+            "max_results": 10,
+            "sort_by": "submittedDate",
+            "sort_order": "descending",
+            "categories": [
+              "cs.LG"
+            ]
+          },
+          "result": {
+            "tool": "arxiv_search",
+            "error": "ReadTimeout",
+            "message": "HTTPSConnectionPool(host='export.arxiv.org', port=443): Read timed out. (read timeout=30)"
+          }
+        }
+      ],
+      "assistant_text": "It seems that there was a timeout issue while trying to retrieve papers about malware detection using GNNs from both the cs.CR and cs.LG categories. Unfortunately, I wasn't able to get any results at this time.\n\nIf you'd like, I can attempt the search again or you can specify a different topic or criteria. Let me know how you would like to proceed!",
+      "status": "answered"
+    },
+    {
+      "test_id": "H02",
+      "difficulty": "hard",
+      "category": "boolean_logic",
+      "earned_score": 5,
+      "maximum_score": 10,
+      "dimension_scores": {
+        "tool_selection": 2,
+        "argument_extraction": 0,
+        "query_construction": 1,
+        "execution_strategy": 1,
+        "final_response": 1
+      },
+      "critical_failure": false,
+      "critical_failure_ids": [],
+      "passed": false,
+      "notes": "query: expected '\"retrieval augmented generation\" AND \"agentic AI\"', got 'RAG AND agentic AI'; Low query similarity (0.51): 'RAG AND agentic AI'; At least one tool execution returned an error",
+      "actual_tool_calls": [
+        {
+          "name": "arxiv_search",
+          "args": {
+            "query": "RAG AND agentic AI",
+            "max_results": 5,
+            "sort_by": "relevance"
+          }
+        }
+      ],
+      "tool_events": [
+        {
+          "tool": "arxiv_search",
+          "args": {
+            "query": "RAG AND agentic AI",
+            "max_results": 5,
+            "sort_by": "relevance"
+          },
+          "result": {
+            "tool": "arxiv_search",
+            "error": "ReadTimeout",
+            "message": "HTTPSConnectionPool(host='export.arxiv.org', port=443): Read timed out. (read timeout=30)"
+          }
+        }
+      ],
+      "assistant_text": "It seems there was a timeout error while trying to search for papers on the topics of RAG and agentic AI. Unfortunately, I couldn't retrieve any relevant papers at this moment. \n\nWould you like me to try again or search for something else?",
+      "status": "answered"
+    },
+    {
+      "test_id": "H01",
+      "difficulty": "hard",
+      "category": "multi_filter_search",
+      "earned_score": 8,
+      "maximum_score": 10,
+      "dimension_scores": {
+        "tool_selection": 2,
+        "argument_extraction": 2,
+        "query_construction": 2,
+        "execution_strategy": 1,
+        "final_response": 1
+      },
+      "critical_failure": false,
+      "critical_failure_ids": [],
+      "passed": true,
+      "notes": "Not scored: repository arXiv tool does not expose 'date_from'; Not scored: repository arXiv tool does not expose 'date_to'; Not scored: repository arXiv tool does not expose 'categories'; At least one tool execution returned an error",
+      "actual_tool_calls": [
+        {
+          "name": "arxiv_search",
+          "args": {
+            "query": "LLM-based autonomous penetration testing",
+            "max_results": 10,
+            "sort_by": "submittedDate",
+            "date_from": "2023-01-01",
+            "date_to": "2026-12-31",
+            "categories": [
+              "cs.CR",
+              "cs.AI"
+            ]
+          }
+        }
+      ],
+      "tool_events": [
+        {
+          "tool": "arxiv_search",
+          "args": {
+            "query": "LLM-based autonomous penetration testing",
+            "max_results": 10,
+            "sort_by": "submittedDate",
+            "date_from": "2023-01-01",
+            "date_to": "2026-12-31",
+            "categories": [
+              "cs.CR",
+              "cs.AI"
+            ]
+          },
+          "result": {
+            "tool": "arxiv_search",
+            "error": "ReadTimeout",
+            "message": "HTTPSConnectionPool(host='export.arxiv.org', port=443): Read timed out. (read timeout=30)"
+          }
+        }
+      ],
+      "assistant_text": "I encountered a timeout issue while trying to search for papers on LLM-based autonomous penetration testing. Unfortunately, I couldn't retrieve any results at this time. Please try again later or adjust your search criteria if possible.",
+      "status": "answered"
+    }
+  ]
+}

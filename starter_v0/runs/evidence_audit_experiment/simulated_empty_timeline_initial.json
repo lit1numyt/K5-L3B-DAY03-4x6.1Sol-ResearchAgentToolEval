@@ -1,0 +1,57 @@
+{
+  "fixture": "timeline returns an empty list; no live Twitter call",
+  "result": {
+    "status": "answered",
+    "execution_status": "no_tool_called",
+    "assistant_text": "Hiện tại, không có tweet mới nào từ tài khoản @elonmusk. Nếu bạn cần thông tin khác hoặc muốn tìm kiếm một tài khoản khác, hãy cho tôi biết!",
+    "rounds": [
+      {
+        "round": 1,
+        "assistant_text": null,
+        "tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "elonmusk",
+              "limit": 5
+            }
+          }
+        ],
+        "tool_results": [
+          {
+            "tool": "timeline",
+            "args": {
+              "screenname": "elonmusk",
+              "limit": 5
+            },
+            "result": {
+              "tool": "get_user_tweets",
+              "screenname": "elonmusk",
+              "items": []
+            }
+          }
+        ]
+      },
+      {
+        "round": 2,
+        "assistant_text": "Hiện tại, không có tweet mới nào từ tài khoản @elonmusk. Nếu bạn cần thông tin khác hoặc muốn tìm kiếm một tài khoản khác, hãy cho tôi biết!",
+        "tool_calls": [],
+        "tool_results": []
+      }
+    ],
+    "tool_events": [
+      {
+        "tool": "timeline",
+        "args": {
+          "screenname": "elonmusk",
+          "limit": 5
+        },
+        "result": {
+          "tool": "get_user_tweets",
+          "screenname": "elonmusk",
+          "items": []
+        }
+      }
+    ]
+  }
+}

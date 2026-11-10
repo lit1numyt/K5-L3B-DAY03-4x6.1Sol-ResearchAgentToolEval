@@ -100,7 +100,13 @@ def case_messages(case: dict[str, Any]) -> list[dict[str, str]]:
 def normalize_value(value: Any) -> Any:
     if isinstance(value, str):
         return value.strip().lower()
+    if isinstance(value, dict):
+        return {key: normalize_value(item) for key, item in value.items()}
     if isinstance(value, list):
+        # Tool-result arrays contain dictionaries, which cannot be sorted in
+        # Python. Preserve their order so an audit must receive the real input.
+        if any(isinstance(item, (dict, list)) for item in value):
+            return [normalize_value(item) for item in value]
         return sorted(normalize_value(item) for item in value)
     return value
 

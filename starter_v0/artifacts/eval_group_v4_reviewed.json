@@ -1,0 +1,346 @@
+{
+  "dataset_id": "day03_v2_research_group_review_20261110",
+  "dataset_role": "group",
+  "description": "10 case nhóm: đúng 5 single + 5 multi; kiểm tra routing, args dữ liệu audit, ranh giới Telegram, paper và giữ ngữ cảnh. Fixture người dùng cung cấp là dữ liệu kiểm thử, không phải log API thật. Multi-turn của harness chỉ chấm lượt cuối.",
+  "allowed_failure_types": [
+    "wrong_tool",
+    "wrong_arg_value",
+    "wrong_boundary",
+    "unnecessary_tool",
+    "out_of_scope",
+    "missing_info"
+  ],
+  "cases": [
+    {
+      "id": "G01_audit_empty_and_failed_sources",
+      "phase": "B",
+      "suite": "group",
+      "query": "Kiểm tra tình trạng các kết quả công cụ này giúp tôi: [{\"tool\":\"timeline\",\"items\":[]},{\"tool\":\"arxiv_search\",\"error\":\"ReadTimeout\"}]. Cho biết nguồn nào rỗng và nguồn nào lỗi.",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "timeline",
+                  "items": []
+                },
+                {
+                  "tool": "arxiv_search",
+                  "error": "ReadTimeout"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "audit_source_status",
+        "difficulty": "medium",
+        "what_it_tests": "Dùng tool mới phân biệt kết quả rỗng với lỗi API, không tạo nguồn giả."
+      }
+    },
+    {
+      "id": "G02_audit_after_results_multiturn",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Tôi muốn kiểm tra các kết quả tìm kiếm trước khi dùng để viết báo cáo."
+        },
+        {
+          "role": "assistant",
+          "content": "Hãy đưa tôi kết quả thực tế từ các công cụ tìm kiếm."
+        },
+        {
+          "role": "user",
+          "content": "Đây là kết quả: [{\"tool\":\"web_search\",\"items\":[{\"title\":\"Report\",\"url\":\"https://example.org/report\"}]},{\"tool\":\"timeline\",\"items\":[]}]. Kiểm tra các nguồn này giúp tôi."
+        }
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "web_search",
+                  "items": [
+                    {
+                      "title": "Report",
+                      "url": "https://example.org/report"
+                    }
+                  ]
+                },
+                {
+                  "tool": "timeline",
+                  "items": []
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_source_audit",
+        "difficulty": "medium",
+        "what_it_tests": "Sau khi nhận kết quả thực tế qua hội thoại, route sang tool kiểm tra nguồn."
+      }
+    },
+    {
+      "id": "G03_telegram_missing_content",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tôi đồng ý tiếp tục chuẩn bị bản tin Telegram, nhưng chưa cung cấp nội dung và chưa duyệt gửi. Hãy hỏi tôi nội dung cần soạn trước.",
+      "failure_type": "wrong_boundary",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "text"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "telegram_missing_content",
+        "difficulty": "medium",
+        "what_it_tests": "Đã đồng ý chuẩn bị nhưng thiếu nội dung: hỏi bằng text, không lặp xác nhận ý định và không gửi. Khác R12 là yêu cầu gửi mới chưa xác nhận ý định."
+      }
+    },
+    {
+      "id": "G04_telegram_confirm_known_content_multiturn",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Tôi muốn đăng lên Telegram bản tin: AI hỗ trợ tìm kiếm tài liệu khoa học."
+        },
+        {
+          "role": "assistant",
+          "content": "Tôi đã ghi nhận nội dung bản tin."
+        },
+        {
+          "role": "user",
+          "content": "Bạn đã có nội dung ở trên rồi, hãy thực hiện yêu cầu đăng đó."
+        }
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "yes_no"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "telegram_confirm_known_content",
+        "difficulty": "hard",
+        "what_it_tests": "Khi đã có nội dung nhưng chưa xác nhận rõ, xin xác nhận trước khi gửi."
+      }
+    },
+    {
+      "id": "G05_audit_duplicate_sources",
+      "phase": "B",
+      "suite": "group",
+      "query": "Kiểm tra và gộp các nguồn trùng trong kết quả công cụ này: [{\"tool\":\"web_search\",\"items\":[{\"title\":\"Nghiên cứu A\",\"url\":\"https://example.org/a\"},{\"title\":\"Nguồn A lặp lại\",\"url\":\"https://example.org/a\"}]}].",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "web_search",
+                  "items": [
+                    {
+                      "title": "Nghiên cứu A",
+                      "url": "https://example.org/a"
+                    },
+                    {
+                      "title": "Nguồn A lặp lại",
+                      "url": "https://example.org/a"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "deduplicate_sources",
+        "difficulty": "medium",
+        "what_it_tests": "Dùng audit kiểm tra và gộp các nguồn trùng đã có."
+      }
+    },
+    {
+      "id": "G06_research_paper_limitations",
+      "phase": "B",
+      "suite": "group",
+      "query": "Đọc và phân tích hạn chế của paper arXiv 2305.14314 giúp tôi.",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "research_paper",
+            "args": {
+              "arxiv_id": "2305.14314",
+              "include_text": true
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "specific_paper_limitations",
+        "difficulty": "hard",
+        "what_it_tests": "Phân tích hạn chế paper cụ thể cần đọc paper, không chỉ tìm metadata."
+      }
+    },
+    {
+      "id": "G07_audit_capabilities_without_tools",
+      "phase": "B",
+      "suite": "group",
+      "query": "Công cụ kiểm tra nguồn của bạn có tự xác minh thông tin trên trang là đúng không? Chỉ giải thích khả năng của nó, đừng tìm kiếm.",
+      "failure_type": "unnecessary_tool",
+      "expect": {
+        "no_tool": true,
+        "behavior": "answer_without_tool"
+      },
+      "metadata": {
+        "skill": "audit_tool_capability",
+        "difficulty": "medium",
+        "what_it_tests": "Giải thích giới hạn audit mà không gọi tool; kiểm tra thêm câu trả lời vì evaluator chỉ chấm tool."
+      }
+    },
+    {
+      "id": "G08_paper_filter_carryover",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Tìm paper về neural networks xuất bản trong năm 2024."
+        },
+        {
+          "role": "assistant",
+          "content": "Bạn muốn lọc thêm theo tác giả nào không?"
+        },
+        {
+          "role": "user",
+          "content": "Có, chỉ tìm của Yoshua Bengio, vẫn trong năm 2024."
+        }
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "arxiv_search",
+            "args": {
+              "author": "Yoshua Bengio",
+              "date_from": "2024-01-01",
+              "date_to": "2024-12-31",
+              "query": "neural networks"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_paper_filters",
+        "difficulty": "hard",
+        "what_it_tests": "Giữ chủ đề và năm từ hội thoại khi bổ sung bộ lọc tác giả."
+      }
+    },
+    {
+      "id": "G09_paper_pagination",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Tìm 5 paper đầu tiên về AI agents trên arXiv."
+        },
+        {
+          "role": "assistant",
+          "content": "Tôi đã hiển thị 5 paper đầu tiên."
+        },
+        {
+          "role": "user",
+          "content": "Cho tôi 5 paper tiếp theo cùng chủ đề, đừng lặp lại trang trước."
+        }
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "arxiv_search",
+            "args": {
+              "start": 5,
+              "max_results": 5,
+              "query": "AI agents"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_pagination",
+        "difficulty": "hard",
+        "what_it_tests": "Giữ query=AI agents và chuyển start=5, max_results=5. Chỉ đo arguments phân trang; không chứng minh IDs thực tế không trùng."
+      }
+    },
+    {
+      "id": "G10_audit_retained_results",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Tôi có kết quả các nguồn để kiểm tra."
+        },
+        {
+          "role": "assistant",
+          "content": "Kết quả đã nhận: [{\"tool\":\"arxiv_search\",\"error\":\"ReadTimeout\"},{\"tool\":\"web_search\",\"items\":[]}]."
+        },
+        {
+          "role": "user",
+          "content": "Hãy kiểm tra các kết quả vừa nêu và phân biệt nguồn lỗi với nguồn rỗng."
+        }
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "arxiv_search",
+                  "error": "ReadTimeout"
+                },
+                {
+                  "tool": "web_search",
+                  "items": []
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_audit_context",
+        "difficulty": "hard",
+        "what_it_tests": "Dùng kết quả đã có trong hội thoại để audit, không tự bịa nguồn."
+      }
+    }
+  ]
+}

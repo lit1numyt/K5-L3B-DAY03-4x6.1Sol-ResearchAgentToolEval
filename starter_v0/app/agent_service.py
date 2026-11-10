@@ -22,7 +22,8 @@ class AgentService:
     """Thin web-facing adapter around the existing CLI agent loop."""
 
     def __init__(self) -> None:
-        self.provider_name = os.getenv("BOT_PROVIDER", os.getenv("PROVIDER", "openrouter"))
+        available = next((name for name, key in [("openai", "OPENAI_API_KEY"), ("openrouter", "OPENROUTER_API_KEY"), ("anthropic", "ANTHROPIC_API_KEY"), ("gemini", "GEMINI_API_KEY")] if os.getenv(key)), "openai")
+        self.provider_name = os.getenv("BOT_PROVIDER") or os.getenv("PROVIDER") or available
         self.model = os.getenv("BOT_MODEL") or os.getenv("MODEL") or None
         self.history_window = self._positive_int("HISTORY_WINDOW", 5, maximum=50)
         self.max_tool_rounds = self._positive_int("MAX_TOOL_ROUNDS", 4, maximum=20)
@@ -68,7 +69,15 @@ class AgentService:
         return functions
 
     def metadata(self) -> dict[str, Any]:
-        version = build_artifact_version("web-demo", self.system_prompt_path, self.tools_path)
+        label = "web-demo"
+        for snapshot in sorted((ROOT / "artifacts").glob("system_prompt_v*.md"), reverse=True):
+            candidate = snapshot.stem.removeprefix("system_prompt_")
+            tool_snapshot = ROOT / "artifacts" / f"tools_{candidate}.yaml"
+            if tool_snapshot.is_file() and snapshot.read_bytes() == self.system_prompt_path.read_bytes() and tool_snapshot.read_bytes() == self.tools_path.read_bytes():
+                label = candidate
+                break
+        version = build_artifact_version(label, self.system_prompt_path, self.tools_path)
+        key_name = {"openai": "OPENAI_API_KEY", "openrouter": "OPENROUTER_API_KEY", "anthropic": "ANTHROPIC_API_KEY", "gemini": "GEMINI_API_KEY"}.get(self.provider_name)
         return {
             "provider": self.provider_name,
             "model": self.model or getattr(self._get_provider(), "default_model", None),
@@ -78,6 +87,7 @@ class AgentService:
             "history_window": self.history_window,
             "max_tool_rounds": self.max_tool_rounds,
             "delivery_mode": "disabled_for_web_demo" if self.disable_delivery else "enabled_by_configuration",
+            "provider_configured": bool(os.getenv(key_name)) if key_name else self.provider_name == "ollama",
         }
 
     def chat(self, messages: list[dict[str, str]]) -> dict[str, Any]:

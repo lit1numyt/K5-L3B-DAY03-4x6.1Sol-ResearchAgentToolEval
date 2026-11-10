@@ -1,0 +1,152 @@
+{
+  "fixture": "timeline returns an empty list; no live Twitter call",
+  "result": {
+    "status": "answered",
+    "execution_status": "no_tool_called",
+    "assistant_text": "The request for the latest tweets from @elonmusk returned no posts. This means that no recent tweets were retrieved from the account at this time. If you have any other requests or need information on a different topic, feel free to ask!",
+    "rounds": [
+      {
+        "round": 1,
+        "assistant_text": null,
+        "tool_calls": [
+          {
+            "name": "timeline",
+            "args": {
+              "screenname": "elonmusk",
+              "limit": 5
+            }
+          }
+        ],
+        "tool_results": [
+          {
+            "tool": "timeline",
+            "args": {
+              "screenname": "elonmusk",
+              "limit": 5
+            },
+            "result": {
+              "tool": "get_user_tweets",
+              "screenname": "elonmusk",
+              "items": []
+            }
+          }
+        ]
+      },
+      {
+        "round": 2,
+        "assistant_text": null,
+        "tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "timeline",
+                  "args": {
+                    "screenname": "elonmusk",
+                    "limit": 5
+                  },
+                  "result": {
+                    "tool": "get_user_tweets",
+                    "screenname": "elonmusk",
+                    "items": []
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "tool_results": [
+          {
+            "tool": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "timeline",
+                  "args": {
+                    "screenname": "elonmusk",
+                    "limit": 5
+                  },
+                  "result": {
+                    "tool": "get_user_tweets",
+                    "screenname": "elonmusk",
+                    "items": []
+                  }
+                }
+              ]
+            },
+            "result": {
+              "tool": "audit_research_evidence",
+              "sources": [
+                {
+                  "tool": "timeline",
+                  "item_count": 0,
+                  "unusable_item_count": 0,
+                  "status": "empty"
+                }
+              ],
+              "items": [],
+              "unique_item_count": 0,
+              "duplicate_item_count": 0,
+              "note": "Checks result structure only; does not verify truth, relevance, or URL accessibility."
+            }
+          }
+        ]
+      },
+      {
+        "round": 3,
+        "assistant_text": "The request for the latest tweets from @elonmusk returned no posts. This means that no recent tweets were retrieved from the account at this time. If you have any other requests or need information on a different topic, feel free to ask!",
+        "tool_calls": [],
+        "tool_results": []
+      }
+    ],
+    "tool_events": [
+      {
+        "tool": "timeline",
+        "args": {
+          "screenname": "elonmusk",
+          "limit": 5
+        },
+        "result": {
+          "tool": "get_user_tweets",
+          "screenname": "elonmusk",
+          "items": []
+        }
+      },
+      {
+        "tool": "audit_research_evidence",
+        "args": {
+          "results": [
+            {
+              "tool": "timeline",
+              "args": {
+                "screenname": "elonmusk",
+                "limit": 5
+              },
+              "result": {
+                "tool": "get_user_tweets",
+                "screenname": "elonmusk",
+                "items": []
+              }
+            }
+          ]
+        },
+        "result": {
+          "tool": "audit_research_evidence",
+          "sources": [
+            {
+              "tool": "timeline",
+              "item_count": 0,
+              "unusable_item_count": 0,
+              "status": "empty"
+            }
+          ],
+          "items": [],
+          "unique_item_count": 0,
+          "duplicate_item_count": 0,
+          "note": "Checks result structure only; does not verify truth, relevance, or URL accessibility."
+        }
+      }
+    ]
+  }
+}

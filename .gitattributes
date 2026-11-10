@@ -1,3 +1,16 @@
 # Preserve the exact bytes hashed by the recorded benchmark runs.
-starter_v0/artifacts/system_prompt_v[0123].md -text whitespace=cr-at-eol
-starter_v0/artifacts/tools_v[0123].yaml -text whitespace=cr-at-eol
+starter_v0/artifacts/system_prompt_v[012345678].md -text whitespace=cr-at-eol
+starter_v0/artifacts/tools_v[012345678].yaml -text whitespace=cr-at-eol
+starter_v0/artifacts/eval_group_v4.json -text
+starter_v0/artifacts/research_paper_v4.py -text
+starter_v0/runs/*.json -text
+starter_v0/runs/**/*.json -text
+
+starter_v0/artifacts/system_prompt.md -text whitespace=cr-at-eol
+starter_v0/artifacts/tools.yaml -text whitespace=cr-at-eol
+starter_v0/artifacts/v7_candidates/** -text
+starter_v0/artifacts/eval_group_v4_reviewed.json -text
+
+# Keep raw console evidence intact, including intentional trailing spaces.
+report/team/review_evidence/*.txt -text -whitespace
+starter_v0/runs/**/*.log -text -whitespace

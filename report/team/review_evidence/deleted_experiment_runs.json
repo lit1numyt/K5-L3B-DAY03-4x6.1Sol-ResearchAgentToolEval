@@ -1,0 +1,97 @@
+[
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-evidence_B_base_openai_20261110T211959234354.json",
+    "sha256": "28b2bef1900fb8eac88556583bd7ac97d07d854b234be595cbcfbd91deba1517",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-evidence_B_group_openai_20261110T211851930992.json",
+    "sha256": "9c9ac9074c3fe28bb251d3cb7f1b28f5a2a15b2210c408078baf65da856e657a",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-evidence-candidate_B_base_openai_20261110T211711396488.json",
+    "sha256": "867247d76ddced5cdf2c425362ada8a6b836e216fd99d0dc242b51c8c7844b7b",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-evidence-candidate_B_group_openai_20261110T211602687471.json",
+    "sha256": "117e9827f1e3f4e865cd2e7e8ad74a60ebb683d51d192048ead303f84f16a61b",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-evidence-control_B_base_openai_20261110T211355115957.json",
+    "sha256": "620aed45878f32060c78f4d6b77438daa8465f800a9fe802a788eebab70360c5",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-evidence-final_B_base_openai_20261110T211823340259.json",
+    "sha256": "4f65cb212fb8043e574a72416c9a3208db8461e8ddc45647d381b3203eb13ecb",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-evidence-final_B_group_openai_20261110T211711948963.json",
+    "sha256": "c818b94ea1bc6e7cb73a9f36d709799f85859edcd3ad77fc36581f9fb66134e1",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-evidence-registered_B_base_openai_20261110T212213927730.json",
+    "sha256": "8bca3c0336619872c4f6ba532e2508d2747ead9346f5f24dd4634d0b726421f0",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-evidence-registered_B_group_openai_20261110T212103072707.json",
+    "sha256": "70d120aae15ba09a1ecc2f6a4365cf58819d407d7bc0f5b8661680bf2333a5da",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-evidence-registered_B_group_openai_20261110T212234748592.json",
+    "sha256": "b24676b3d9e8071ec076292c10b050f1b1834acdfb15a3dd99b7da74949f5e08",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-evidence-review_B_base_openai_20261110T212653458283.json",
+    "sha256": "2e829fbcc9bec09f0ce05bd00e5705cd498ea8c9130854b2c067dd01b2681670",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-evidence-review_B_group_openai_20261110T212528847982.json",
+    "sha256": "51f751e176244d107ba285c89124e225e217965b61589b30968d8fdcd5dd298f",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-evidence-safety_B_group_openai_20261110T212348524258.json",
+    "sha256": "b83b033cf84b47a6b067eafbfa950d17ab76957f24300db01ed8ff02cba2f66c",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-evidence-safety2_B_base_openai_20261110T212602708016.json",
+    "sha256": "9dbc56a406d202232cc53f46f56fab63869e1e6664844733fd13aefb8e7f52d5",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-evidence-safety2_B_group_openai_20261110T212433245744.json",
+    "sha256": "89087622fb6e7ee1ef6ad766d80739b272a92d77f170b46b1581367bc054255a",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-evidence-tool-only_B_base_openai_20261110T211619888764.json",
+    "sha256": "60c8d9faee5e00cb05255a4bacb55d4c412b66af4701081ab66f38588cd08661",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-prompt-probe_B_group_openai_20261110T213208731778.json",
+    "sha256": "13919678e9c0d98f03ac792bbe8392d6f22ff6db333aa5806a3ee414456108cf",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-prompt-probe2_B_group_openai_20261110T213248280117.json",
+    "sha256": "4cc34bdf61601db7df1d49821c78340074d72f4b922538b13940ce64a42c88a4",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  },
+  {
+    "path": "starter_v0/runs/archive/v4_experiments/v4-prompt-probe3_B_group_openai_20261110T213339947470.json",
+    "sha256": "9e6e084ae6fd172ac0c943da80c82f734ec250b87aa93fa805723e519568f472",
+    "reason": "Explicit user request: delete the annotated collection of 19 exploratory v4 runs"
+  }
+]

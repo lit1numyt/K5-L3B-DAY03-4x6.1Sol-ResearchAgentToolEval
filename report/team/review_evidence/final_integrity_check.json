@@ -1,0 +1,27 @@
+{
+  "teacher_group_heading_sequence_preserved": true,
+  "teacher_personal_sections_preserved": true,
+  "teacher_required_table_headers_preserved": true,
+  "broken_report_links": [],
+  "indexed_run_rows_verified": 16,
+  "version_snapshots_verified": "v0..v8",
+  "historical_payloads_unchanged": true,
+  "protected_eval_changed": false,
+  "configured_secret_literal_leaks": [],
+  "group_cases": {
+    "single": 5,
+    "multi": 5
+  },
+  "default": "v8",
+  "tests": "130 passed, 14 skipped",
+  "ui": "http://127.0.0.1:8000/",
+  "public_deployment_created": false,
+  "TEAM_first_member": "Chu Nguyễn Tùng Dương — 2A202604016",
+  "git_diff_check": "passed (CRLF recognized)",
+  "ui_health": "ok",
+  "ui_version": "v8",
+  "team_name": "4x6.1Sol",
+  "class_name": "L3B",
+  "submission_branch": "main",
+  "publication_content": "current_workspace"
+}

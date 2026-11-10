@@ -1,0 +1,28 @@
+Running 5 ArXiv cases with openai/gpt-4o-mini...
+[01/05] M10 tool_selection...
+[02/05] M06 sorting...
+🔧 arxiv_search({"max_results": 5, "query": "AI-driven penetration testing", "sort_by": "lastUpdatedDate"})
+[03/05] H06 complex_filtering...
+🔧 arxiv_search({"categories": ["cs.CR"], "max_results": 10, "query": "malware detection GNN", "sort_by": "submittedDate", "sort_order": "descending"})
+🔧 arxiv_search({"categories": ["cs.LG"], "max_results": 10, "query": "malware detection GNN", "sort_by": "submittedDate", "sort_order": "descending"})
+[04/05] H02 boolean_logic...
+🔧 arxiv_search({"max_results": 5, "query": "RAG AND agentic AI", "sort_by": "relevance"})
+[05/05] H01 multi_filter_search...
+🔧 arxiv_search({"categories": ["cs.CR", "cs.AI"], "date_from": "2023-01-01", "date_to": "2026-12-31", "max_results": 10, "query": "LLM-based autonomous penetration testing", "sort_by": "submittedDate"})
+
+ArXiv Function Calling Benchmark
+================================================================================================
+ID     DIFFICULTY SCORE   STATUS   CRITICAL   NOTES
+------------------------------------------------------------------------------------------------
+M10    medium     10/10   PASS     -          OK
+M06    medium      7/10   FAIL     -          sort_by: expected 'submittedDate', got 'lastUpdatedDate'; Not 
+H06    hard        4/10   FAIL     CF06       query: expected 'malware detection graph neural networks NOT i
+H02    hard        5/10   FAIL     -          query: expected '"retrieval augmented generation" AND "agentic
+H01    hard        8/10   PASS     -          Not scored: repository arXiv tool does not expose 'date_from';
+------------------------------------------------------------------------------------------------
+Cases: 5 | Passed: 2 | Critical failures: 1
+Score: 34/50 (68.0/100) — Needs Improvement
+Dimensions: tool selection 100.0% | arguments 60.0% | queries 80.0% | execution 60.0% | final response 50.0%
+Critical failure counts: {'CF06': 1}
+
+Saved benchmark: runs\arxiv\sample_5single_5multi_seed20261110\single\arxiv_eval_openai_20261110T210130.json

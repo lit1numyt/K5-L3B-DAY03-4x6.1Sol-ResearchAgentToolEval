@@ -152,9 +152,9 @@ def benchmark_runs() -> dict:
 
 
 @app.get("/api/benchmark/runs/{run_name:path}")
-def benchmark_saved_run(run_name: str) -> dict:
+def benchmark_saved_run(run_name: str, case_id: str | None = None) -> dict:
     try:
-        return read_saved_run(run_name)
+        return read_saved_run(run_name, case_id)
     except (FileNotFoundError, ValueError) as exc:
         raise HTTPException(status_code=404, detail=str(exc))
 

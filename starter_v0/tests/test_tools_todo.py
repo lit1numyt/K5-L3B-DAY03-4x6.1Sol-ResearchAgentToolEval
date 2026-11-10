@@ -110,13 +110,125 @@ def test_policy_instruction_like_lines_go_to_untrusted_text() -> None:
 #   2. bad / missing input from the model (empty string, wrong type, out-of-enum value)
 #   3. failure path (missing key, HTTP error, timeout) -> returns error dict, does not raise
 
-def test_my_new_tool_happy_path() -> None:
-    pytest.skip(TODO)
+def test_audit_new_tool_happy_path() -> None:
+    result = TOOL_FUNCTIONS["audit_research_evidence"](results=[{
+        "tool": "lookup", "items": [{"title": "A", "url": "https://example.org/a"}],
+    }])
+    assert result["sources"][0]["status"] == "ok"
+    assert result["items"][0]["url"] == "https://example.org/a"
+    assert result["unique_item_count"] == 1
 
 
-def test_my_new_tool_bad_input_from_model() -> None:
-    pytest.skip(TODO)
+def test_audit_new_tool_bad_input_from_model() -> None:
+    result = TOOL_FUNCTIONS["audit_research_evidence"](results="invalid")
+    assert result["error"] == "invalid_input"
+    assert TOOL_FUNCTIONS["audit_research_evidence"]()["error"] == "invalid_input"
 
 
-def test_my_new_tool_failure_returns_error_dict() -> None:
-    pytest.skip(TODO)
+def test_audit_new_tool_failed_source_remains_error() -> None:
+    result = TOOL_FUNCTIONS["audit_research_evidence"](results=[{
+        "tool": "arxiv_search", "error": "ReadTimeout",
+    }])
+    assert result["sources"][0]["status"] == "error"
+    assert result["sources"][0]["error"] == "ReadTimeout"
+    assert result["items"] == []
+
+
+def test_research_paper_search_passes_args_and_returns_metadata(monkeypatch) -> None:
+    import importlib
+    module = importlib.import_module("tools.research_paper.tool")
+    calls = []
+    paper = {"arxiv_id": "2305.14314", "title": "Paper", "url": "https://arxiv.org/abs/2305.14314"}
+    def search(**kwargs):
+        calls.append(kwargs)
+        return {"items": [paper], "total_results": 1}
+    monkeypatch.setattr(module, "arxiv_search", search)
+    result = module.research_paper(question="quantization", max_results=2)
+    assert calls == [{"query": "quantization", "max_results": 2}]
+    assert result["papers"] == [paper]
+    assert result["total_results"] == 1
+
+
+def test_research_paper_specific_id_reads_requested_pages(monkeypatch) -> None:
+    import importlib
+    module = importlib.import_module("tools.research_paper.tool")
+    calls = []
+    def read(**kwargs):
+        calls.append(kwargs)
+        return {"items": [{"summary": "Actual excerpt"}]}
+    monkeypatch.setattr(module, "get_arxiv_paper_text", read)
+    result = module.research_paper(arxiv_id="2305.14314", include_text=True, max_pages=3)
+    assert calls == [{"arxiv_url": "2305.14314", "max_pages": 3}]
+    assert result["paper_text"]["items"][0]["summary"] == "Actual excerpt"
+
+
+@pytest.mark.parametrize("kwargs", [
+    {"question": None}, {"arxiv_id": 1}, {"question": "AI", "include_text": "false"},
+    {"question": "AI", "max_results": 0}, {"question": "AI", "max_results": 11},
+    {"question": "AI", "max_pages": "5"}, {"arxiv_id": "2305.14314"},
+])
+def test_research_paper_rejects_bad_model_input_without_network(kwargs) -> None:
+    assert TOOL_FUNCTIONS["research_paper"](**kwargs)["error"] == "invalid_input"
+
+
+def test_research_paper_missing_input_returns_error_dict() -> None:
+    assert TOOL_FUNCTIONS["research_paper"]()["error"] == "missing_question"
+
+
+def test_research_paper_dependency_exception_returns_error_dict(monkeypatch) -> None:
+    import importlib
+    module = importlib.import_module("tools.research_paper.tool")
+    def fail(**kwargs):
+        raise TimeoutError("simulated arXiv timeout")
+    monkeypatch.setattr(module, "arxiv_search", fail)
+    result = module.research_paper(question="AI")
+    assert result["error"] == "TimeoutError"
+    assert result["papers"] == []
+
+
+def test_research_paper_pdf_error_preserves_found_papers(monkeypatch) -> None:
+    import importlib
+    module = importlib.import_module("tools.research_paper.tool")
+    paper = {"arxiv_id": "2305.14314", "title": "Paper"}
+    monkeypatch.setattr(module, "arxiv_search", lambda **kwargs: {"items": [paper]})
+    monkeypatch.setattr(module, "get_arxiv_paper_text", lambda **kwargs: {"error": "ReadTimeout"})
+    result = module.research_paper(question="quantization", include_text=True)
+    assert result["error"] == "ReadTimeout"
+    assert result["papers"] == [paper]
+    assert result["paper_text"]["error"] == "ReadTimeout"
+
+
+def test_bibliography_builds_bibtex_from_supplied_metadata() -> None:
+    result = TOOL_FUNCTIONS["build_bibliography"](papers=[{
+        "title": "Paper A", "url": "https://arxiv.org/abs/2305.14314",
+        "arxiv_id": "2305.14314", "authors": ["A. One", "B. Two"], "year": 2023,
+    }])
+    assert result["entry_count"] == 1
+    assert "author = {A. One and B. Two}" in result["text"]
+    assert "eprint = {2305.14314}" in result["text"]
+    assert result["entries"][0]["url"] == "https://arxiv.org/abs/2305.14314"
+
+
+@pytest.mark.parametrize("papers", [None, [], "not metadata", [None], [{"title": "No URL"}]])
+def test_bibliography_bad_input_returns_error_dict(papers) -> None:
+    assert TOOL_FUNCTIONS["build_bibliography"](papers=papers).get("error")
+
+
+def test_bibliography_rejects_unsafe_source_without_fabricating_entry() -> None:
+    result = TOOL_FUNCTIONS["build_bibliography"](papers=[{"title": "Unsafe", "url": "javascript:alert(1)"}])
+    assert result["error"] == "no_usable_papers"
+    assert result["entries"] == []
+    assert result["text"] == ""
+
+
+def test_bibliography_omits_unknown_fields_and_deduplicates() -> None:
+    paper = {"title": "A {claim}", "url": "https://example.org/paper"}
+    result = TOOL_FUNCTIONS["build_bibliography"](papers=[paper, paper])
+    assert result["entry_count"] == result["duplicate_count"] == 1
+    assert len(result["warnings"]) == 2
+    assert "author =" not in result["text"] and "year =" not in result["text"]
+    assert r"A \{claim\}" in result["text"]
+
+
+def test_bibliography_wrong_format_type_returns_error_dict() -> None:
+    assert TOOL_FUNCTIONS["build_bibliography"](papers=[{"title": "A", "url": "https://example.org/a"}], format=[])["error"] == "invalid_input"

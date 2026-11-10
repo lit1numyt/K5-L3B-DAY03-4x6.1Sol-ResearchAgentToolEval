@@ -1,0 +1,118 @@
+{
+  "note": "User-requested consecutive version labels. v4 is original; v5/v6/v7 are three distinct modifications. All run JSON payload bytes are preserved; internal historical labels may differ. Default artifacts select v5.",
+  "files": [
+    {
+      "old_path": "starter_v0/artifacts/review_archive/system_prompt_v4_review1.md",
+      "new_path": "starter_v0/artifacts/system_prompt_v5.md",
+      "sha256": "c19e3c26ad34a304df378c0959bd1976b53f3d5d8d574a39f8c3f6ac0a6cd92a"
+    },
+    {
+      "old_path": "starter_v0/artifacts/review_archive/tools_v4_review1.yaml",
+      "new_path": "starter_v0/artifacts/tools_v5.yaml",
+      "sha256": "f8375505fd76bccad1745a816b20cecdc7dcbb6ef03e82527c6d99cd6e9415b6"
+    },
+    {
+      "old_path": "starter_v0/artifacts/review_archive/system_prompt_v4_review2.md",
+      "new_path": "starter_v0/artifacts/system_prompt_v6.md",
+      "sha256": "4bb966897b82f96f88854526a8c207ef40408256a4864564714886c03619cafc"
+    },
+    {
+      "old_path": "starter_v0/artifacts/review_archive/tools_v4_review2.yaml",
+      "new_path": "starter_v0/artifacts/tools_v6.yaml",
+      "sha256": "4ce3000d2042a02099e0a8aa62b08fac43d4ede3bdeede4ca950a7034ae0c888"
+    },
+    {
+      "old_path": "starter_v0/artifacts/review_archive/system_prompt_v4_review3.md",
+      "new_path": "starter_v0/artifacts/system_prompt_v7.md",
+      "sha256": "e83d884b2beec087713e3c78c58df10034911c774f8ef4ff6acc34b70b773287",
+      "final_path": "starter_v0/artifacts/v7_candidates/initial/system_prompt.md"
+    },
+    {
+      "old_path": "starter_v0/artifacts/review_archive/tools_v4_review3.yaml",
+      "new_path": "starter_v0/artifacts/tools_v7.yaml",
+      "sha256": "3592c36237e0405dd0cefcc0902c9bbcef30742fa988706b11a0b0453ea03498",
+      "final_path": "starter_v0/artifacts/v7_candidates/initial/tools.yaml"
+    },
+    {
+      "old_path": "starter_v0/artifacts/review_archive/system_prompt_v4_before_review.md",
+      "new_path": "starter_v0/artifacts/system_prompt_v4.md",
+      "sha256": "89299baf402f059fd5ccb1b7669f70e180a0009ee3898df743aeb064a0c52eab"
+    },
+    {
+      "old_path": "starter_v0/artifacts/review_archive/tools_v4_before_review.yaml",
+      "new_path": "starter_v0/artifacts/tools_v4.yaml",
+      "sha256": "4620b3b880bb04634cd0561997707dc9d8b2b874a3e7e2e871d4e8b053741050"
+    },
+    {
+      "old_path": "starter_v0/artifacts/review_archive/eval_group_before_review.json",
+      "new_path": "starter_v0/artifacts/eval_group_v4.json",
+      "sha256": "62140e20d7344be2f39c563a5d2d2778be56f69829e62e82ebbb8e15af0e45cc"
+    },
+    {
+      "old_path": "starter_v0/artifacts/review_archive/research_paper_before_review.py",
+      "new_path": "starter_v0/artifacts/research_paper_v4.py",
+      "sha256": "76bc1fd7ea37e440c7d2f0c555246382b7cd864903a309035aa954a5ae82cfec"
+    },
+    {
+      "old_path": "starter_v0/runs/archive/v4_before_review/v4_B_base_openai_20261110T213656627758.json",
+      "new_path": "starter_v0/runs/v4_B_base_openai_20261110T213656627758.json",
+      "sha256": "ea648101da5c08b8d58b467254b17762bb410535af1a1bb48d7f37b18f4266ba",
+      "final_path": "starter_v0/runs/v4_B_base_openai_20261110T213656627758.json"
+    },
+    {
+      "old_path": "starter_v0/runs/archive/v4_before_review/v4_B_group_openai_20261110T213600677281.json",
+      "new_path": "starter_v0/runs/v4_B_group_openai_20261110T213600677281.json",
+      "sha256": "b0db9de8a1f4281973e0e684e7fe79420e89706f1309828bf3d55b5d0be765b3",
+      "final_path": "starter_v0/runs/v4_B_group_openai_20261110T213600677281.json"
+    },
+    {
+      "old_path": "starter_v0/runs/v4_B_base_openai_20261110T213656627758.json",
+      "new_path": "starter_v0/runs/v5_B_base_openai_20261110T213656627758.json",
+      "sha256": "ea648101da5c08b8d58b467254b17762bb410535af1a1bb48d7f37b18f4266ba",
+      "final_path": "starter_v0/runs/v4_B_base_openai_20261110T213656627758.json"
+    },
+    {
+      "old_path": "starter_v0/runs/v4_B_base_openai_20261110T215904815187.json",
+      "new_path": "starter_v0/runs/v5_B_base_openai_20261110T215904815187.json",
+      "sha256": "db50d854ad8a05108057dd147c0bb9a64bf905a41e8ab78be64e397daebf802e",
+      "final_path": "starter_v0/runs/v5_B_base_openai_20261110T215904815187.json"
+    },
+    {
+      "old_path": "starter_v0/runs/v4_B_group_openai_20261110T213600677281.json",
+      "new_path": "starter_v0/runs/v5_B_group_openai_20261110T213600677281.json",
+      "sha256": "b0db9de8a1f4281973e0e684e7fe79420e89706f1309828bf3d55b5d0be765b3",
+      "final_path": "starter_v0/runs/v4_B_group_openai_20261110T213600677281.json"
+    },
+    {
+      "old_path": "starter_v0/runs/v4_B_group_openai_20261110T215806188729.json",
+      "new_path": "starter_v0/runs/v5_B_group_openai_20261110T215806188729.json",
+      "sha256": "acb079dabe32aafabbbe8efeaca6ad8828aef5758bfb1a1ce0bca6b3b7645562",
+      "final_path": "starter_v0/runs/v5_B_group_openai_20261110T215806188729.json"
+    },
+    {
+      "old_path": "starter_v0/runs/archive/v4_review2/v4_B_base_openai_20261110T220250416618.json",
+      "new_path": "starter_v0/runs/v6_B_base_openai_20261110T220250416618.json",
+      "sha256": "be3d64089587941160b3e3bfe48a44b37ef7bd3c06af71eb37e80c126b6cfb3a",
+      "final_path": "starter_v0/runs/v6_B_base_openai_20261110T220250416618.json"
+    },
+    {
+      "old_path": "starter_v0/runs/archive/v4_review2/v4_B_group_openai_20261110T220145613780.json",
+      "new_path": "starter_v0/runs/v6_B_group_openai_20261110T220145613780.json",
+      "sha256": "6c6246318ba93cd577d5622a54bdbf82a1fce9d3193e557d23fcc433a070f8e1",
+      "final_path": "starter_v0/runs/v6_B_group_openai_20261110T220145613780.json"
+    },
+    {
+      "old_path": "starter_v0/runs/archive/v4_review3/v4_B_base_openai_20261110T220737211627.json",
+      "new_path": "starter_v0/runs/v7_B_base_openai_20261110T220737211627.json",
+      "sha256": "a57aeca3fc51070ea31d7257e62b71885266e011f6117352338aadd7d4b648f8",
+      "final_path": "starter_v0/runs/candidates/v7_initial/v7_B_base_openai_20261110T220737211627.json"
+    },
+    {
+      "old_path": "starter_v0/runs/archive/v4_review3/v4_B_group_openai_20261110T220642774481.json",
+      "new_path": "starter_v0/runs/v7_B_group_openai_20261110T220642774481.json",
+      "sha256": "c88bca0712dffe10f0382dc609e8424e7851323155b380cfe8640690f6aff78d",
+      "final_path": "starter_v0/runs/candidates/v7_initial/v7_B_group_openai_20261110T220642774481.json"
+    }
+  ],
+  "current_default": "v8; original v4 preserved"
+}

@@ -1,0 +1,28 @@
+{
+  "dataset_id": "day03_v2_research_group",
+  "dataset_role": "group",
+  "description": "Case do NHÓM tự viết thêm để cover thêm trường hợp. Mỗi case cần: id, phase='B', query HOẶC turns, failure_type (thuộc allowed_failure_types), và expect (tool_calls[...] hoặc no_tool=true). Nên kèm metadata.what_it_tests.",
+  "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
+  "cases": [
+    {
+      "id": "G01_audit_empty_and_failed_sources",
+      "phase": "B", "suite": "group",
+      "query": "Kiểm tra tình trạng các kết quả công cụ này giúp tôi: [{\"tool\":\"timeline\",\"items\":[]},{\"tool\":\"arxiv_search\",\"error\":\"ReadTimeout\"}]. Cho biết nguồn nào rỗng và nguồn nào lỗi.",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "audit_research_evidence", "args": {}}]},
+      "metadata": {"skill": "audit_source_status", "difficulty": "medium", "what_it_tests": "Dùng tool mới phân biệt kết quả rỗng với lỗi API, không tạo nguồn giả."}
+    },
+    {
+      "id": "G02_audit_after_results_multiturn",
+      "phase": "B", "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Tôi muốn kiểm tra các kết quả tìm kiếm trước khi dùng để viết báo cáo."},
+        {"role": "assistant", "content": "Hãy đưa tôi kết quả thực tế từ các công cụ tìm kiếm."},
+        {"role": "user", "content": "Đây là kết quả: [{\"tool\":\"web_search\",\"items\":[{\"title\":\"Report\",\"url\":\"https://example.org/report\"}]},{\"tool\":\"timeline\",\"items\":[]}]. Kiểm tra các nguồn này giúp tôi."}
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "audit_research_evidence", "args": {}}]},
+      "metadata": {"skill": "multiturn_source_audit", "difficulty": "medium", "what_it_tests": "Sau khi nhận kết quả thực tế qua hội thoại, route sang tool kiểm tra nguồn."}
+    }
+  ]
+}

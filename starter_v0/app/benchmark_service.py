@@ -92,13 +92,34 @@ def list_saved_runs() -> list[dict[str, Any]]:
             data = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             continue
-        output.append({"name": str(path.relative_to(RUNS_ROOT)), "run_id": data.get("run_id"), "version": data.get("version"), "provider": data.get("provider"), "model": data.get("model"), "generated_at": data.get("generated_at"), "summary": public_value(data.get("summary", {})), "artifact_version": data.get("artifact_version"), "prompt_hash": data.get("prompt_hash"), "tools_hash": data.get("tools_hash")})
+        if not isinstance(data.get("results"), list) or "measured_cases" not in data.get("summary", {}):
+            continue  # Fixtures, manifests and other benchmark schemas are not lab runs.
+        output.append({"name": path.relative_to(RUNS_ROOT).as_posix(), "run_id": data.get("run_id"), "version": path.name.split("_B_", 1)[0], "original_version": data.get("version"), "provider": data.get("provider"), "model": data.get("model"), "generated_at": data.get("generated_at"), "summary": public_value(data.get("summary", {})), "artifact_version": data.get("artifact_version"), "prompt_hash": data.get("prompt_hash"), "tools_hash": data.get("tools_hash")})
     return output
 
 
-def read_saved_run(name: str) -> dict[str, Any]:
+def read_saved_run(name: str, case_id: str | None = None) -> dict[str, Any]:
     candidate = (RUNS_ROOT / name).resolve()
     if RUNS_ROOT not in candidate.parents or candidate.suffix != ".json" or not candidate.is_file():
         raise FileNotFoundError("Saved run not found")
     data = json.loads(candidate.read_text(encoding="utf-8"))
-    return public_value({"source": "saved", "benchmark_evaluated": True, **data})
+    results = data.get("results", [])
+    if not isinstance(results, list) or not results or not isinstance(results[0].get("result"), dict):
+        raise ValueError("This file is not a saved lab evaluation run")
+    case = next((item for item in results if item.get("id") == case_id), results[0])
+    evaluation = case["result"]
+    measured = evaluation.get("failure_type") != "provider_error"
+    summary = data.get("summary", {})
+    return public_value({
+        "source": "saved", "benchmark_evaluated": measured, "status": "evaluated" if measured else "provider_error",
+        "case": {"id": case.get("id"), "query": case.get("input") if isinstance(case.get("input"), str) else None,
+                 "turns": case.get("input") if isinstance(case.get("input"), list) else None,
+                 "expect": case.get("expect", {}), "metadata": case.get("metadata", {})},
+        "evaluation": evaluation,
+        "actual": {"tool_calls": evaluation.get("actual_tool_calls", []), "assistant_text": evaluation.get("actual_text"),
+                   "tool_events": [public_tool_event(event) for event in case.get("tool_results", [])]},
+        "summary": summary,
+        "run_metadata": {key: data.get(key) for key in ["run_id", "provider", "model", "generated_at", "artifact_version", "prompt_hash", "tools_hash"]}
+            | {"file": candidate.relative_to(RUNS_ROOT).as_posix(), "original_version": data.get("version"),
+               "run_valid_for_rubric": summary.get("provider_error_cases") == 0 and summary.get("measured_cases") == summary.get("total_cases")},
+    })

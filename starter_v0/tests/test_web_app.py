@@ -100,3 +100,58 @@ def test_index_exposes_chat_and_benchmark_modes():
     assert response.status_code == 200
     assert "Benchmark lab" in response.text
     assert "/css/benchmark.css" in response.text
+
+
+def test_saved_pass_is_adapted_for_ui_instead_of_showing_false_fail(monkeypatch, tmp_path):
+    import json
+    from app import benchmark_service
+    monkeypatch.setattr(benchmark_service, "RUNS_ROOT", tmp_path)
+    payload = {"version": "old-label", "summary": {"total_cases": 1, "measured_cases": 1, "provider_error_cases": 0}, "results": [{
+        "id": "case-a", "input": "A request", "expect": {"no_tool": True},
+        "result": {"passed": True, "actual_tool_calls": [], "actual_text": "Answer"}, "tool_results": [],
+    }]}
+    (tmp_path / "v4_B_base_example.json").write_text(json.dumps(payload), encoding="utf8")
+    result = client.get("/api/benchmark/runs/v4_B_base_example.json?case_id=case-a").json()
+    assert result["evaluation"]["passed"] is True
+    assert result["actual"]["assistant_text"] == "Answer"
+    assert result["case"]["id"] == "case-a"
+    assert result["run_metadata"]["original_version"] == "old-label"
+
+
+def test_saved_failure_and_tool_error_remain_visible(monkeypatch, tmp_path):
+    import json
+    from app import benchmark_service
+    monkeypatch.setattr(benchmark_service, "RUNS_ROOT", tmp_path)
+    payload = {"summary": {}, "results": [{"id": "bad", "result": {
+        "passed": False, "actual_tool_calls": [{"name": "lookup", "args": {"query": "AI"}}],
+        "failures": ["extra tool call lookup"],
+    }, "tool_results": [{"tool": "lookup", "args": {}, "result": {"error": "Timeout"}}]}]}
+    (tmp_path / "bad.json").write_text(json.dumps(payload), encoding="utf8")
+    result = client.get("/api/benchmark/runs/bad.json").json()
+    assert result["evaluation"]["passed"] is False
+    assert result["evaluation"]["failures"] == ["extra tool call lookup"]
+    assert result["actual"]["tool_events"][0]["result"]["status"] == "failed"
+
+
+def test_saved_run_list_excludes_fixtures_and_shows_filename_version(monkeypatch, tmp_path):
+    import json
+    from app import benchmark_service
+    monkeypatch.setattr(benchmark_service, "RUNS_ROOT", tmp_path)
+    (tmp_path / "fixture.json").write_text('{"cases": []}', encoding="utf8")
+    (tmp_path / "v5_B_base_example.json").write_text(json.dumps({"version": "v4", "summary": {"measured_cases": 1}, "results": []}), encoding="utf8")
+    runs = client.get("/api/benchmark/runs").json()["runs"]
+    assert len(runs) == 1
+    assert runs[0]["version"] == "v5" and runs[0]["original_version"] == "v4"
+
+
+def test_loop_reports_tool_called_when_final_round_has_no_new_calls():
+    from chat import run_model_tool_loop
+    from providers.base import ToolCall
+    class Provider:
+        count = 0
+        def complete(self, *args, **kwargs):
+            self.count += 1
+            return ModelResponse(text="Done", tool_calls=[] if self.count > 1 else [ToolCall("format", {"items": [], "template": "brief"})])
+    result = run_model_tool_loop(provider=Provider(), messages=[], tools=[], model=None, max_tool_rounds=3)
+    assert result["execution_status"] == "tool_called"
+    assert len(result["tool_events"]) == 1
