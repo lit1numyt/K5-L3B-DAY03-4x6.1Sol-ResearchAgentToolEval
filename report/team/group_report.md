@@ -67,7 +67,7 @@ Giả thuyết chung: thay các chỉ dẫn đoán/gửi ngay/bắt buộc chọ
 | R12 | Gọi send trước khi xác nhận, text là câu thông báo đã đăng; code chặn và trả needs_confirmation. | Hỏi xác nhận qua clarify(yes_no); chỉ send(confirmed=true) sau xác nhận rõ nội dung; làm rõ text là nội dung cần gửi. |
 | R13 | Gọi đủ hai tool nhưng thiếu topic=news; tool chạy với mặc định general. Query cũng lệch theo cách chấm như R03. | Mô tả topic phải truyền news khi tìm tin tức; dùng convention query chung như R03. |
 
-Chỉ sửa system prompt và các description liên quan; giữ nguyên tên tool, schema, default, code thực thi và eval case. Kiểm tra offline: `cd starter_v0 && .venv/bin/python -m pytest -q` đạt 62 passed, 17 skipped (TODO có sẵn). Chưa chạy eval v1; chưa có metric sau hiệu chỉnh và chưa kết luận các case đã pass. Người 1 cần chạy v1 cùng provider/model với v0 để đo tác động và cập nhật version log/B1.
+Chỉ sửa system prompt và các description liên quan; giữ nguyên tên tool, schema, default, code thực thi và eval case. Kiểm tra offline: `cd starter_v0 && .venv/bin/python -m pytest -q` đạt 62 passed, 17 skipped (TODO có sẵn). Run v1 dùng cùng OpenAI `gpt-4o-mini` như v0: 17/20 case pass (85%), 20/20 case được đo, không có lỗi provider. Vì v1 thay đổi nhiều chỉ dẫn và description cùng lúc, không thể quy mức tăng cho riêng một thay đổi.
 
 ## 4. Kết quả — PHẦN B: Chi tiết và bằng chứng
 
@@ -77,8 +77,8 @@ Lấy từ `starter_v0/artifacts/version_log.csv` và `starter_v0/runs/*.json`. 
 
 | Version | Changed Artifact | Hypothesis | Metric Before | Metric After | Run File |
 |---|---|---|---:|---:|---|
-| v0 | baseline |  |  |  |  |
-| v1 |  |  |  |  |  |
+| v0 | baseline | Đo hành vi ban đầu | — | 0.65 | [run v0](../../starter_v0/runs/v0_B_base_openai_20261110T173859866471.json) |
+| v1 | system prompt + tools.yaml | Làm rõ hỏi lại, xác nhận, phạm vi và arguments giúp giảm lỗi | 0.65 | 0.85 | [run v1](../../starter_v0/runs/v1_B_base_openai_20261110T182202801200.json) |
 | v2 |  |  |  |  |  |
 | v3 |  |  |  |  |  |
 
@@ -89,6 +89,8 @@ Lấy từ `results[*].result.failures` trong run JSON.
 | Case ID | Failure Type | Actual Tool Calls | What Failed | Fix |
 |---|---|---|---|---|
 |  |  |  |  |  |
+
+So với v0, R03, R08, R10, R11, R13 và R14 chuyển từ fail sang pass. R01 và R05 chuyển từ pass sang fail vì agent gọi `clarify` thay vì `timeline`. R12 vẫn fail: agent hỏi thông tin bằng `clarify(text)` trong khi case kỳ vọng `clarify(yes_no)`; cần xem xét ngữ cảnh thiếu nội dung khi phân tích.
 
 ### B3. Team Eval Cases
 
