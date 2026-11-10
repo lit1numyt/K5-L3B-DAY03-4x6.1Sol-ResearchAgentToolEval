@@ -87,7 +87,7 @@ python run_eval.py --provider openai --model gpt-4o-mini --version v2 --suite ba
 
 **Tiêu chí đánh giá và giới hạn.** Giả thuyết được hỗ trợ nếu giảm được việc hỏi thừa ở R01/R05, phản hồi R08/R14 tuân thủ phạm vi và không làm mất các hành vi đúng của v1. R12 có thể vẫn không đạt kỳ vọng yes_no của evaluator khi thiếu nội dung; phải báo cáo nguyên trạng điểm chấm và đánh giá ngữ nghĩa riêng, không tính lại điểm. Vòng này cùng hiệu chỉnh việc hỏi lại và phản hồi ngoài phạm vi nên chỉ đánh giá được tác động của cả bản sửa, không xác định đóng góp riêng của từng thay đổi.
 
-**Trạng thái kiểm chứng.** Kiểm tra offline sau sửa đạt **62 passed, 17 skipped**; các test bị bỏ qua là TODO có sẵn, không phải kết quả eval model. Chưa có run v2 nên chưa kết luận H2 được xác nhận hoặc không có hồi quy. Sau khi có run hợp lệ, ghi artifact version, prompt/tools hash, giả thuyết, metric trước/sau và đường dẫn run vào `starter_v0/artifacts/version_log.csv`, đồng thời hoàn thiện dòng v2 ở B1.
+**Trạng thái kiểm chứng.** Kiểm tra offline sau sửa đạt **62 passed, 17 skipped**; các test bị bỏ qua là TODO có sẵn, không phải kết quả eval model. [Run v2](../../starter_v0/runs/v2_B_base_openai_20261110T185609495800.json) có 18/20 case đạt (90%), 20/20 case được đo và không có lỗi provider. So với v1, R01 và R05 chuyển từ fail sang pass; M06 chuyển từ pass sang fail. R12 vẫn fail vì evaluator kỳ vọng `yes_no` trong khi agent dùng `text` để hỏi nội dung còn thiếu. R08 và R14 từ chối không kèm lời giải hoặc code trong run này. Kết quả hỗ trợ một phần H2 nhưng có hồi quy M06; không thể tách tác động của từng thay đổi.
 
 ## 4. Kết quả — PHẦN B: Chi tiết và bằng chứng
 
@@ -99,7 +99,7 @@ Lấy từ `starter_v0/artifacts/version_log.csv` và `starter_v0/runs/*.json`. 
 |---|---|---|---:|---:|---|
 | v0 | baseline | Đo hành vi ban đầu | — | 0.65 | [run v0](../../starter_v0/runs/v0_B_base_openai_20261110T173859866471.json) |
 | v1 | system prompt + tools.yaml | Làm rõ hỏi lại, xác nhận, phạm vi và arguments giúp giảm lỗi | 0.65 | 0.85 | [run v1](../../starter_v0/runs/v1_B_base_openai_20261110T182202801200.json) |
-| v2 (chuẩn bị, chưa chạy) | system prompt + tools.yaml | H2: phân biệt điều kiện thực hiện, hỏi thông tin, xác nhận gửi và từ chối ngoài phạm vi | 0.85 | — | Chưa có run |
+| v2 | system prompt + tools.yaml | H2: phân biệt điều kiện thực hiện, hỏi thông tin, xác nhận gửi và từ chối ngoài phạm vi | 0.85 | 0.90 | [run v2](../../starter_v0/runs/v2_B_base_openai_20261110T185609495800.json) |
 | v3 |  |  |  |  |  |
 
 ### B2. Failure Analysis
