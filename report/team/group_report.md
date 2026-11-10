@@ -100,7 +100,9 @@ Lấy từ `starter_v0/artifacts/version_log.csv` và `starter_v0/runs/*.json`. 
 | v0 | baseline | Đo hành vi ban đầu | — | 0.65 | [run v0](../../starter_v0/runs/v0_B_base_openai_20261110T173859866471.json) |
 | v1 | system prompt + tools.yaml | Làm rõ hỏi lại, xác nhận, phạm vi và arguments giúp giảm lỗi | 0.65 | 0.85 | [run v1](../../starter_v0/runs/v1_B_base_openai_20261110T182202801200.json) |
 | v2 | system prompt + tools.yaml | H2: phân biệt điều kiện thực hiện, hỏi thông tin, xác nhận gửi và từ chối ngoài phạm vi | 0.85 | 0.90 | [run v2](../../starter_v0/runs/v2_B_base_openai_20261110T185609495800.json) |
-| v3 |  |  |  |  |  |
+| v3 | system prompt + tools.yaml; thêm `research_paper` | Kiểm tra bộ base sau khi tích hợp tool mới | 0.90 | 0.95 | [run v2-tool](../../starter_v0/runs/v2-tool_B_base_openai_20261110T191038391725.json) |
+
+Nhóm chọn cấu hình trong run trên làm v3; lệnh chạy thực tế dùng nhãn `v2-tool`, được giữ nguyên trong run JSON và `artifact_version`. Cấu hình này bổ sung khai báo `research_paper` và hướng dẫn dùng tool so với v2. Run đạt 19/20 case, đo đủ 20 case và không có lỗi provider; M06 chuyển từ fail sang pass, R12 vẫn fail do `clarify(text)` khác kỳ vọng `yes_no`. Không thể quy cải thiện cho tool mới chỉ từ một run: không có case base nào trong run gọi `research_paper`. Cần eval riêng để kiểm tra routing tới tool này.
 
 ### B2. Failure Analysis
 
