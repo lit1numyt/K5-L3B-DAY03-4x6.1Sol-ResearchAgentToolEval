@@ -60,6 +60,35 @@ Trong tool declaration, nhóm làm rõ khi nào dùng `clarify`, điều kiện 
 
 Các thay đổi giữ nguyên tên tool, schema, giá trị mặc định, code thực thi và bộ eval. Kiểm tra offline bằng `cd starter_v0 && .venv/bin/python -m pytest -q` đạt **62 passed, 17 skipped**; các test bị bỏ qua là TODO có sẵn trong starter. [Run v1](../../starter_v0/runs/v1_B_base_openai_20261110T182202801200.json) dùng cùng OpenAI `gpt-4o-mini` như v0: **17/20 case đạt (85%)**, 20/20 case được đo, không có lỗi provider. Vì v1 thay đổi nhiều chỉ dẫn và description cùng lúc, chưa thể xác định mức đóng góp riêng của từng thay đổi.
 
+### Giả thuyết và hiệu chỉnh từ v1 lên v2
+
+**Người phân tích và hiệu chỉnh:** Nguyễn Đức Khương Lam — MSSV `2A202604020`. **Provider/model đối chiếu:** OpenAI `gpt-4o-mini`. **Mốc so sánh:** [run v1](../../starter_v0/runs/v1_B_base_openai_20261110T182202801200.json), case accuracy **85% (17/20)**, đủ 20 case được đo và không có lỗi provider.
+
+**Vấn đề quan sát được.** R01 hỏi thêm số lượng dù yêu cầu một tweet mới nhất đã có thể thực hiện; R05 xin xác nhận lại yêu cầu đọc đã có đối tượng và số lượng. R12 không còn gửi ngay nhưng hỏi nội dung bằng `text`, khác kỳ vọng `yes_no` của eval; input chưa cung cấp bản tin nên chưa thể xem việc hỏi nội dung là sai. R08 và R14 không gọi tool nhưng vẫn cung cấp lời giải/code sau câu từ chối, một vấn đề mà điểm pass tự động chưa phản ánh. Chi tiết tool calls và cơ sở phân tích nằm ở B2.
+
+**Giả thuyết H2.** Nếu system prompt và tool declaration phân biệt rõ điều kiện thực hiện yêu cầu, hỏi thông tin, xác nhận gửi và từ chối ngoài phạm vi, agent sẽ giảm việc hỏi lại không cần thiết và tuân thủ phạm vi phản hồi tốt hơn, trong khi vẫn hỏi khi thiếu thông tin thiết yếu và xác nhận trước khi gửi. Cơ sở của giả thuyết là v1 đã yêu cầu hỏi lại và từ chối nhưng chưa làm rõ đầy đủ các điều kiện trên; log thể hiện việc hỏi thừa và phản hồi trái với câu từ chối. Đây là nhận định cần kiểm chứng, không phải nguyên nhân đã được chứng minh độc lập.
+
+**Thay đổi đã thực hiện để chuẩn bị v2.**
+
+| Vấn đề | Thay đổi trong system prompt | Thay đổi trong tool declaration | Hành vi kỳ vọng |
+|---|---|---|---|
+| R01: hỏi số lượng không cần thiết | Chỉ hỏi khi thiếu thông tin cản trở thực hiện; dùng giá trị người dùng cung cấp, giá trị được thể hiện rõ hoặc mặc định cho tham số tùy chọn. | Làm rõ điều kiện dùng clarify; limit dùng số lượng được yêu cầu, 1 khi chỉ cần một bài mới nhất, hoặc mặc định 5 khi không chỉ định. | Gọi timeline trực tiếp, không hỏi thêm số lượng. |
+| R05: xác nhận lại thao tác đọc | Thực hiện trực tiếp yêu cầu đọc đã rõ, không yêu cầu xác nhận lại. | clarify không dùng để xác nhận yêu cầu đọc đã đủ thông tin. | Gọi timeline với screenname=elonmusk và limit=10. |
+| R12: chưa tách bước lấy nội dung và xác nhận | Thiếu nội dung thì hỏi bằng text; có nội dung nhưng chưa xác nhận thì hỏi bằng yes_no; chỉ gửi sau xác nhận rõ nội dung đó. | Đồng bộ clarify.response_type và điều kiện sử dụng send. | Không gửi khi chưa có nội dung hoặc chưa được xác nhận; câu hỏi phù hợp với thông tin đang thiếu. |
+| R08, R14: vẫn trả lời sau câu từ chối | Phản hồi ngoài phạm vi chỉ giải thích ngắn gọn phạm vi hỗ trợ và mời yêu cầu nghiên cứu phù hợp; không kèm lời giải/code của yêu cầu đã từ chối. | Không thay đổi. | Không gọi tool và không cung cấp lời giải/code ngoài phạm vi. |
+
+Các thay đổi áp dụng thành quy tắc chung, không chèn case ID hay đáp án mẫu vào cấu hình. Nhóm giữ nguyên quy tắc không đoán tài khoản/URL, giữ thông tin đã được cung cấp, arguments tìm tin và xác nhận trước khi gửi; không đổi tên tool, schema, giá trị mặc định, code thực thi hoặc bộ eval.
+
+**Cách kiểm chứng.** Chạy lại toàn bộ `data/eval_base.json` với cùng provider/model bằng lệnh dưới đây, sau đó so sánh case accuracy, tool routing accuracy, argument accuracy và multiturn accuracy với v1. Kiểm tra riêng R01/R05 có chuyển sang timeline hay không; đọc cả câu hỏi của R12 và actual_text của R08/R14. Đối chiếu các case đã cải thiện từ v0 và toàn bộ case còn lại để phát hiện hồi quy. Run chỉ hợp lệ khi `provider_error_cases == 0` và `measured_cases == total_cases == 20`.
+
+```bash
+python run_eval.py --provider openai --model gpt-4o-mini --version v2 --suite base --eval-cases data/eval_base.json
+```
+
+**Tiêu chí đánh giá và giới hạn.** Giả thuyết được hỗ trợ nếu giảm được việc hỏi thừa ở R01/R05, phản hồi R08/R14 tuân thủ phạm vi và không làm mất các hành vi đúng của v1. R12 có thể vẫn không đạt kỳ vọng yes_no của evaluator khi thiếu nội dung; phải báo cáo nguyên trạng điểm chấm và đánh giá ngữ nghĩa riêng, không tính lại điểm. Vòng này cùng hiệu chỉnh việc hỏi lại và phản hồi ngoài phạm vi nên chỉ đánh giá được tác động của cả bản sửa, không xác định đóng góp riêng của từng thay đổi.
+
+**Trạng thái kiểm chứng.** Kiểm tra offline sau sửa đạt **62 passed, 17 skipped**; các test bị bỏ qua là TODO có sẵn, không phải kết quả eval model. Chưa có run v2 nên chưa kết luận H2 được xác nhận hoặc không có hồi quy. Sau khi có run hợp lệ, ghi artifact version, prompt/tools hash, giả thuyết, metric trước/sau và đường dẫn run vào `starter_v0/artifacts/version_log.csv`, đồng thời hoàn thiện dòng v2 ở B1.
+
 ## 4. Kết quả — PHẦN B: Chi tiết và bằng chứng
 
 ### B1. Version Evidence
@@ -70,7 +99,7 @@ Lấy từ `starter_v0/artifacts/version_log.csv` và `starter_v0/runs/*.json`. 
 |---|---|---|---:|---:|---|
 | v0 | baseline | Đo hành vi ban đầu | — | 0.65 | [run v0](../../starter_v0/runs/v0_B_base_openai_20261110T173859866471.json) |
 | v1 | system prompt + tools.yaml | Làm rõ hỏi lại, xác nhận, phạm vi và arguments giúp giảm lỗi | 0.65 | 0.85 | [run v1](../../starter_v0/runs/v1_B_base_openai_20261110T182202801200.json) |
-| v2 |  |  |  |  |  |
+| v2 (chuẩn bị, chưa chạy) | system prompt + tools.yaml | H2: phân biệt điều kiện thực hiện, hỏi thông tin, xác nhận gửi và từ chối ngoài phạm vi | 0.85 | — | Chưa có run |
 | v3 |  |  |  |  |  |
 
 ### B2. Failure Analysis
@@ -90,6 +119,20 @@ Theo [run baseline v0](../../starter_v0/runs/v0_B_base_openai_20261110T173859866
 Failure Type của R03 và R13 trong bảng phản ánh sai lệch quan sát được (`observed_mismatch`); nhãn loại case trong run là `wrong_tool`, nhưng cả hai đều chọn đúng tên tool. Các cơ sở trên là giả thuyết dựa trên nội dung cấu hình và log v0; tác động của từng thay đổi chưa được kiểm chứng riêng bằng eval sau hiệu chỉnh.
 
 So với v0, R03, R08, R10, R11, R13 và R14 chuyển từ fail sang pass. R01 và R05 chuyển từ pass sang fail vì agent gọi `clarify` thay vì `timeline`. R12 vẫn fail: agent hỏi thông tin bằng `clarify(text)` trong khi case kỳ vọng `clarify(yes_no)`; cần xem xét ngữ cảnh thiếu nội dung khi phân tích.
+
+#### Phân tích kết quả v1
+
+Bằng chứng: [run v1](../../starter_v0/runs/v1_B_base_openai_20261110T182202801200.json). Bảng dưới phân biệt lỗi do evaluator ghi nhận với vấn đề phát hiện khi đọc nội dung trả lời. Các nhận định về nguyên nhân là cơ sở đặt giả thuyết, không phải kết luận nhân quả đã được kiểm chứng độc lập.
+
+| Case ID | Hành vi quan sát được | Cơ sở xác định vấn đề | Hiệu chỉnh |
+|---|---|---|---|
+| R01_user_tweets_routing | Gọi clarify(text) để hỏi số lượng thay vì timeline cho yêu cầu lấy tweet mới nhất của Sam Altman. | Hỏi thông tin không cản trở thực hiện. Prompt chưa nói rõ cách dùng tham số tùy chọn; description limit chưa nêu cách xử lý yêu cầu một bài mới nhất hoặc không chỉ định số lượng. Log không cho thấy agent đang hỏi về tài khoản. | Làm rõ điều kiện hỏi lại; dùng limit theo yêu cầu hoặc mặc định, không hỏi thêm chỉ vì người dùng không nêu con số. |
+| R05_limit_arg | Gọi clarify(yes_no) để xác nhận lại yêu cầu lấy 10 tweet mới nhất của Elon Musk. | Yêu cầu đã có đối tượng và số lượng; thao tác đọc không cần xác nhận lại. Prompt đã yêu cầu xác nhận trước khi gửi, nhưng chưa phân biệt rõ với thao tác đọc; clarify chưa nói khi nào không dùng. Sai lệch thực tế là chọn sai tool, dù nhãn loại case là wrong_arg_value. | Yêu cầu thực hiện trực tiếp thao tác đọc đã đủ thông tin; loại trừ việc dùng clarify để xác nhận lại yêu cầu đọc rõ ràng. |
+| R12_confirm_before_send | Gọi clarify(text) để xin nội dung bản tin hoặc URL; không gọi send. | Đã sửa hành vi gửi ngay của v0. Case vẫn fail vì response_type khác yes_no. Input chưa có nội dung bản tin, nên câu hỏi bổ sung có cơ sở; chỉ dẫn xác nhận trước gửi chưa phân biệt bước lấy nội dung và bước xác nhận. | Đồng bộ prompt và description theo thứ tự: lấy nội dung còn thiếu, xác nhận nội dung đã có, rồi mới gửi. Ghi nhận giới hạn của kỳ vọng eval thay vì ép xác nhận khi chưa biết nội dung. |
+| R08_out_of_scope | Không gọi tool, nhưng actual_text vẫn nêu nguyên hàm sau câu từ chối. | Được chấm pass vì evaluator chỉ kiểm tra không gọi tool; phản hồi chưa tuân thủ yêu cầu từ chối ngoài phạm vi. Prompt đã có quy tắc từ chối nhưng chưa được model thực hiện đầy đủ. | Làm rõ phản hồi ngoài phạm vi không kèm lời giải, kể cả dưới dạng ví dụ sau câu từ chối. |
+| R14_out_of_scope_coding | Không gọi tool, nhưng actual_text vẫn chứa hàm Fibonacci hoàn chỉnh sau câu từ chối. | Cùng vấn đề như R08: sửa được việc gọi send sai mục đích, chưa sửa hoàn chỉnh nội dung phản hồi ngoài phạm vi. | Áp dụng chung quy tắc không cung cấp code thực hiện yêu cầu đã từ chối. |
+
+Việc kiểm chứng vòng tiếp theo cần chạy lại toàn bộ 20 case với cùng provider/model, đối chiếu cả metric và actual_text. Ngoài R01, R05 và R12, cần kiểm tra các case đã cải thiện từ v0, nội dung R08/R14 và sáu case multi-turn để đánh giá hồi quy. Chỉ sử dụng run có `provider_error_cases == 0` và `measured_cases == total_cases`.
 
 ### B3. Team Eval Cases
 
