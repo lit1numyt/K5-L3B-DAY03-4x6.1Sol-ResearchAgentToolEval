@@ -21,6 +21,8 @@ cp .env.example .env
 ./run.sh
 ```
 
-Useful endpoints are `/`, `/health`, `/api/chat`, and `/docs`. For development, use `RELOAD=1 ./run.sh`. The default bind address is `127.0.0.1:8000`, which is suitable as the origin for a Cloudflare Tunnel. Configure the tunnel separately and protect a public demo with Cloudflare Access or equivalent authentication.
+Useful endpoints are `/`, `/health`, `/api/chat`, `/api/chat/stream`, and `/docs`. The browser uses `/api/chat/stream`, an SSE endpoint that emits progress events and answer chunks before a final `done` event. For development, use `RELOAD=1 ./run.sh`. The default bind address is `127.0.0.1:8000`, which is suitable as the origin for a Cloudflare Tunnel. Configure the tunnel separately and protect a public demo with Cloudflare Access or equivalent authentication.
+
+Because the existing provider interface is synchronous, the current stream wraps the reliable multi-round agent loop and progressively delivers the completed answer after execution. Provider-native token streaming can be added later without changing the frontend event contract.
 
 The web configuration uses `BOT_PROVIDER`, `BOT_MODEL`, `HISTORY_WINDOW`, and `MAX_TOOL_ROUNDS`; provider credentials retain the names documented in `.env.example` and the existing provider modules.

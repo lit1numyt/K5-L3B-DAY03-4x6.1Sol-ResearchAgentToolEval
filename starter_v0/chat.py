@@ -84,12 +84,18 @@ def run_model_tool_loop(
     tools: list[dict[str, Any]],
     model: str | None,
     max_tool_rounds: int,
+    on_event: Any | None = None,
 ) -> dict[str, Any]:
+    def emit(event: dict[str, Any]) -> None:
+        if on_event is not None:
+            on_event(event)
+
     working_messages = list(messages)
     rounds: list[dict[str, Any]] = []
     all_tool_events: list[dict[str, Any]] = []
 
     for round_index in range(1, max_tool_rounds + 1):
+        emit({"type": "round_started", "round": round_index})
         response = provider.complete(working_messages, tools, model=model, temperature=0.0)
         calls = response.tool_calls
         round_record: dict[str, Any] = {
@@ -101,6 +107,12 @@ def run_model_tool_loop(
 
         if not calls:
             rounds.append(round_record)
+            emit({"type": "completed", "result": {
+                "status": "answered",
+                "assistant_text": response.text or "",
+                "rounds": rounds,
+                "tool_events": all_tool_events,
+            }})
             return {
                 "status": "answered",
                 "assistant_text": response.text or "",
@@ -114,6 +126,7 @@ def run_model_tool_loop(
         for call in calls:
             print(f"🔧 {call.name}({json.dumps(call.args, ensure_ascii=False, sort_keys=True)})")
             event = execute_tool_call(call)
+            emit({"type": "tool_completed", "round": round_index, "tool": event.get("tool"), "ok": "error" not in event.get("result", {})})
             round_record["tool_results"].append(event)
             all_tool_events.append(event)
 
@@ -123,6 +136,12 @@ def run_model_tool_loop(
             if isinstance(result, dict) and result.get("awaiting_user"):
                 question = result.get("question") or call.args.get("question") or "Bạn bổ sung thêm thông tin nhé."
                 rounds.append(round_record)
+                emit({"type": "completed", "result": {
+                    "status": "waiting_for_user",
+                    "assistant_text": question,
+                    "rounds": rounds,
+                    "tool_events": all_tool_events,
+                }})
                 return {
                     "status": "waiting_for_user",
                     "assistant_text": question,
@@ -135,12 +154,14 @@ def run_model_tool_loop(
         rounds.append(round_record)
         working_messages.append(tool_results_message(non_clarification_events))
 
-    return {
+    result = {
         "status": "max_tool_rounds",
         "assistant_text": f"Stopped after {max_tool_rounds} tool rounds. Inspect the transcript for details.",
         "rounds": rounds,
         "tool_events": all_tool_events,
     }
+    emit({"type": "completed", "result": result})
+    return result
 
 
 def write_transcript(path: Path, transcript: dict[str, Any]) -> None:

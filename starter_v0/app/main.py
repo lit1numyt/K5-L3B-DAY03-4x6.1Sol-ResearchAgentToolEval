@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import logging
+import json
 import sys
 from pathlib import Path
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel, Field, field_validator
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,6 +60,38 @@ def chat(request: ChatRequest) -> dict:
         logger.exception("Research agent request failed")
         raise HTTPException(status_code=500, detail="The chatbot encountered an internal error.")
     return {"conversation_id": request.conversation_id, **result}
+
+
+def sse_event(event: str, data: dict) -> str:
+    return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False, default=str)}\n\n"
+
+
+@app.post("/api/chat/stream")
+def chat_stream(request: ChatRequest) -> StreamingResponse:
+    messages = [message.model_dump() for message in request.messages]
+
+    def generate():
+        yield sse_event("connected", {"conversation_id": request.conversation_id})
+        for event in service.stream_chat(messages):
+            event_type = event.get("type")
+            if event_type == "round_started":
+                yield sse_event("progress", {"message": f"Working through research round {event['round']}…", "round": event["round"]})
+            elif event_type == "tool_completed":
+                yield sse_event("progress", {"message": f"Used {event.get('tool', 'research')} tool", "round": event.get("round")})
+            elif event_type == "completed":
+                result = event["result"]
+                text = result.get("assistant_text", "")
+                for index in range(0, len(text), 48):
+                    yield sse_event("delta", {"text": text[index:index + 48]})
+                yield sse_event("done", {"conversation_id": request.conversation_id, **result})
+            elif event_type == "error":
+                yield sse_event("error", {"detail": "The chatbot encountered an internal error."})
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 @app.get("/")

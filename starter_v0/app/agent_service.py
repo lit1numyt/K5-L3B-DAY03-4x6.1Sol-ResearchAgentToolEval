@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import os
+import queue
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -61,3 +63,32 @@ class AgentService:
             model=self.model,
             max_tool_rounds=self.max_tool_rounds,
         )
+
+    def stream_chat(self, messages: list[dict[str, str]]):
+        """Yield progress events while preserving the existing blocking agent loop."""
+        events: queue.Queue[dict[str, Any]] = queue.Queue()
+
+        def worker() -> None:
+            try:
+                system_prompt = self.system_prompt_path.read_text(encoding="utf-8")
+                history = trim_history(messages, self.history_window)
+                result = run_model_tool_loop(
+                    provider=self._get_provider(),
+                    messages=[{"role": "system", "content": system_prompt}, *history],
+                    tools=self._get_tools(),
+                    model=self.model,
+                    max_tool_rounds=self.max_tool_rounds,
+                    on_event=events.put,
+                )
+                events.put({"type": "finished", "result": result})
+            except Exception as exc:
+                events.put({"type": "error", "message": str(exc)})
+            finally:
+                events.put({"type": "closed"})
+
+        threading.Thread(target=worker, daemon=True).start()
+        while True:
+            event = events.get()
+            if event["type"] == "closed":
+                break
+            yield event
