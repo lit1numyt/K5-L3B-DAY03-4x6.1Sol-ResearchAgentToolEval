@@ -58,7 +58,7 @@ Trong system prompt, nhóm thay chỉ dẫn tự đoán tài khoản hoặc URL 
 
 Trong tool declaration, nhóm làm rõ khi nào dùng `clarify`, điều kiện đủ thông tin để gọi `timeline` và `fetch`, cùng ý nghĩa của `send.text` và `send.confirmed`. Với `lookup`, `query` giữ chủ đề và từ khóa nội dung; loại tin và khoảng thời gian được truyền qua `topic` và `timeframe`. Khi người dùng yêu cầu tin tức, agent phải truyền rõ `topic="news"`. Quy tắc này áp dụng chung cho các chủ đề tìm kiếm, không gắn với một câu hỏi cụ thể trong bộ eval.
 
-Các thay đổi giữ nguyên tên tool, schema, giá trị mặc định, code thực thi và bộ eval. Kiểm tra offline bằng `cd starter_v0 && .venv/bin/python -m pytest -q` đạt **62 passed, 17 skipped**; các test bị bỏ qua là TODO có sẵn trong starter. Tại thời điểm ghi nhận, chưa có run v1 nên chưa có số đo để kết luận mức cải thiện của model.
+Các thay đổi giữ nguyên tên tool, schema, giá trị mặc định, code thực thi và bộ eval. Kiểm tra offline bằng `cd starter_v0 && .venv/bin/python -m pytest -q` đạt **62 passed, 17 skipped**; các test bị bỏ qua là TODO có sẵn trong starter. [Run v1](../../starter_v0/runs/v1_B_base_openai_20261110T182202801200.json) dùng cùng OpenAI `gpt-4o-mini` như v0: **17/20 case đạt (85%)**, 20/20 case được đo, không có lỗi provider. Vì v1 thay đổi nhiều chỉ dẫn và description cùng lúc, chưa thể xác định mức đóng góp riêng của từng thay đổi.
 
 ## 4. Kết quả — PHẦN B: Chi tiết và bằng chứng
 
@@ -68,8 +68,8 @@ Lấy từ `starter_v0/artifacts/version_log.csv` và `starter_v0/runs/*.json`. 
 
 | Version | Changed Artifact | Hypothesis | Metric Before | Metric After | Run File |
 |---|---|---|---:|---:|---|
-| v0 | baseline |  |  |  |  |
-| v1 |  |  |  |  |  |
+| v0 | baseline | Đo hành vi ban đầu | — | 0.65 | [run v0](../../starter_v0/runs/v0_B_base_openai_20261110T173859866471.json) |
+| v1 | system prompt + tools.yaml | Làm rõ hỏi lại, xác nhận, phạm vi và arguments giúp giảm lỗi | 0.65 | 0.85 | [run v1](../../starter_v0/runs/v1_B_base_openai_20261110T182202801200.json) |
 | v2 |  |  |  |  |  |
 | v3 |  |  |  |  |  |
 
@@ -88,6 +88,8 @@ Theo [run baseline v0](../../starter_v0/runs/v0_B_base_openai_20261110T173859866
 | R14_out_of_scope_coding | `out_of_scope` | `send(text=<code Fibonacci>)` | Dùng send để trả lời yêu cầu viết code ngoài phạm vi; cùng vấn đề về phạm vi, yêu cầu chọn tool và mô tả send như R08. | Áp dụng chung quy tắc từ chối yêu cầu ngoài phạm vi bằng văn bản và giới hạn send cho hành động gửi Telegram. |
 
 Failure Type của R03 và R13 trong bảng phản ánh sai lệch quan sát được (`observed_mismatch`); nhãn loại case trong run là `wrong_tool`, nhưng cả hai đều chọn đúng tên tool. Các cơ sở trên là giả thuyết dựa trên nội dung cấu hình và log v0; tác động của từng thay đổi chưa được kiểm chứng riêng bằng eval sau hiệu chỉnh.
+
+So với v0, R03, R08, R10, R11, R13 và R14 chuyển từ fail sang pass. R01 và R05 chuyển từ pass sang fail vì agent gọi `clarify` thay vì `timeline`. R12 vẫn fail: agent hỏi thông tin bằng `clarify(text)` trong khi case kỳ vọng `clarify(yes_no)`; cần xem xét ngữ cảnh thiếu nội dung khi phân tích.
 
 ### B3. Team Eval Cases
 
