@@ -50,24 +50,15 @@ Ví dụ: "Research agent: tìm tin theo từ khóa / theo tài khoản, đọc 
 
 ## 3. Giải pháp
 
-> Tóm tắt các thay đổi chính trong `starter_v0/artifacts/system_prompt.md` và `starter_v0/artifacts/tools.yaml`, và tool mới nhóm viết (tên, làm gì, khi nào agent nên gọi).
+### Hiệu chỉnh system prompt và tool declaration từ baseline v0
 
-### Hiệu chỉnh đề xuất cho v1 — Người 2
+Dựa trên các lỗi của baseline v0, nhóm hiệu chỉnh [system prompt](../../starter_v0/artifacts/system_prompt.md) và [tool declaration](../../starter_v0/artifacts/tools.yaml) để chuẩn bị cho v1. Giả thuyết của vòng hiệu chỉnh là việc loại bỏ các chỉ dẫn khuyến khích đoán thông tin, gửi ngay và luôn chọn tool, đồng thời làm rõ điều kiện sử dụng và tham số của các tool liên quan, sẽ giảm các lỗi đã quan sát được ở v0.
 
-Nguyễn Đức Khương Lam — MSSV `2A202604020`. Dựa trên [run v0](../../starter_v0/runs/v0_B_base_openai_20261110T173859866471.json) dùng OpenAI `gpt-4o-mini`: 13/20 case pass (65%), 20/20 case được đo, không có lỗi provider.
+Trong system prompt, nhóm thay chỉ dẫn tự đoán tài khoản hoặc URL bằng yêu cầu hỏi lại qua `clarify(response_type="text")` khi thông tin chưa có trong yêu cầu và ngữ cảnh. Các chi tiết đã được cung cấp, như số lượng bài đăng, phải được giữ lại. Với yêu cầu gửi Telegram, agent phải hỏi xác nhận nội dung qua `clarify(response_type="yes_no")` và chỉ gọi `send(confirmed=true)` sau khi người dùng xác nhận rõ ràng. Nhóm cũng bỏ yêu cầu luôn chọn một tool, quy định từ chối ngắn gọn các yêu cầu giải toán hoặc viết code độc lập ngoài nhiệm vụ research, và chỉ thông báo gửi thành công khi tool trả về `status="sent"`.
 
-Giả thuyết chung: thay các chỉ dẫn đoán/gửi ngay/bắt buộc chọn tool và làm rõ các description còn thiếu sẽ giảm lỗi hỏi lại, ranh giới hành động và arguments quan sát được ở v0.
+Trong tool declaration, nhóm làm rõ khi nào dùng `clarify`, điều kiện đủ thông tin để gọi `timeline` và `fetch`, cùng ý nghĩa của `send.text` và `send.confirmed`. Với `lookup`, `query` giữ chủ đề và từ khóa nội dung; loại tin và khoảng thời gian được truyền qua `topic` và `timeframe`. Khi người dùng yêu cầu tin tức, agent phải truyền rõ `topic="news"`. Quy tắc này áp dụng chung cho các chủ đề tìm kiếm, không gắn với một câu hỏi cụ thể trong bộ eval.
 
-| Case v0 | Vấn đề quan sát được và cơ sở sửa | Hiệu chỉnh |
-|---|---|---|
-| R03 | Đúng tool, topic và timeframe; query `AI news` khác `AI` nên bị chấm fail theo so khớp chuỗi. Description query chỉ ghi “Truy vấn”. | Mô tả query giữ chủ đề và từ khóa nội dung; loại tin và thời gian truyền qua topic/timeframe, không tự thêm vào query. Đây là convention chung, không hardcode đáp án AI. |
-| R08, R14 | Gọi send để trả lời toán/code; prompt yêu cầu chọn tool và chưa quy định ngoài phạm vi, send chưa nói rõ Telegram. | Bỏ yêu cầu luôn chọn tool; từ chối yêu cầu toán/code độc lập ngoài nhiệm vụ research bằng văn bản; giới hạn send cho Telegram. |
-| R10 | Tự chọn sama và không truyền limit=5, phù hợp với chỉ dẫn đoán tài khoản trong prompt. | Hỏi qua clarify(text) khi thiếu tài khoản; giữ số lượng đã cung cấp; làm rõ điều kiện dùng timeline. |
-| R11 | Tự tạo URL example.com theo chỉ dẫn giả định URL trong prompt. | Không tạo URL; dùng clarify(text) để hỏi và làm rõ điều kiện dùng fetch. |
-| R12 | Gọi send trước khi xác nhận, text là câu thông báo đã đăng; code chặn và trả needs_confirmation. | Hỏi xác nhận qua clarify(yes_no); chỉ send(confirmed=true) sau xác nhận rõ nội dung; làm rõ text là nội dung cần gửi. |
-| R13 | Gọi đủ hai tool nhưng thiếu topic=news; tool chạy với mặc định general. Query cũng lệch theo cách chấm như R03. | Mô tả topic phải truyền news khi tìm tin tức; dùng convention query chung như R03. |
-
-Chỉ sửa system prompt và các description liên quan; giữ nguyên tên tool, schema, default, code thực thi và eval case. Kiểm tra offline: `cd starter_v0 && .venv/bin/python -m pytest -q` đạt 62 passed, 17 skipped (TODO có sẵn). Chưa chạy eval v1; chưa có metric sau hiệu chỉnh và chưa kết luận các case đã pass. Người 1 cần chạy v1 cùng provider/model với v0 để đo tác động và cập nhật version log/B1.
+Các thay đổi giữ nguyên tên tool, schema, giá trị mặc định, code thực thi và bộ eval. Kiểm tra offline bằng `cd starter_v0 && .venv/bin/python -m pytest -q` đạt **62 passed, 17 skipped**; các test bị bỏ qua là TODO có sẵn trong starter. Tại thời điểm ghi nhận, chưa có run v1 nên chưa có số đo để kết luận mức cải thiện của model.
 
 ## 4. Kết quả — PHẦN B: Chi tiết và bằng chứng
 
@@ -84,11 +75,19 @@ Lấy từ `starter_v0/artifacts/version_log.csv` và `starter_v0/runs/*.json`. 
 
 ### B2. Failure Analysis
 
-Lấy từ `results[*].result.failures` trong run JSON.
+Theo [run baseline v0](../../starter_v0/runs/v0_B_base_openai_20261110T173859866471.json), model OpenAI `gpt-4o-mini` đạt **13/20 case (65%)**. Cả 20 case đều được đo và không có lỗi provider. Bảng dưới đối chiếu 7 case không đạt với prompt, tool declaration và kết quả tool để xác định cơ sở hiệu chỉnh.
 
 | Case ID | Failure Type | Actual Tool Calls | What Failed | Fix |
 |---|---|---|---|---|
-|  |  |  |  |  |
+| R03_web_news_routing | `wrong_arg_value` | `lookup(query="AI news", topic="news", timeframe="day", max_results=5)` | Chọn đúng tool, loại tin và thời gian; query khác `AI` nên không đạt theo cách chấm so khớp chuỗi. Mô tả query chưa có quy ước tách chủ đề khỏi loại tin; chưa có bằng chứng truy vấn sai về ngữ nghĩa. | Làm rõ query giữ chủ đề và từ khóa nội dung, còn loại tin và thời gian truyền qua topic/timeframe. |
+| R08_out_of_scope | `out_of_scope` | `send(text=<lời giải tích phân>)` | Gọi tool cho yêu cầu ngoài phạm vi. Prompt chưa quy định cách xử lý và yêu cầu luôn chọn tool; mô tả send chưa nói rõ đích gửi Telegram. | Bỏ yêu cầu luôn chọn tool, quy định từ chối bằng văn bản và làm rõ send không phải kênh trả lời trong cuộc chat. |
+| R10_missing_handle | `missing_info` | `timeline(screenname="sama")` | Tự chọn tài khoản khi người dùng chưa cung cấp và không truyền số lượng 5. Prompt trực tiếp khuyến khích đoán tài khoản; mô tả clarify/timeline chưa nêu rõ điều kiện hỏi lại. | Yêu cầu hỏi tài khoản bằng clarify(text), không tự chọn tài khoản và giữ số lượng người dùng đã cung cấp. |
+| R11_missing_url | `missing_info` | `fetch(url="https://example.com/article")` | Tự tạo URL thay vì hỏi lại, phù hợp với chỉ dẫn giả định URL trong prompt; mô tả fetch chưa ràng buộc nguồn URL. | Bỏ chỉ dẫn giả định URL; chỉ dùng fetch khi URL đã có trong yêu cầu hoặc ngữ cảnh, nếu thiếu thì hỏi qua clarify(text). |
+| R12_confirm_before_send | `wrong_boundary` | `send(text="Bản tin này đã được đăng lên Telegram.")` | Gọi send trước xác nhận và dùng câu thông báo đã đăng làm nội dung gửi. Prompt yêu cầu gửi ngay; description và tham số confirmed chưa giải thích điều kiện xác nhận. Tool thực tế trả needs_confirmation, chưa gửi thành công. | Hỏi xác nhận qua clarify(yes_no); chỉ gọi send sau khi nội dung được xác nhận, truyền nội dung thực tế qua text và confirmed=true. |
+| R13_parallel_web_and_tweets | `wrong_arg_value` | `lookup(query="AI news", timeframe="day", max_results=5)` và `social_search(query="AI", search_type="Latest", limit=5)` | Gọi đủ hai tool nhưng thiếu topic=news, khiến lookup chạy với mặc định general. Mô tả topic chỉ ghi “Phân loại”. Query cũng khác kỳ vọng như R03. | Yêu cầu truyền rõ topic=news khi tìm tin tức và áp dụng quy ước query như R03. |
+| R14_out_of_scope_coding | `out_of_scope` | `send(text=<code Fibonacci>)` | Dùng send để trả lời yêu cầu viết code ngoài phạm vi; cùng vấn đề về phạm vi, yêu cầu chọn tool và mô tả send như R08. | Áp dụng chung quy tắc từ chối yêu cầu ngoài phạm vi bằng văn bản và giới hạn send cho hành động gửi Telegram. |
+
+Failure Type của R03 và R13 trong bảng phản ánh sai lệch quan sát được (`observed_mismatch`); nhãn loại case trong run là `wrong_tool`, nhưng cả hai đều chọn đúng tên tool. Các cơ sở trên là giả thuyết dựa trên nội dung cấu hình và log v0; tác động của từng thay đổi chưa được kiểm chứng riêng bằng eval sau hiệu chỉnh.
 
 ### B3. Team Eval Cases
 
