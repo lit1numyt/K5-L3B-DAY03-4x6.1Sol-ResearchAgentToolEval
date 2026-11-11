@@ -12,7 +12,7 @@
 - Thành viên và phân công: xem [TEAM.md](../../TEAM.md).
 - Provider/model dùng cho v0–v3: OpenAI / gpt-4o-mini. Các bản v4–v9 cũng dùng model này. Bản đang chạy là **v8**, phát triển từ v4; v4 gốc được giữ nguyên. V9 là cấu hình hợp nhất phần sửa của Lam, đã đo riêng nhưng chưa được chọn làm mặc định.
 
-Trong báo cáo này, v3 là bản trước đây có tên v2-tool; v4 là bản trước đây có tên v3. Các lần chỉnh tiếp theo mang tên v5, v6, v7, v8 và v9.
+Trong báo cáo này, v3 là bản trước đây có tên v2-tool; v4 là bản trước đây có tên v3. Các lần chỉnh tiếp theo mang tên v5 đến v10; v10 được lưu và chạy riêng, chưa thay cấu hình mặc định.
 
 ## 2. Mục tiêu và cách tiếp cận — PHẦN A: Giới thiệu agent
 
@@ -81,6 +81,8 @@ Sau v8, nhóm hợp nhất [commit 54d010f của Nguyễn Đức Khương Lam](h
 
 Về Telegram, v9 phân biệt đồng ý chuẩn bị với duyệt bản cuối. Khi đã có nội dung, agent chuyển thẳng sang xin duyệt; nội dung thay đổi phải được duyệt lại, người dùng từ chối thì dừng. Mô tả clarify và send được đồng bộ với quy trình này. [H9](review_evidence/v9_hypothesis.md) kế thừa giả thuyết H4 trong nhánh Lam; tên v9 giúp tránh nhầm với các phiên bản nhóm đã đo. Dương phụ trách hợp nhất và kiểm chứng với Codex hỗ trợ. Quy tắc audit, bibliography, đủ 14 tool và schema/mặc định của v8 được giữ. Kết quả v8 không được dùng thay cho phép đo v9.
 
+Trong một lượt chat với v8, agent gửi bản tin ngay sau khi nhận nội dung, trước khi người dùng duyệt đăng. Từ kết quả này, [giả thuyết H10](review_evidence/v10_hypothesis.md) đặt ra yêu cầu phân biệt việc cung cấp nội dung với xác nhận đăng bản cuối. V10 làm rõ quy tắc đó trong prompt và mô tả tham số `send.confirmed`, đồng thời giữ nguyên tên tool, schema và mô tả `clarify` của v8. V10 đạt 20/20 base và 10/10 group chung trong các lượt đo riêng.
+
 UI dùng lại vòng gọi tool của agent. Trong lần rà soát, nhóm sửa cách đọc run đã lưu để tránh hiển thị FAIL sai, sửa trạng thái sau khi tool chạy, thông báo lỗi và danh sách Markdown. Lệnh PowerShell giúp chạy đúng môi trường Python trên Windows; adapter UI cũ cũng đã bỏ các import mẫu chưa được tích hợp. Phần sửa UI và code tool được kiểm tra riêng, không dùng để suy ra tác động của từng câu prompt.
 
 ## 4. Kết quả — PHẦN B: Chi tiết và bằng chứng
@@ -101,6 +103,7 @@ Bằng chứng base lấy từ `starter_v0/artifacts/version_log.csv` và các r
 | v7 | prompt + tools; ví dụ đối chiếu | H7A: áp dụng ranh giới theo thứ tự rõ hơn | 0.85 | 0.90 | [run v7](../../starter_v0/runs/v7_B_base_openai_20261110T221854221652.json) |
 | v8 | prompt + tools; build_bibliography | H8: thêm xuất bibliography, giữ kết quả base | 1.00 (v4) | 1.00 | [run v8](../../starter_v0/runs/v8_B_base_openai_20261110T223125274893.json) |
 | v9 | prompt + 4 mô tả clarify/send; hợp nhất Lam | H9: làm rõ duyệt nội dung và phạm vi nhiệm vụ, giữ routing | 1.00 (v8) | 0.95 | [run v9](../../starter_v0/runs/v9_B_base_openai_20261110T230751104659.json) |
+| v10 | quy tắc duyệt bản cuối + send.confirmed | Giữ routing v8, gắn duyệt với câu trả lời mới | 1.00 (v8) | 1.00 | [run v10 làm lại](../../starter_v0/runs/v10_B_base_openai_20261111T112510357943.json) |
 
 Bảng trên là tỷ lệ case đúng tool và arguments của bộ base cố định 20 câu, dùng OpenAI gpt-4o-mini. V8 phát triển từ v4 nên mốc trước của H8 là 1.00 của v4. V5–v7 có hồi quy; không dùng lịch sử này để dựng đường điểm tăng đều hoặc quy tăng điểm riêng cho tool mới.
 
@@ -114,14 +117,17 @@ Bảng trên là tỷ lệ case đúng tool và arguments của bộ base cố �
 | v7 | 9/10 | G06 | [group v7](../../starter_v0/runs/v7_B_group_openai_20261110T232114470645.json) |
 | v8 | 10/10 | — | [group v8](../../starter_v0/runs/v8_B_group_openai_20261110T232118798370.json) |
 | v9 | 9/10 | G04 | [group v9](../../starter_v0/runs/v9_B_group_openai_20261110T232114281236.json) |
+| v10 | 10/10 | — | [group v10](../../starter_v0/runs/v10_B_group_openai_20261111T113036089399.json) |
 
-Cả sáu run đều đo đủ 10/10 case, không có lỗi provider. [Biên bản phép đo chung](review_evidence/common_group_comparison.json) ghi SHA-256 của dataset `1562c5e587c4…`, hash evaluator và đối chiếu toàn bộ input/expect của từng run với bộ đã cố định. V7 sai G06; v9 sai G04. V8 giữ 20/20 base và 10/10 group chung, nên vẫn là mặc định. V9 có 19/20 base, 9/10 group chung và chưa được chọn.
+Sáu run v4–v9 trong đợt đo chung ban đầu đều đo đủ 10/10 case, không có lỗi provider. [Biên bản phép đo chung](review_evidence/common_group_comparison.json) ghi SHA-256 của dataset `1562c5e587c4…`, hash evaluator và đối chiếu toàn bộ input/expect của từng run với bộ đã cố định. V7 sai G06; v9 sai G04. V8 giữ 20/20 base và 10/10 group chung, nên vẫn là mặc định. V9 có 19/20 base, 9/10 group chung và chưa được chọn.
 
 Trước lần sửa phương pháp này, nhóm từng thay G05 bằng bibliography ở v8. Các run đó dùng bộ khác nên được chuyển vào history và không đưa vào bảng so sánh chung. [Run bổ sung v8](../../starter_v0/runs/history/bibliography_suite/v8_B_group_openai_20261110T223032240551.json) vẫn chứng minh routing build_bibliography ở G05, cùng 16 unit test; đây là kiểm tra khả năng mới mà v4–v7 chưa có. Nó không thay thế một câu trong bộ chung.
 
 Các câu group đã được dùng trong quá trình phát triển, không phải một bộ chưa từng thấy. Dữ liệu từ API ngoài vẫn có thể thay đổi; một lượt đo chưa chứng minh độ ổn định hay tác động riêng của từng câu prompt. Evaluator chủ yếu chấm tool/args, nên cần đọc câu trả lời và luồng xác nhận bên cạnh điểm số.
 
 Run JSON lịch sử giữ nguyên nội dung dù đổi tên hoặc chuyển thư mục; metadata có thể còn tên cũ. [Manifest](review_evidence/consecutive_version_manifest.json) và [bảng tổng hợp](review_evidence/version_summary.json) giúp đối chiếu. Hash prompt/YAML không bao gồm mọi thay đổi code. Toàn bộ eval mới chặn send, không phải bằng chứng gửi Telegram thật.
+
+V10 đạt 20/20 base và 10/10 group chung, đo đủ case và không lỗi provider. [Kết quả](review_evidence/v10_final_results.json) ghi run, hash và phạm vi kiểm tra; bộ test offline đạt 203 passed, 0 skipped, 0 failed. V8 vẫn là cấu hình mặc định; v10 được chọn bằng đường dẫn riêng. Điểm eval không chứng minh agent tuân thủ trong mọi hội thoại.
 
 ### B2. Failure Analysis
 
@@ -181,6 +187,8 @@ Bốn lượt dùng [prompt theo kịch bản](review_evidence/live_demo_prompts
 
 Trên trình duyệt, UI đã gọi build_bibliography thành công và hiển thị thông báo bỏ tác giả bị thiếu. [Ảnh UI](review_evidence/ui_v8_full.png) và [ảnh saved PASS](review_evidence/ui_saved_pass.png) bổ sung cho kiểm tra này, không thay transcript. Phần live demo hoặc nhận xét của các thành viên khác để họ tự bổ sung.
 
+Trong [lượt thử v10 có tắt gửi thật](../../starter_v0/transcripts/v10_openai_20261111T112716781407.transcript.json), agent trích nội dung để hỏi duyệt, sau đó gọi `send` với đúng nội dung khi người dùng xác nhận. Ở [lượt thử gửi thật](../../starter_v0/transcripts/v10_openai_20261111T113930634960.transcript.json), agent cũng chờ xác nhận trước khi gọi `send(confirmed=true)`; tool trả `status: sent`. Cả hai transcript khớp hash prompt/YAML với hai run eval. Lam xác nhận channel nhận tin là private; transcript không thể hiện loại channel.
+
 ### B5a. Required Evidence — Tool mới, unit test, UI
 
 | Item | Evidence File | What Worked | Risk / Guardrail |
@@ -192,6 +200,8 @@ Trên trình duyệt, UI đã gọi build_bibliography thành công và hiển t
 
 Ví dụ, unit test kiểm tra tool bibliography không bịa năm/tác giả khi thiếu metadata và trả lỗi với URL không dùng được. Eval chọn đúng tên tool chưa đủ phát hiện các lỗi code này. Regression UI kiểm tra một saved case PASS phải được hiển thị đúng, đồng thời giữ thông báo lỗi tool. Toàn bộ 14 TODO đã được điền; nhóm bổ sung test cho metadata arXiv, phân trang, lỗi HTTP/timeout, giới hạn trích PDF và ranh giới policy. Hai tên papers/arxiv_search dùng chung implementation, không được tính là hai tool mới.
 
+Ngày 11/11, khi chuẩn bị demo Telegram bằng Gemini, Lam ghi nhận lỗi HTTP 400 tại schema của audit_research_evidence: additionalProperties bị SDK chuyển thành additional_properties qua trường parameters. Bản vá trong [provider Gemini](../../starter_v0/providers/gemini_provider.py) dùng parameters_json_schema để giữ nguyên JSON Schema. [Test regression](../../starter_v0/tests/test_gemini_provider.py) kiểm tra payload qua SDK với đủ 14 tool, cả hai dạng khai báo đầu vào và trường hợp không dùng tool; hai test schema thất bại trước bản vá và đạt sau sửa. Với google-genai 3.0.0 đang cài, toàn suite đạt **203 passed, 0 skipped, 0 failed**. Model mặc định, requirements, prompt, YAML và dữ liệu eval không đổi. Kiểm tra API thật sau sửa kết thúc bằng ReadTimeout, nên chưa xác nhận được kết quả trên dịch vụ; chưa gửi Telegram và chưa ghi nhận thêm điểm benchmark.
+
 ### B5. Bonus Evidence
 
 Chỉ điền nếu nhóm làm bonus (ghi riêng, tối đa 10 điểm). Tool có sẵn (`send`, `policy`, `papers`, `paper_text`) không tự được bonus.
@@ -200,10 +210,10 @@ Chỉ điền nếu nhóm làm bonus (ghi riêng, tối đa 10 điểm). Tool c�
 |---|---|---|---|
 | Small Local Model | xem B7 |  |  |
 | Hơn 3 tool mới (≥ 4) |  |  |  |
-| `send` gửi thật lên Telegram sau xác nhận | transcript |  |  |
+| `send` gửi thật lên Telegram sau xác nhận | [transcript v10](../../starter_v0/transcripts/v10_openai_20261111T113930634960.transcript.json) | Hỏi duyệt nguyên văn, nhận xác nhận, `send` trả `sent`; Lam xác nhận channel là private | `confirmed` do model cung cấp; transcript không thể hiện loại channel |
 | Test challenge (0 skipped / regression test) | [pytest](review_evidence/pytest_tools_complete.txt), [test regression](../../starter_v0/tests/test_tools_regression.py), [send](../../starter_v0/tools/send/tool.py) | 200 passed, 0 skipped, 0 failed; phát hiện và sửa guard chấp nhận giá trị truthy | HTTP mock, không gửi thật; vẫn cần duyệt nội dung độc lập với model |
 
-Test challenge có bằng chứng đáp ứng tiêu chí 0 skipped và regression cho bug tool starter, tương ứng 1 điểm bonus theo rubric, tách khỏi điểm chính. Các bonus khác chưa nhận: nhóm có 3 tool mới, chưa đủ mốc 4; chưa có bằng chứng model local hoặc gửi Telegram thật. Các thành viên tự bổ sung nếu có bằng chứng phù hợp.
+Test challenge có bằng chứng đáp ứng tiêu chí 0 skipped và regression cho bug tool starter, tương ứng 1 điểm bonus theo rubric, tách khỏi điểm chính. Lượt gửi Telegram thật có transcript và xác nhận channel private như trên, tương ứng tiêu chí bonus 2 điểm. Nhóm có 3 tool mới, chưa đủ mốc 4 và chưa có bằng chứng model local.
 
 Test regression phát hiện send coi chuỗi "false" và số 1 là xác nhận vì dùng phép kiểm tra truthy. Code được sửa để chỉ chấp nhận boolean True; các giá trị còn lại không gọi HTTP. Đây là sửa implementation dùng chung sau đợt group. Cả sáu run group đều thay send bằng stub, nên sửa guard không làm thay đổi phép so sánh đó; các snapshot prompt/YAML cũng không đổi. Guard kiểu dữ liệu chưa thay thế trạng thái duyệt đúng nội dung độc lập với model.
 
@@ -251,7 +261,7 @@ Chi tiết đóng góp của từng thành viên nằm trong [TEAM.md](../../TEA
 
 Chu Nguyễn Tùng Dương — 2A202604016 có bằng chứng chạy/lưu eval và versioning qua các commit 341c4ce, b7691c0, 2aaa3cb và c17dc2e. Trong phần bổ sung v8, Codex hỗ trợ viết build_bibliography, test, case group, sửa UI và tổng hợp bằng chứng. Thay đổi v8 và báo cáo được lưu trên nhánh nộp `main`; xem mốc commit trong [TEAM.md](../../TEAM.md). Không quy tác giả hai tool đã có hoặc UI ban đầu cho Dương.
 
-Nguyễn Đức Khương Lam — 2A202604020 có phần phân tích/hiệu chỉnh v2 và commit 54d010f làm rõ xác nhận gửi, phạm vi từ chối và phân tích kết quả v0–v3. Nhóm nhận phần hiệu chỉnh này trong v9, đối chiếu với log thật và giữ nguyên tác giả commit khi merge. Báo cáo cá nhân, nhận xét trải nghiệm và thông tin còn lại của Lam cùng các thành viên khác để họ tự bổ sung.
+Nguyễn Đức Khương Lam — 2A202604020 có phần phân tích/hiệu chỉnh v2 và commit 54d010f làm rõ xác nhận gửi, phạm vi từ chối và phân tích kết quả v0–v3. Nhóm nhận phần hiệu chỉnh này trong v9, đối chiếu với log thật và giữ nguyên tác giả commit khi merge. Lam tiếp tục phân tích lỗi gửi sớm của v8, hiệu chỉnh và kiểm tra v10 với Codex hỗ trợ; chi tiết và bằng chứng trong [báo cáo cá nhân](2A202604020_NguyenDucKhuongLam.md).
 
 ## 7. Hạn chế và hướng cải thiện — B6. Reflection
 

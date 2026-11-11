@@ -1,0 +1,9 @@
+{
+  "transcript": "starter_v0/transcripts/v10_openai_20261111T112716781407.transcript.json",
+  "artifact_version": "v10+p9157b3ea79d6+t2b96f7664830",
+  "prompt_hash": "9157b3ea79d6afccffffb9390009a818a5bc339cd665b6cf1a161430557844c0",
+  "tools_hash": "2b96f76648302b4f53e61d61cbea237ebbd44075591f7739db531b064fe95b81",
+  "delivery_mode": "disabled_by_flag",
+  "observed_result": "No send before turn 4; clarify quoted the complete supplied text; after the user confirmed, send proposed the identical text with boolean confirmed=true. Disabled delivery returned needs_confirmation; no real Telegram API call.",
+  "limitations": "One actual user conversation, not a proof of stability or real-delivery bonus."
+}

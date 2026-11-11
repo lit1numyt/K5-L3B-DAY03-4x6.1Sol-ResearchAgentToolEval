@@ -14,7 +14,8 @@ def _to_gemini_declarations(tools: list[dict[str, Any]] | None) -> list[dict[str
         declarations.append({
             "name": function["name"],
             "description": function.get("description", ""),
-            "parameters": function.get("parameters", {"type": "object", "properties": {}}),
+            # Keep JSON Schema keywords intact instead of coercing to types.Schema.
+            "parameters_json_schema": function.get("parameters", {"type": "object", "properties": {}}),
         })
     return declarations
 

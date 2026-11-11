@@ -14,6 +14,7 @@
 | v7 | 18/20 | 9/10 | H7A, chưa đạt |
 | v8 | 20/20 | 10/10 | mặc định, có bibliography |
 | v9 | 19/20 | 9/10 | hợp nhất Lam, chưa chọn |
+| v10 | 20/20 | 10/10 | Telegram riêng 3/3; có transcript gửi thật sau xác nhận |
 
 - [v4: 10/10](v4_B_group_openai_20261110T231937353625.json)
 - [v5: 10/10](v5_B_group_openai_20261110T231937454478.json)
@@ -29,3 +30,5 @@ Run group cũ nằm trong history/reviewed_suite, history/bibliography_suite và
 JSON lịch sử giữ nguyên nội dung; tên file có thể khác metadata gốc. Chỉ di chuyển đường dẫn và cập nhật manifest. 19 run thăm dò đã xóa theo yêu cầu trước đó; các run hồi quy vẫn còn. evidence_audit_experiment chứa script/fixture lịch sử; arxiv là benchmark khác schema.
 
 Eval mới chặn gửi Telegram. Routing/args PASS không bảo đảm final answer đúng hoặc chứng minh gửi thật. Transcript CLI ở ../transcripts/.
+
+V10 đạt [base 20/20](v10_B_base_openai_20261111T112510357943.json) và [group 10/10](v10_B_group_openai_20261111T113036089399.json); hai run cùng hash, đo đủ case, không lỗi provider và chặn gửi thật. [Tổng hợp kết quả](../../report/team/review_evidence/v10_final_results.json) dẫn tới transcript gửi thật được kiểm tra riêng.

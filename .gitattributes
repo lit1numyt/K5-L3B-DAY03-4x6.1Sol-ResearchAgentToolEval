@@ -1,6 +1,9 @@
 # Preserve the exact bytes hashed by the recorded benchmark runs.
 starter_v0/artifacts/system_prompt_v[0123456789].md -text whitespace=cr-at-eol
 starter_v0/artifacts/tools_v[0123456789].yaml -text whitespace=cr-at-eol
+starter_v0/artifacts/system_prompt_v10.md -text whitespace=cr-at-eol
+starter_v0/artifacts/tools_v10.yaml -text whitespace=cr-at-eol
+starter_v0/artifacts/v10_candidates/** -text
 starter_v0/artifacts/eval_group_v4.json -text
 starter_v0/artifacts/research_paper_v4.py -text
 starter_v0/runs/*.json -text

@@ -1,0 +1,391 @@
+tools:
+- name: clarify
+  description: Hỏi khi thiếu thông tin cần thiết như tài khoản, URL hoặc nội dung cần gửi; hỏi yes_no khi bắt
+    đầu yêu cầu đăng Telegram và để xác nhận nội dung cụ thể trước khi gửi. Khi chưa có nội dung, xác nhận
+    ý định trước rồi mới hỏi nội dung; xác nhận ý định chưa cho phép gửi. Không hỏi lại yêu cầu đọc đã rõ hoặc
+    tham số tùy chọn có thể suy ra hay dùng mặc định. Chờ câu trả lời trước bước phụ thuộc.
+  parameters:
+    type: object
+    properties:
+      question:
+        type: string
+        default: ''
+        description: Câu hỏi
+      response_type:
+        type: string
+        enum:
+        - text
+        - yes_no
+        - choice
+        default: text
+        description: Dùng text để hỏi thông tin còn thiếu; yes_no khi xác nhận ý định bắt đầu yêu cầu Telegram
+          hoặc xác nhận nội dung gửi đã có; choice khi đưa các lựa chọn. Đồng ý bắt đầu không phải duyệt nội
+          dung chưa biết.
+      options:
+        type: array
+        default: []
+        items:
+          type: string
+        description: Các lựa chọn
+    required:
+    - question
+- name: timeline
+  description: Lấy các bài đăng gần đây của một tài khoản đã xác định từ yêu cầu hoặc ngữ cảnh. Nếu chưa biết
+    tài khoản nào, dùng clarify để hỏi, không tự chọn tài khoản.
+  parameters:
+    type: object
+    properties:
+      screenname:
+        type: string
+        default: ''
+        description: Tên tài khoản
+      limit:
+        type: integer
+        default: 5
+        description: Số bài đăng cần lấy. Ưu tiên số lượng người dùng yêu cầu, kể cả ở lượt trước; nếu chỉ
+          yêu cầu một bài mới nhất thì dùng 1; nếu không chỉ định số lượng thì dùng mặc định 5, không cần hỏi
+          lại.
+    required:
+    - screenname
+- name: social_search
+  description: Tìm trên mạng xã hội.
+  parameters:
+    type: object
+    properties:
+      query:
+        type: string
+        default: ''
+        description: Từ khóa
+      search_type:
+        type: string
+        enum:
+        - Latest
+        - Top
+        default: Latest
+        description: Cách sắp xếp
+      limit:
+        type: integer
+        default: 5
+        description: Số lượng
+    required:
+    - query
+- name: lookup
+  description: Tra cứu thông tin trên internet.
+  parameters:
+    type: object
+    properties:
+      query:
+        type: string
+        default: ''
+        description: Chủ đề và các từ khóa nội dung người dùng muốn tìm. Khi tìm tin tức, thể hiện loại tin
+          và thời gian bằng topic, timeframe; không tự thêm news, tin tức hay thời gian vào query. Giữ các
+          từ khóa mô tả nội dung cụ thể của chủ đề.
+      topic:
+        type: string
+        enum:
+        - general
+        - news
+        default: general
+        description: Truyền rõ news khi người dùng yêu cầu tin tức, kể cả khi đồng thời tìm trên mạng xã hội.
+          Dùng general cho tra cứu thông tin chung.
+      timeframe:
+        type: string
+        enum:
+        - day
+        - week
+        - month
+        - year
+        default: week
+        description: Khoảng thời gian
+      max_results:
+        type: integer
+        default: 5
+        description: Số kết quả
+    required:
+    - query
+- name: fetch
+  description: Đọc nội dung bài viết từ URL đã có trong yêu cầu hoặc ngữ cảnh. Nếu người dùng chỉ nói bài này
+    mà chưa có URL, dùng clarify để hỏi, không tự tạo URL.
+  parameters:
+    type: object
+    properties:
+      url:
+        type: string
+        default: ''
+        description: URL bài viết đã được cung cấp hoặc xác định trong ngữ cảnh; không dùng URL giả định.
+    required:
+    - url
+- name: format
+  description: Trình bày dữ liệu đã có thành văn bản.
+  parameters:
+    type: object
+    properties:
+      items:
+        type: array
+        default: []
+        description: Danh sách item
+        items:
+          type: object
+          properties:
+            title:
+              type: string
+            url:
+              type: string
+            source:
+              type: string
+            summary:
+              type: string
+            section:
+              type: string
+      template:
+        type: string
+        enum:
+        - brief
+        - sections
+        - bullets
+        - thread
+        - daily_ai_vn
+        default: sections
+        description: Khuôn
+      headline:
+        type: string
+        default: ''
+        description: Tiêu đề
+    required:
+    - items
+    - template
+- name: send
+  description: Gửi nội dung lên Telegram chỉ sau khi người dùng xác nhận rõ cho phép đăng đúng nội dung cụ
+    thể. Có nội dung hoặc yêu cầu thực hiện/đăng lại không tự là xác nhận. Khi bắt đầu yêu cầu gửi, dùng clarify(yes_no)
+    trước để xác nhận ý định. Nếu còn thiếu nội dung sau đó, hỏi bằng clarify(text); xác nhận ý định không
+    phải duyệt nội dung chưa biết. Nếu có nội dung nhưng chưa được chấp thuận rõ việc đăng, phải dùng clarify(yes_no)
+    để duyệt nội dung. Không dùng để trả lời trong cuộc chat.
+  parameters:
+    type: object
+    properties:
+      text:
+        type: string
+        default: ''
+        description: Nội dung thực tế người dùng đã xác nhận để gửi lên Telegram, không phải câu thông báo
+          đã gửi.
+      confirmed:
+        type: boolean
+        default: false
+        description: Chỉ true khi câu trả lời mới nhất đồng ý đăng đúng bản cuối vừa được hỏi duyệt. Đồng ý
+          chuẩn bị, cung cấp hoặc sửa nội dung, từ chối hay trả lời chưa rõ đều không cho phép gửi.
+    required:
+    - text
+- name: policy
+  description: Tìm trong tài liệu nội bộ.
+  parameters:
+    type: object
+    properties:
+      query:
+        type: string
+        default: ''
+        description: Truy vấn
+      policy_area:
+        type: string
+        enum:
+        - all
+        - ai_research
+        - source_citation
+        - data_privacy
+        - external_publishing
+        - tool_usage
+        default: all
+        description: Nhóm
+      top_k:
+        type: integer
+        default: 3
+        description: Số mục
+    required:
+    - query
+- name: papers
+  description: Alias tương thích để tìm bài báo khoa học; ưu tiên dùng arxiv_search cho các truy vấn mới.
+  parameters:
+    type: object
+    properties:
+      query:
+        type: string
+        default: ''
+        description: Từ khóa
+      max_results:
+        type: integer
+        default: 5
+        description: Số lượng
+      sort_by:
+        type: string
+        enum:
+        - relevance
+        - lastUpdatedDate
+        - submittedDate
+        default: relevance
+        description: Sắp xếp
+    required:
+    - query
+- name: arxiv_search
+  description: Tìm kiếm bài báo trên arXiv bằng API chính thức. Dùng cho câu hỏi cần nghiên cứu bên ngoài,
+    không dùng cho kiến thức chung. Trích xuất query, giới hạn kết quả, sắp xếp, tác giả, tiêu đề, khoảng ngày,
+    category và pagination từ yêu cầu. Kết quả trả về là metadata đã lấy từ arXiv; không bịa paper, citation
+    hoặc kết quả khi API lỗi.
+  parameters:
+    type: object
+    properties:
+      query:
+        type: string
+        default: ''
+        description: Chủ đề tìm kiếm. Dùng AND/OR/NOT khi người dùng nêu logic rõ ràng.
+      max_results:
+        type: integer
+        default: 5
+        description: Số kết quả tối đa, tối đa 50.
+      sort_by:
+        type: string
+        enum:
+        - relevance
+        - lastUpdatedDate
+        - submittedDate
+        default: relevance
+        description: Cách sắp xếp kết quả.
+      sort_order:
+        type: string
+        enum:
+        - ascending
+        - descending
+        default: descending
+        description: Thứ tự sắp xếp.
+      start:
+        type: integer
+        default: 0
+        description: Offset phân trang; dùng 0 cho trang đầu, tăng theo batch size cho trang tiếp theo.
+      date_from:
+        type: string
+        default: ''
+        description: Ngày bắt đầu YYYY-MM-DD nếu người dùng giới hạn năm/khoảng thời gian.
+      date_to:
+        type: string
+        default: ''
+        description: Ngày kết thúc YYYY-MM-DD nếu người dùng giới hạn năm/khoảng thời gian.
+      author:
+        type: string
+        default: ''
+        description: Tên tác giả khi người dùng yêu cầu tìm theo tác giả.
+      title:
+        type: string
+        default: ''
+        description: Cụm tiêu đề khi người dùng yêu cầu tìm theo tiêu đề.
+      categories:
+        type: array
+        default: []
+        items:
+          type: string
+        description: Danh sách category arXiv như cs.CR hoặc cs.AI.
+    required:
+    - query
+- name: paper_text
+  description: Lấy nội dung text của một bài báo.
+  parameters:
+    type: object
+    properties:
+      arxiv_url:
+        type: string
+        default: ''
+        description: ID hoặc địa chỉ
+      max_pages:
+        type: integer
+        default: 5
+        description: Số trang
+      max_chars:
+        type: integer
+        default: 8000
+        description: Số ký tự
+    required:
+    - arxiv_url
+- name: research_paper
+  description: Trả lời câu hỏi về nghiên cứu bằng cách tìm bài liên quan trên arXiv và, khi cần, đọc phần text
+    của một bài cụ thể. Dùng cho câu hỏi về paper, phương pháp, kết quả, đóng góp, hạn chế hoặc so sánh nghiên
+    cứu; không dùng cho tin tức chung hay câu hỏi không liên quan đến paper. Khi đã có arXiv ID, truyền arxiv_id.
+    Bật include_text=true khi cần đọc nội dung paper để trả lời sâu hơn.
+  parameters:
+    type: object
+    properties:
+      question:
+        type: string
+        default: ''
+        description: Câu hỏi nghiên cứu hoặc chủ đề cần tìm trên arXiv.
+      arxiv_id:
+        type: string
+        default: ''
+        description: arXiv ID như 1706.03762 hoặc URL nếu người dùng chỉ rõ một paper.
+      max_results:
+        type: integer
+        default: 3
+        description: Số paper liên quan cần trả về, tối đa 10.
+      include_text:
+        type: boolean
+        default: false
+        description: true khi cần trích text PDF để trả lời về phương pháp, kết quả hoặc hạn chế của paper.
+      max_pages:
+        type: integer
+        default: 5
+        description: Số trang PDF tối đa cần đọc khi include_text=true.
+    required: []
+- name: audit_research_evidence
+  description: 'Kiểm tra các kết quả thực tế từ tool nghiên cứu sau khi tìm: phân biệt có dữ liệu, rỗng, lỗi
+    và lỗi một phần; lọc mục không có nội dung hoặc URL web và gộp URL trùng. Dùng khi cần tổng hợp nhiều nguồn
+    hoặc phân tích kết quả rỗng/lỗi. Không thay thế tìm kiếm, không tự tạo kết quả, không xác minh thông tin
+    hay URL.'
+  parameters:
+    type: object
+    properties:
+      results:
+        type: array
+        description: Danh sách object kết quả đã nhận từ tool nghiên cứu, mỗi object có tool và items hoặc
+          papers hoặc error; chấp nhận cả event có tool, args và result. Không tự tạo dữ liệu.
+        items:
+          type: object
+          additionalProperties: true
+    required:
+    - results
+- name: build_bibliography
+  description: Export BibTeX or a plain reference list from actual paper metadata already retrieved or supplied.
+    Use for explicit bibliography/citation-export requests, not for search, reading PDFs, verifying facts or
+    news formatting. Each paper needs title and an HTTP(S) source URL; authors, year and arxiv_id are copied
+    only if supplied. Omit unknown fields with warnings; never invent metadata. format is bibtex or plain.
+  parameters:
+    type: object
+    properties:
+      papers:
+        type: array
+        minItems: 1
+        maxItems: 50
+        items:
+          type: object
+          properties:
+            title:
+              type: string
+            url:
+              type: string
+            authors:
+              type: array
+              items:
+                type: string
+            year:
+              type: integer
+            arxiv_id:
+              type: string
+          required:
+          - title
+          - url
+        description: Actual metadata already available; do not fabricate missing fields.
+      format:
+        type: string
+        enum:
+        - bibtex
+        - plain
+        default: bibtex
+        description: Requested export format; bibtex when unspecified.
+    required:
+    - papers
+    - format

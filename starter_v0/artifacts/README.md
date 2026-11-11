@@ -13,3 +13,5 @@ V3 là v2-tool cũ; v4 là v3 cũ, có base 20/20. V5–v7 có hồi quy ở bas
 - research_paper_v4.py: implementation trước sửa validate/error handling; không phải tool đăng ký riêng.
 
 Các run group cũ chuyển vào history, giữ nguyên JSON; version_log.csv đánh dấu historical và có sáu dòng group chung mới. H7A/H8/H9 vẫn ghi đúng bối cảnh trước từng lượt thử, không viết lại giả thuyết lịch sử theo kết quả sau này. Một phép đo chung mới không biến bộ phát triển thành bộ kiểm tra chưa từng thấy.
+
+Bản v10 lấy đúng v8 và chỉ sửa duyệt nội dung cuối; đã đạt base 20/20, group chung 10/10 và R12/G03/G04 riêng 3/3. Hội thoại đầu có tắt gửi thật; ở [lượt gửi thật tiếp theo](../transcripts/v10_openai_20261111T113930634960.transcript.json), agent hỏi duyệt trước khi tool trả trạng thái `sent`. Lam xác nhận channel nhận tin là private. Snapshot đo được giữ trong v10_candidates/rebuilt_20_of_20; v8 vẫn là mặc định.

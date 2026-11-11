@@ -1,0 +1,140 @@
+{
+  "generated_at": "2026-11-11T11:24:17+07:00",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "temperature": 0.0,
+  "prompt_hash": "9157b3ea79d6afccffffb9390009a818a5bc339cd665b6cf1a161430557844c0",
+  "tools_hash": "2b96f76648302b4f53e61d61cbea237ebbd44075591f7739db531b064fe95b81",
+  "tool_execution": "none",
+  "description": "Three unchanged Telegram eval cases and one reply per simulated live branch. Not a full group run or real delivery.",
+  "eval_cases": [
+    {
+      "id": "R12_confirm_before_send",
+      "assistant_text": null,
+      "tool_calls": [
+        {
+          "name": "clarify",
+          "args": {
+            "question": "Bạn có muốn tiến hành chuẩn bị bài đăng trên Telegram không?",
+            "response_type": "yes_no"
+          }
+        }
+      ],
+      "evaluation": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "question": "Bạn có muốn tiến hành chuẩn bị bài đăng trên Telegram không?",
+              "response_type": "yes_no"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_boundary",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      }
+    },
+    {
+      "id": "G03_telegram_missing_content",
+      "assistant_text": null,
+      "tool_calls": [
+        {
+          "name": "clarify",
+          "args": {
+            "question": "Bạn muốn soạn nội dung gì cho bản tin Telegram?",
+            "response_type": "text"
+          }
+        }
+      ],
+      "evaluation": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "question": "Bạn muốn soạn nội dung gì cho bản tin Telegram?",
+              "response_type": "text"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_boundary",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      }
+    },
+    {
+      "id": "G04_telegram_confirm_known_content_multiturn",
+      "assistant_text": null,
+      "tool_calls": [
+        {
+          "name": "clarify",
+          "args": {
+            "question": "Bạn có muốn tiếp tục với việc chuẩn bị bài đăng Telegram này không?",
+            "response_type": "yes_no"
+          }
+        }
+      ],
+      "evaluation": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "question": "Bạn có muốn tiếp tục với việc chuẩn bị bài đăng Telegram này không?",
+              "response_type": "yes_no"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_boundary",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      }
+    }
+  ],
+  "content_response": {
+    "assistant_text": null,
+    "tool_calls": [
+      {
+        "name": "clarify",
+        "args": {
+          "question": "Nội dung bạn cung cấp là: \"Telegram chay duoc roi ae\". Bạn có muốn tiếp tục với nội dung này để đăng lên Telegram không?",
+          "response_type": "yes_no"
+        }
+      }
+    ]
+  },
+  "branches": {
+    "decline": {
+      "user": "Khong, dung dang.",
+      "assistant_text": "Vậy bạn có muốn cung cấp nội dung khác để đăng lên Telegram không?",
+      "tool_calls": []
+    },
+    "approve": {
+      "user": "Xac nhan",
+      "assistant_text": null,
+      "tool_calls": [
+        {
+          "name": "send",
+          "args": {
+            "text": "Telegram chay duoc roi ae",
+            "confirmed": true
+          }
+        }
+      ]
+    }
+  }
+}

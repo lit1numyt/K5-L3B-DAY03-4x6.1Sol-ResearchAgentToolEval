@@ -1,0 +1,876 @@
+{
+  "run_id": "v10_B_group_openai_20261111T113036089399",
+  "version": "v10",
+  "artifact_version": "v10+p9157b3ea79d6+t2b96f7664830",
+  "prompt_hash": "9157b3ea79d6afccffffb9390009a818a5bc339cd665b6cf1a161430557844c0",
+  "tools_hash": "2b96f76648302b4f53e61d61cbea237ebbd44075591f7739db531b064fe95b81",
+  "phase": "B",
+  "suite": "group",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "system_prompt": "artifacts/system_prompt_v10.md",
+  "tools": "artifacts/tools_v10.yaml",
+  "eval_cases": "data/eval_group.json",
+  "dataset_id": "day03_v2_research_group_review_20261110",
+  "dataset_role": "group",
+  "description": "10 case nhóm: đúng 5 single + 5 multi; kiểm tra routing, args dữ liệu audit, ranh giới Telegram, paper và giữ ngữ cảnh. Fixture người dùng cung cấp là dữ liệu kiểm thử, không phải log API thật. Multi-turn của harness chỉ chấm lượt cuối.",
+  "generated_at": "2026-11-11T11:30:36",
+  "summary": {
+    "total_cases": 10,
+    "measured_cases": 10,
+    "provider_error_cases": 0,
+    "passed_cases": 10,
+    "case_accuracy": 1.0,
+    "tool_routing_accuracy": 1.0,
+    "argument_accuracy": 1.0,
+    "multiturn_accuracy": 1.0,
+    "failure_counts": {},
+    "observed_mismatch_counts": {}
+  },
+  "results": [
+    {
+      "id": "G01_audit_empty_and_failed_sources",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "audit_source_status",
+        "difficulty": "medium",
+        "what_it_tests": "Dùng tool mới phân biệt kết quả rỗng với lỗi API, không tạo nguồn giả."
+      },
+      "input": "Kiểm tra tình trạng các kết quả công cụ này giúp tôi: [{\"tool\":\"timeline\",\"items\":[]},{\"tool\":\"arxiv_search\",\"error\":\"ReadTimeout\"}]. Cho biết nguồn nào rỗng và nguồn nào lỗi.",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "timeline",
+                  "items": []
+                },
+                {
+                  "tool": "arxiv_search",
+                  "error": "ReadTimeout"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "timeline",
+                  "items": []
+                },
+                {
+                  "tool": "arxiv_search",
+                  "error": "ReadTimeout"
+                }
+              ]
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "audit_research_evidence",
+          "args": {
+            "results": [
+              {
+                "tool": "timeline",
+                "items": []
+              },
+              {
+                "tool": "arxiv_search",
+                "error": "ReadTimeout"
+              }
+            ]
+          },
+          "result": {
+            "tool": "audit_research_evidence",
+            "sources": [
+              {
+                "tool": "timeline",
+                "item_count": 0,
+                "unusable_item_count": 0,
+                "status": "empty"
+              },
+              {
+                "tool": "arxiv_search",
+                "item_count": 0,
+                "unusable_item_count": 0,
+                "status": "error",
+                "error": "ReadTimeout"
+              }
+            ],
+            "items": [],
+            "unique_item_count": 0,
+            "duplicate_item_count": 0,
+            "note": "Checks result structure only; does not verify truth, relevance, or URL accessibility."
+          }
+        }
+      ]
+    },
+    {
+      "id": "G02_audit_after_results_multiturn",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_source_audit",
+        "difficulty": "medium",
+        "what_it_tests": "Sau khi nhận kết quả thực tế qua hội thoại, route sang tool kiểm tra nguồn."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tôi muốn kiểm tra các kết quả tìm kiếm trước khi dùng để viết báo cáo."
+        },
+        {
+          "role": "assistant",
+          "content": "Hãy đưa tôi kết quả thực tế từ các công cụ tìm kiếm."
+        },
+        {
+          "role": "user",
+          "content": "Đây là kết quả: [{\"tool\":\"web_search\",\"items\":[{\"title\":\"Report\",\"url\":\"https://example.org/report\"}]},{\"tool\":\"timeline\",\"items\":[]}]. Kiểm tra các nguồn này giúp tôi."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "web_search",
+                  "items": [
+                    {
+                      "title": "Report",
+                      "url": "https://example.org/report"
+                    }
+                  ]
+                },
+                {
+                  "tool": "timeline",
+                  "items": []
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "web_search",
+                  "items": [
+                    {
+                      "title": "Report",
+                      "url": "https://example.org/report"
+                    }
+                  ]
+                },
+                {
+                  "tool": "timeline",
+                  "items": []
+                }
+              ]
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "audit_research_evidence",
+          "args": {
+            "results": [
+              {
+                "tool": "web_search",
+                "items": [
+                  {
+                    "title": "Report",
+                    "url": "https://example.org/report"
+                  }
+                ]
+              },
+              {
+                "tool": "timeline",
+                "items": []
+              }
+            ]
+          },
+          "result": {
+            "tool": "audit_research_evidence",
+            "sources": [
+              {
+                "tool": "web_search",
+                "item_count": 1,
+                "unusable_item_count": 0,
+                "status": "ok"
+              },
+              {
+                "tool": "timeline",
+                "item_count": 0,
+                "unusable_item_count": 0,
+                "status": "empty"
+              }
+            ],
+            "items": [
+              {
+                "title": "Report",
+                "summary": "",
+                "url": "https://example.org/report",
+                "source": ""
+              }
+            ],
+            "unique_item_count": 1,
+            "duplicate_item_count": 0,
+            "note": "Checks result structure only; does not verify truth, relevance, or URL accessibility."
+          }
+        }
+      ]
+    },
+    {
+      "id": "G03_telegram_missing_content",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "telegram_missing_content",
+        "difficulty": "medium",
+        "what_it_tests": "Đã đồng ý chuẩn bị nhưng thiếu nội dung: hỏi bằng text, không lặp xác nhận ý định và không gửi. Khác R12 là yêu cầu gửi mới chưa xác nhận ý định."
+      },
+      "input": "Tôi đồng ý tiếp tục chuẩn bị bản tin Telegram, nhưng chưa cung cấp nội dung và chưa duyệt gửi. Hãy hỏi tôi nội dung cần soạn trước.",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "text"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "question": "Bạn muốn soạn nội dung gì cho bản tin Telegram?",
+              "response_type": "text"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_boundary",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "clarify",
+          "args": {
+            "question": "Bạn muốn soạn nội dung gì cho bản tin Telegram?",
+            "response_type": "text"
+          },
+          "result": {
+            "tool": "ask_user",
+            "question": "Bạn muốn soạn nội dung gì cho bản tin Telegram?",
+            "response_type": "text",
+            "options": [],
+            "awaiting_user": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "G04_telegram_confirm_known_content_multiturn",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "telegram_confirm_known_content",
+        "difficulty": "hard",
+        "what_it_tests": "Khi đã có nội dung nhưng chưa xác nhận rõ, xin xác nhận trước khi gửi."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tôi muốn đăng lên Telegram bản tin: AI hỗ trợ tìm kiếm tài liệu khoa học."
+        },
+        {
+          "role": "assistant",
+          "content": "Tôi đã ghi nhận nội dung bản tin."
+        },
+        {
+          "role": "user",
+          "content": "Bạn đã có nội dung ở trên rồi, hãy thực hiện yêu cầu đăng đó."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "yes_no"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "question": "Bạn có muốn tiếp tục với việc chuẩn bị bài đăng Telegram này không?",
+              "response_type": "yes_no"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_boundary",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "clarify",
+          "args": {
+            "question": "Bạn có muốn tiếp tục với việc chuẩn bị bài đăng Telegram này không?",
+            "response_type": "yes_no"
+          },
+          "result": {
+            "tool": "ask_user",
+            "question": "Bạn có muốn tiếp tục với việc chuẩn bị bài đăng Telegram này không?",
+            "response_type": "yes_no",
+            "options": [],
+            "awaiting_user": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "G05_audit_duplicate_sources",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "deduplicate_sources",
+        "difficulty": "medium",
+        "what_it_tests": "Dùng audit kiểm tra và gộp các nguồn trùng đã có."
+      },
+      "input": "Kiểm tra và gộp các nguồn trùng trong kết quả công cụ này: [{\"tool\":\"web_search\",\"items\":[{\"title\":\"Nghiên cứu A\",\"url\":\"https://example.org/a\"},{\"title\":\"Nguồn A lặp lại\",\"url\":\"https://example.org/a\"}]}].",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "web_search",
+                  "items": [
+                    {
+                      "title": "Nghiên cứu A",
+                      "url": "https://example.org/a"
+                    },
+                    {
+                      "title": "Nguồn A lặp lại",
+                      "url": "https://example.org/a"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "web_search",
+                  "items": [
+                    {
+                      "title": "Nghiên cứu A",
+                      "url": "https://example.org/a"
+                    },
+                    {
+                      "title": "Nguồn A lặp lại",
+                      "url": "https://example.org/a"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "audit_research_evidence",
+          "args": {
+            "results": [
+              {
+                "tool": "web_search",
+                "items": [
+                  {
+                    "title": "Nghiên cứu A",
+                    "url": "https://example.org/a"
+                  },
+                  {
+                    "title": "Nguồn A lặp lại",
+                    "url": "https://example.org/a"
+                  }
+                ]
+              }
+            ]
+          },
+          "result": {
+            "tool": "audit_research_evidence",
+            "sources": [
+              {
+                "tool": "web_search",
+                "item_count": 2,
+                "unusable_item_count": 0,
+                "status": "ok"
+              }
+            ],
+            "items": [
+              {
+                "title": "Nghiên cứu A",
+                "summary": "",
+                "url": "https://example.org/a",
+                "source": ""
+              }
+            ],
+            "unique_item_count": 1,
+            "duplicate_item_count": 1,
+            "note": "Checks result structure only; does not verify truth, relevance, or URL accessibility."
+          }
+        }
+      ]
+    },
+    {
+      "id": "G06_research_paper_limitations",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "specific_paper_limitations",
+        "difficulty": "hard",
+        "what_it_tests": "Phân tích hạn chế paper cụ thể cần đọc paper, không chỉ tìm metadata."
+      },
+      "input": "Đọc và phân tích hạn chế của paper arXiv 2305.14314 giúp tôi.",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "research_paper",
+            "args": {
+              "arxiv_id": "2305.14314",
+              "include_text": true
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "research_paper",
+            "args": {
+              "arxiv_id": "2305.14314",
+              "include_text": true
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "research_paper",
+          "args": {
+            "arxiv_id": "2305.14314",
+            "include_text": true
+          },
+          "result": {
+            "tool": "research_paper",
+            "question": "",
+            "arxiv_id": "2305.14314",
+            "papers": [],
+            "paper_text": {
+              "tool": "get_arxiv_paper_text",
+              "arxiv_id": "2305.14314",
+              "url": "https://arxiv.org/abs/2305.14314",
+              "pdf_url": "https://arxiv.org/pdf/2305.14314.pdf",
+              "pdf_path": "/home/rachal/projects/K5-L3B-DAY03-4x6.1Sol-ResearchAgentToolEval/starter_v0/arxiv_papers/2305.14314.pdf",
+              "txt_path": "/home/rachal/projects/K5-L3B-DAY03-4x6.1Sol-ResearchAgentToolEval/starter_v0/arxiv_papers/2305.14314.txt",
+              "page_count": 26,
+              "pages_read": 5,
+              "chars_returned": 8000,
+              "items": [
+                {
+                  "title": "arXiv paper 2305.14314",
+                  "url": "https://arxiv.org/abs/2305.14314",
+                  "source": "arxiv.org",
+                  "summary": "QL ORA: Efficient Finetuning of Quantized LLMs\nTim Dettmers∗ Artidoro Pagnoni∗ Ari Holtzman\nLuke Zettlemoyer\nUniversity of Washington\n{dettmers,artidoro,ahai,lsz}@cs.washington.edu\nAbstract\nWe present QL ORA, an efficient finetuning approach that reduces memory us-\nage enough to finetune a 65B parameter model on a single 48GB GPU while\npreserving full 16-bit finetuning task performance. QL ORA backpropagates gradi-\nents through a frozen, 4-bit quantized pretrained language model into Low Rank\nAdapters (LoRA). Our best model family, which we name Guanaco, outperforms\nall previous openly released models on the Vicuna benchmark, reaching 99.3%\nof the performance level of ChatGPT while only requiring 24 hours of finetuning\non a single GPU. QL ORA introduces a number of innovations to save memory\nwithout sacrificing performance: (a) 4-bit NormalFloat (NF4), a new data type that\nis information theoretically optimal for normally distributed weights (b) Double\nQuantization to reduce the average memory footprint by quantizing the quantization\nconstants, and (c) Paged Optimizers to manage memory spikes. We use QL ORA\nto finetune more than 1,000 models, providing a detailed analysis of instruction\nfollowing and chatbot performance across 8 instruction datasets, multiple model\ntypes (LLaMA, T5), and model scales that would be infeasible to run with regular\nfinetuning (e.g. 33B and 65B parameter models). Our results show that QLoRA\nfinetuning on a small high-quality dataset leads to state-of-the-art results, even\nwhen using smaller models than the previous SoTA. We provide a detailed analysis\nof chatbot performance based on both human and GPT-4 evaluations showing that\nGPT-4 evaluations are a cheap and reasonable alternative to human evaluation. Fur-\nthermore, we find that current chatbot benchmarks are not trustworthy to accurately\nevaluate the performance levels of chatbots. A lemon-picked analysis demonstrates\nwhere Guanaco fails compared to ChatGPT. We release all of our models and code,\nincluding CUDA kernels for 4-bit training.2\n1 Introduction\nFinetuning large language models (LLMs) is a highly effective way to improve their performance,\n[40, 62, 43, 61, 59, 37] and to add desirable or remove undesirable behaviors [43, 2, 4]. However,\nfinetuning very large models is prohibitively expensive; regular 16-bit finetuning of a LLaMA 65B\nparameter model [ 57] requires more than 780 GB of GPU memory. While recent quantization\nmethods can reduce the memory footprint of LLMs [14, 13, 18, 66], such techniques only work for\ninference and break down during training [65].\nWe demonstrate for the first time that it is possible to finetune a quantized 4-bit model without any\nperformance degradation. Our method, QL ORA, uses a novel high-precision technique to quantize\na pretrained model to 4-bit, then adds a small set of learnable Low-rank Adapter weights [ 28]\n∗Equal contribution.\n2https://github.com/artidoro/qlora and https://github.com/TimDettmers/bitsandbytes\nPreprint. Under review.\narXiv:2305.14314v1  [cs.LG]  23 May 2023\n\nTable 1: Elo ratings for a competition between\nmodels, averaged for 10,000 random initial order-\nings. The winner of a match is determined by\nGPT-4 which declares which response is better for\na given prompt of the the Vicuna benchmark. 95%\nconfidence intervals are shown ( ±). After GPT-\n4, Guanaco 33B and 65B win the most matches,\nwhile Guanaco 13B scores better than Bard.\nModel Size Elo\nGPT-4 - 1348 ± 1\nGuanaco 65B 41 GB 1022 ± 1\nGuanaco 33B 21 GB 992 ± 1\nVicuna 13B 26 GB 974 ± 1\nChatGPT - 966 ± 1\nGuanaco 13B 10 GB 916 ± 1\nBard - 902 ± 1\nGuanaco 7B 6 GB 879 ± 1\nthat are tuned by backpropagating gradients through\nthe quantized weights.\nQLORA reduces the average memory requirements\nof finetuning a 65B parameter model from >780GB\nof GPU memory to <48GB without degrading the\nruntime or predictive performance compared to a 16-\nbit fully finetuned baseline. This marks a significant\nshift in accessibility of LLM finetuning: now the\nlargest publicly available models to date finetunable\non a single GPU. Using QLORA, we train the Gua-\nnaco family of models, with the second best model\nreaching 97.8% of the performance level of ChatGPT\non the Vicuna [10] benchmark, while being trainable\nin less than 12 hours on a single consumer GPU;\nusing a single professional GPU over 24 hours we\nachieve 99.3% with our largest model, essentially\nclosing the gap to ChatGPT on the Vicuna bench-\nmark. When deployed, our smallest Guanaco model\n(7B parameters) requires just 5 GB of memory and outperforms a 26 GB Alpaca model by more than\n20 percentage points on the Vicuna benchmark (Table 6).\nQL ORA introduces multiple innovations designed to reduce memory use without sacrificing per-\nformance: (1) 4-bit NormalFloat, an information theoretically optimal quantization data type for\nnormally distributed data that yields better empirical results than 4-bit Integers and 4-bit Floats.\n(2) Double Quantization, a method that quantizes the quantization constants, saving an average\nof about 0.37 bits per parameter (approximately 3 GB for a 65B model). (3) Paged Optimizers,\nusing NVIDIA unified memory to avoid the gradient checkpointing memory spikes that occur when\nprocessing a mini-batch with a long sequence length. We combine these contributions into a better\ntuned LoRA approach that includes adapters at every network layer and thereby avoids almost all of\nthe accuracy tradeoffs seen in prior work.\nQLORA’s efficiency enables us to perform an in-depth study of instruction finetuning and chatbot\nperformance on model scales that would be impossible using regular finetuning due to memory\noverhead. Therefore, we train more than 1,000 models across several instruction tuning datasets,\nmodel architectures, and sizes between 80M to 65B parameters. In addition to showing that QL ORA\nrecovers 16-bit performance (§4) and training a state-of-the-art chatbot, Guanaco, (§5), we also\nanalyze trends in the trained models. First, we find that data quality is far more important than\ndataset size, e.g., a 9k sample dataset (OASST1) outperformed a 450k sample dataset (FLAN v2,\nsubsampled) on chatbot performance, even when both are meant to support instruction following\ngeneralization. Second, we show that strong Massive Multitask Language Understanding (MMLU)\nbenchmark performance does not imply strong Vicuna chatbot benchmark performance and vice\nversa—in other words, dataset suitability matters more than size for a given task.\nFurthermore, we also provide a extensive analysis of chatbot performance that uses both human\nraters and GPT-4 for evaluation. We use tournament-style benchmarking where models compete\nagainst each other in matches to produce the best response for a given prompt. The winner of a\nmatch is judged by either GPT-4 or human annotators. The tournament results are aggregated into\nElo scores [16, 17] which determine the ranking of chatbot performance. We find that GPT-4 and\nhuman evaluations largely agree on the rank of model performance in the tournaments, but we also\nfind there are instances of strong disagreement. As such, we highlight that model-based evaluation\nwhile providing a cheap alternative to human-annotation also has its uncertainties.\nWe augment our chatbot benchmark results with a qualitative analysis ofGuanaco models. Our analy-\nsis highlights success and failure cases that were not captured by the quantitative benchmarks.\nWe release all model generations with human and GPT-4 annotations to facilitate further study. We\nopen-source our codebase and CUDA kernels and integrate our methods into the Hugging Face\ntransformers stack [64], making them easily accessible to all. We release a collection of adapters\nfor 7/13/33/65B size models, trained on 8 different instruction following datasets, for a total of 32\ndifferent open sourced, finetuned models.\n2\n\nFigure 1: Different finetuning methods and their memory requirements. QL ORA improves over LoRA by\nquantizing the transformer m"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "G07_audit_capabilities_without_tools",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": false,
+      "metadata": {
+        "skill": "audit_tool_capability",
+        "difficulty": "medium",
+        "what_it_tests": "Giải thích giới hạn audit mà không gọi tool; kiểm tra thêm câu trả lời vì evaluator chỉ chấm tool."
+      },
+      "input": "Công cụ kiểm tra nguồn của bạn có tự xác minh thông tin trên trang là đúng không? Chỉ giải thích khả năng của nó, đừng tìm kiếm.",
+      "expect": {
+        "no_tool": true,
+        "behavior": "answer_without_tool"
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [],
+        "actual_text": "Công cụ kiểm tra nguồn của tôi không tự xác minh thông tin trên trang là đúng hay sai. Nó chỉ kiểm tra cấu trúc và phát hiện các URL trùng lặp trong kết quả tìm kiếm. Công cụ này không xác minh tính chính xác, độ tin cậy hay nội dung của thông tin.",
+        "case_failure_type": "unnecessary_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": []
+    },
+    {
+      "id": "G08_paper_filter_carryover",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_paper_filters",
+        "difficulty": "hard",
+        "what_it_tests": "Giữ chủ đề và năm từ hội thoại khi bổ sung bộ lọc tác giả."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tìm paper về neural networks xuất bản trong năm 2024."
+        },
+        {
+          "role": "assistant",
+          "content": "Bạn muốn lọc thêm theo tác giả nào không?"
+        },
+        {
+          "role": "user",
+          "content": "Có, chỉ tìm của Yoshua Bengio, vẫn trong năm 2024."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "arxiv_search",
+            "args": {
+              "author": "Yoshua Bengio",
+              "date_from": "2024-01-01",
+              "date_to": "2024-12-31",
+              "query": "neural networks"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "arxiv_search",
+            "args": {
+              "query": "neural networks",
+              "max_results": 5,
+              "sort_by": "submittedDate",
+              "sort_order": "descending",
+              "date_from": "2024-01-01",
+              "date_to": "2024-12-31",
+              "author": "Yoshua Bengio"
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "arxiv_search",
+          "args": {
+            "query": "neural networks",
+            "max_results": 5,
+            "sort_by": "submittedDate",
+            "sort_order": "descending",
+            "date_from": "2024-01-01",
+            "date_to": "2024-12-31",
+            "author": "Yoshua Bengio"
+          },
+          "result": {
+            "tool": "arxiv_search",
+            "error": "ReadTimeout",
+            "message": "HTTPSConnectionPool(host='export.arxiv.org', port=443): Read timed out. (read timeout=30)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "G09_paper_pagination",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_pagination",
+        "difficulty": "hard",
+        "what_it_tests": "Giữ query=AI agents và chuyển start=5, max_results=5. Chỉ đo arguments phân trang; không chứng minh IDs thực tế không trùng."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tìm 5 paper đầu tiên về AI agents trên arXiv."
+        },
+        {
+          "role": "assistant",
+          "content": "Tôi đã hiển thị 5 paper đầu tiên."
+        },
+        {
+          "role": "user",
+          "content": "Cho tôi 5 paper tiếp theo cùng chủ đề, đừng lặp lại trang trước."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "arxiv_search",
+            "args": {
+              "start": 5,
+              "max_results": 5,
+              "query": "AI agents"
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "arxiv_search",
+            "args": {
+              "query": "AI agents",
+              "max_results": 5,
+              "start": 5
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_arg_value",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "arxiv_search",
+          "args": {
+            "query": "AI agents",
+            "max_results": 5,
+            "start": 5
+          },
+          "result": {
+            "tool": "arxiv_search",
+            "error": "ReadTimeout",
+            "message": "HTTPSConnectionPool(host='export.arxiv.org', port=443): Read timed out. (read timeout=30)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "G10_audit_retained_results",
+      "phase": "B",
+      "suite": "group",
+      "case_suite": "group",
+      "is_multiturn": true,
+      "metadata": {
+        "skill": "multiturn_audit_context",
+        "difficulty": "hard",
+        "what_it_tests": "Dùng kết quả đã có trong hội thoại để audit, không tự bịa nguồn."
+      },
+      "input": [
+        {
+          "role": "user",
+          "content": "Tôi có kết quả các nguồn để kiểm tra."
+        },
+        {
+          "role": "assistant",
+          "content": "Kết quả đã nhận: [{\"tool\":\"arxiv_search\",\"error\":\"ReadTimeout\"},{\"tool\":\"web_search\",\"items\":[]}]."
+        },
+        {
+          "role": "user",
+          "content": "Hãy kiểm tra các kết quả vừa nêu và phân biệt nguồn lỗi với nguồn rỗng."
+        }
+      ],
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "arxiv_search",
+                  "error": "ReadTimeout"
+                },
+                {
+                  "tool": "web_search",
+                  "items": []
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "result": {
+        "passed": true,
+        "routing_correct": true,
+        "args_correct": true,
+        "actual_tool_calls": [
+          {
+            "name": "audit_research_evidence",
+            "args": {
+              "results": [
+                {
+                  "tool": "arxiv_search",
+                  "error": "ReadTimeout"
+                },
+                {
+                  "tool": "web_search",
+                  "items": []
+                }
+              ]
+            }
+          }
+        ],
+        "actual_text": null,
+        "case_failure_type": "wrong_tool",
+        "observed_mismatch": null,
+        "failure_type": null,
+        "failures": []
+      },
+      "tool_results": [
+        {
+          "tool": "audit_research_evidence",
+          "args": {
+            "results": [
+              {
+                "tool": "arxiv_search",
+                "error": "ReadTimeout"
+              },
+              {
+                "tool": "web_search",
+                "items": []
+              }
+            ]
+          },
+          "result": {
+            "tool": "audit_research_evidence",
+            "sources": [
+              {
+                "tool": "arxiv_search",
+                "item_count": 0,
+                "unusable_item_count": 0,
+                "status": "error",
+                "error": "ReadTimeout"
+              },
+              {
+                "tool": "web_search",
+                "item_count": 0,
+                "unusable_item_count": 0,
+                "status": "empty"
+              }
+            ],
+            "items": [],
+            "unique_item_count": 0,
+            "duplicate_item_count": 0,
+            "note": "Checks result structure only; does not verify truth, relevance, or URL accessibility."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "transcript_id": "v8_gemini_20261111T093351030622",
+  "version": "v8",
+  "artifact_version": "v8+p28df43d23d49+t1985f521a55c",
+  "prompt_hash": "28df43d23d49564f2e3d25b883a429532ee2b47e7358e1f9b45a0c3cb6bcae6d",
+  "tools_hash": "1985f521a55c9bc4140b7e1cda2eaf8fd023616fafc24e236bbab203e53faf05",
+  "provider": "gemini",
+  "model": "gemini-3.8-flash",
+  "system_prompt": "/home/rachal/projects/K5-L3B-DAY03-4x6.1Sol-ResearchAgentToolEval/starter_v0/artifacts/system_prompt.md",
+  "tools": "/home/rachal/projects/K5-L3B-DAY03-4x6.1Sol-ResearchAgentToolEval/starter_v0/artifacts/tools.yaml",
+  "history_window": 5,
+  "max_tool_rounds": 6,
+  "created_at": "2026-11-11T09:33:51",
+  "updated_at": "2026-11-11T09:37:27",
+  "turns": [
+    {
+      "turn_index": 1,
+      "started_at": "2026-11-11T09:34:14",
+      "user": "RĐăng cho tôi 1 bản tin lên Telegram",
+      "status": "provider_error",
+      "assistant_text": null,
+      "rounds": [],
+      "tool_events": [],
+      "error": "ClientError: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'Invalid JSON payload received. Unknown name \"additional_properties\" at \\'tools[0].function_declarations[12].parameters.properties[0].value.items\\': Cannot find field.', 'status': 'INVALID_ARGUMENT', 'details': [{'@type': 'type.googleapis.com/google.rpc.BadRequest', 'fieldViolations': [{'field': 'tools[0].function_declarations[12].parameters.properties[0].value.items', 'description': 'Invalid JSON payload received. Unknown name \"additional_properties\" at \\'tools[0].function_declarations[12].parameters.properties[0].value.items\\': Cannot find field.'}]}]}}",
+      "ended_at": "2026-11-11T09:34:16"
+    }
+  ],
+  "delivery_mode": "enabled_by_configuration"
+}
