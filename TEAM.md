@@ -44,3 +44,18 @@ Sao chép mục dưới đây cho từng thành viên.
 - Cố định cùng 10 case group cho v4–v9 và chạy lại sáu cấu hình; xem [protocol và kết quả](report/team/review_evidence/common_group_comparison.json).
 - Hoàn thiện test tool (200 passed, 0 skipped, 0 failed), phát hiện/sửa guard boolean của send bằng regression offline.
 - Thay đổi v8, bản tích hợp v9, UI và báo cáo được lưu cùng nhánh nộp `main`; mốc commit nằm trong thông tin nhóm ở trên. Các thành viên còn lại tự bổ sung phần mình.
+
+## NguyenHuuAn-2A202604024
+
+### Phần việc phụ trách
+
+- Bổ sung tool mới và chứng minh code của tool hoạt động đúng.
+
+### Đóng góp cụ thể
+
+- commit `1c577d3` tại branch `codex/find-article-candidates`, tuy nhiên chưa được merge vào branch `main` do tool mới hoạt động không đúng. Điểm benchmark tăng ảo do model hoạt động không nhất quán.
+
+### Bằng chứng
+
+- [Báo cáo cá nhân](report/team/2A202604024_NguyenHuuAn.md)
+- Chưa có bằng chứng tại branch `main` do hiểu sai vấn đề và chưa hoàn thành nhiệm vụ được giao. Các tool không cải thiện benchmark đều chưa được đẩy lên.
